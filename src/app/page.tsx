@@ -12,7 +12,7 @@ import Image from "next/image";
 export default function Home() {
   return (
     <AuthLayout>
-      <div className="flex flex-col gap-2 flex-1 justify-center bg-zinc-50 font-sans dark:bg-black">
+      <div className="flex flex-col gap-2 flex-1 justify-center bg-zinc-50 font-sans ">
         <div className="flex items-center gap-3 w-full px-4 mb-4">
           <Avatar
             className="shrink-0"
