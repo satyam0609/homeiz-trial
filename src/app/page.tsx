@@ -1,65 +1,56 @@
+"use client";
+import AuthLayout from "@/components/auth-layout";
+import Avatar from "@/components/avatar";
+import Dropdown from "@/components/dropdown";
+import { posts } from "@/components/home/data";
+import PostCard from "@/components/home/post-card";
+import Post from "@/components/home/post-card";
+import SearchBox from "@/components/searchbox";
+import { ArrowDown, ChevronDown, Menu, MoreVertical } from "lucide-react";
 import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <AuthLayout>
+      <div className="flex flex-col gap-2 flex-1 justify-center bg-zinc-50 font-sans dark:bg-black">
+        <div className="flex items-center gap-3 w-full px-4 mb-4">
+          <Avatar
+            className="shrink-0"
+            size={42}
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDR8H0rgV-zmSodkT_erGjzA_VhfWE22Pg7Q&s"
+          />
+
+          <div className="flex-1">
+            <SearchBox placeholder="Start a post" />
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+        <div className="flex justify-between bg-sky-200 px-4 py-4">
+          <div className="flex gap-2 items-center">
+            <Menu />
+            <span className="font-bold text-sm">Sort posts by</span>
+          </div>
+          <div className="flex items-center">
+            <Dropdown
+              trigger={
+                <button className="p-2 rounded-lg hover:bg-gray-100 font-bold text-sm whitespace-nowrap flex items-center">
+                  Newest first
+                  <ChevronDown className="ml-2" />
+                </button>
+              }
+              items={[
+                { label: "Edit", onClick: () => console.log("Edit") },
+                { label: "Delete", onClick: () => console.log("Delete") },
+                { label: "Logout", onClick: () => console.log("Logout") },
+              ]}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
         </div>
-      </main>
-    </div>
+        <section id="posts" className="mt-4">
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </section>
+      </div>
+    </AuthLayout>
   );
 }

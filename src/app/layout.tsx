@@ -30,9 +30,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="h-dvh flex flex-col">
-        <DeviceGuard>
-          <AuthLayout>{children}</AuthLayout>
-        </DeviceGuard>
+        <DeviceGuard>{children}</DeviceGuard>
       </body>
     </html>
   );

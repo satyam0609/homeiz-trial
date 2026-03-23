@@ -6,7 +6,7 @@ import React, { ReactNode } from "react";
 const AuthLayout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="flex flex-col h-screen bg-white">
-      <header className="flex items-center justify-between px-4 py-3 border-b bg-white sticky top-0 z-50">
+      <header className="flex items-center justify-between px-4 py-3 bg-white sticky top-0 z-50">
         <div className="flex items-center gap-2">
           <img src="/images/logo.svg" alt="logo" className="w-8 h-8" />
           <h1 className="text-lg font-semibold tracking-wide">
@@ -26,7 +26,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto px-4 py-4">{children}</main>
+      <main className="flex-1 overflow-y-auto  py-4">{children}</main>
 
       <nav className="border-t bg-white sticky bottom-0 z-50">
         <div className="flex justify-around items-center py-2">
