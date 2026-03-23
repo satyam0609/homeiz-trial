@@ -1,3 +1,4 @@
+import AuthLayout from "@/components/auth-layout";
 import React from "react";
 
 const Home = () => {
