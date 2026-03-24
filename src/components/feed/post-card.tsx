@@ -246,9 +246,13 @@ const PostCard = ({ post }: { post: Post }) => {
         <ActionButton icon={ShareIcon} count={"30"} />
         <ActionButton icon={Eye} count={"200"} />
 
-        <div className="flex items-center gap-1 px-2">
-          <span className="text-blue-500">👍</span>
-          <span>😂</span>
+        <div className="flex items-center px-2">
+          <span className="w-6 h-6 flex items-center justify-center bg-white rounded-full  -ml-1 first:ml-0">
+            👍
+          </span>
+          <span className="w-6 h-6 flex items-center justify-center bg-white rounded-full  -ml-1">
+            😂
+          </span>
         </div>
       </div>
 

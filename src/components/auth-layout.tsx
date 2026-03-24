@@ -3,6 +3,7 @@
 import { Menu, Home, User, Settings, Search, X } from "lucide-react";
 import React, { ReactNode, useState } from "react";
 import Navbar from "./navbar";
+import BottomNav from "./bottom-nav";
 
 const AuthLayout = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -40,24 +41,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
 
       <main className="flex-1 overflow-y-auto  py-4">{children}</main>
 
-      <nav className="border-t bg-white sticky bottom-0 z-50">
-        <div className="flex justify-around items-center py-2">
-          <button className="flex flex-col items-center text-gray-600 hover:text-black transition">
-            <Home size={22} />
-            <span className="text-xs">Home</span>
-          </button>
-
-          <button className="flex flex-col items-center text-gray-600 hover:text-black transition">
-            <User size={22} />
-            <span className="text-xs">Profile</span>
-          </button>
-
-          <button className="flex flex-col items-center text-gray-600 hover:text-black transition">
-            <Settings size={22} />
-            <span className="text-xs">Settings</span>
-          </button>
-        </div>
-      </nav>
+      <BottomNav />
     </div>
   );
 };
