@@ -1,4 +1,4 @@
-import api from "../../../config/api";
+import api from "@/config/api";
 
 export interface User {
   id: number;
@@ -29,8 +29,12 @@ export interface Post {
   createdAt: string;
   userId: number;
   user: User;
-  comments: Comment[];
-  likes: Like[];
+  //   comments: Comment[];
+  //   likes: Like[];
+  _count: {
+    likes: number;
+    comments: number;
+  };
 }
 
 export interface GetPostsParams {

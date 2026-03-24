@@ -4,7 +4,7 @@ import Dropdown from "@/components/dropdown";
 // import { posts } from "@/components/feed/data";
 import PostCard from "@/components/feed/post-card";
 import SearchBox from "@/components/searchbox";
-import { getPosts, Post } from "@/app/api-service/feed/feed-api-service";
+import { getPosts, Post } from "@/api-service/feed-api";
 import { ChevronDown, Menu } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 

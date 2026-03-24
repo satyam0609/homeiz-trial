@@ -136,7 +136,7 @@ import {
 import Image from "next/image";
 import Separator from "../separator";
 import ActionButton from "../action-button";
-import { Post } from "@/app/api-service/feed/feed-api-service";
+import { Post } from "@/api-service/feed-api";
 
 // export type PostType = {
 //   id: number;
@@ -247,10 +247,10 @@ const PostCard = ({ post }: { post: Post }) => {
 
       {/* Actions */}
       <div className="flex items-center justify-between text-gray-500 text-sm px-4 py-2">
-        <ActionButton icon={ThumbsUp} count={post.likes.length.toString()} />
+        <ActionButton icon={ThumbsUp} count={post?._count?.likes.toString()} />
         <ActionButton
           icon={MessageCircle}
-          count={post.comments.length.toString()}
+          count={post?._count?.comments.toString()}
         />
         <ActionButton icon={Share} count={"30"} />
         <ActionButton icon={Eye} count={"200"} />
