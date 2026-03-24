@@ -19,6 +19,7 @@ import PostImage from "../image-renderer";
 import ImageRenderer from "../image-renderer";
 import { toTwemojiUrl } from "@/utils/utils";
 import { REACTION_MAP, REACTIONS } from "@/constants";
+import { useRouter } from "next/navigation";
 
 const PostCard = ({
   post,
@@ -30,6 +31,12 @@ const PostCard = ({
   const [openEmojiPickerV1, setOpenEmojiPickerV1] = useState(false);
   const [showFollow, setShowFollow] = useState(true);
   const isLiked = post.likes.some((like) => like.userId === 1);
+
+  const router = useRouter();
+
+  const handleRedirect = () => {
+    router.push(`/comment/${post.id}`);
+  };
   return (
     <div className="bg-white">
       {/* Header */}
@@ -137,6 +144,7 @@ const PostCard = ({
         <ActionButton
           icon={MessageCircle}
           count={post?._count?.comments.toString()}
+          onClick={handleRedirect}
         />
         <ActionButton icon={ShareIcon} count={"30"} />
         <ActionButton icon={Eye} count={"200"} />
@@ -161,8 +169,8 @@ const PostCard = ({
                 <span
                   key={type}
                   style={{ zIndex: 10 - index }}
-                  className="w-6 h-6 flex items-center justify-center 
-                     bg-white rounded-full shadow-sm 
+                  className="w-6 h-6 flex items-center justify-center
+                     bg-white rounded-full shadow-sm
                      -ml-1 first:ml-0"
                 >
                   <img

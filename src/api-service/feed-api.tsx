@@ -37,6 +37,7 @@ export interface Post {
     likes: number;
     comments: number;
   };
+  isCommentPage?: boolean;
   reactionCounts: any;
   userReaction: any;
 }
