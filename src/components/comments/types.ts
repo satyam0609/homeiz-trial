@@ -53,12 +53,13 @@ function buildReplyTree(replies: any[], commentUserName: string, rootId: string)
   });
 
   const mapped = replies.map((r) => {
-    const mention = r.parentId
-      ? lookup[String(r.parentId)] || commentUserName
-      : commentUserName;
+    const parentStr = r.parentId ? String(r.parentId) : null;
+    const mention = !parentStr || parentStr === rootId
+      ? commentUserName
+      : lookup[parentStr] || commentUserName;
     return {
       raw: r,
-      parentId: r.parentId ? String(r.parentId) : null,
+      parentId: parentStr,
       comment: {
         id: String(r.id),
         rootId,
@@ -80,7 +81,7 @@ function buildReplyTree(replies: any[], commentUserName: string, rootId: string)
 
   const roots: Comment[] = [];
   mapped.forEach((m) => {
-    if (m.parentId && m.parentId !== rootId && byId[m.parentId]) {
+    if (m.parentId && m.parentId !== m.comment.id && byId[m.parentId]) {
       byId[m.parentId].replies.push(m.comment);
     } else {
       roots.push(m.comment);

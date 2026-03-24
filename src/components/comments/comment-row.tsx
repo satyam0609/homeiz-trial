@@ -13,7 +13,11 @@ interface CommentRowProps {
   depth?: number;
   onReply: (commentId: string, replyToId: string, mentionName: string) => void;
   onLike: (commentId: string) => void;
-  replyTarget?: { commentId: string; replyToId: string; mentionName: string } | null;
+  replyTarget?: {
+    commentId: string;
+    replyToId: string;
+    mentionName: string;
+  } | null;
   onCancelReply?: () => void;
   onSendReply?: (text: string) => void;
   currentUser?: CommentUser | null;
@@ -76,7 +80,7 @@ export default function CommentRow({
                 </>
               )}
             </div>
-            <p className="text-[13px] text-black mt-0.5 leading-snug">
+            <p className="text-[13px] font-semibold text-black mt-0.5 leading-snug">
               {depth > 0 && comment.mention && (
                 <span className="text-blue-600 font-semibold pr-1">
                   {comment.mention}
@@ -89,7 +93,13 @@ export default function CommentRow({
           <div className="flex items-center gap-3 mt-1.5 pl-1">
             <button
               className="text-[12px] text-gray-500 font-semibold"
-              onClick={() => onReply(comment.rootId || comment.id, comment.id, comment.user.name)}
+              onClick={() =>
+                onReply(
+                  comment.rootId || comment.id,
+                  comment.id,
+                  comment.user.name,
+                )
+              }
             >
               Reply
             </button>
@@ -149,7 +159,7 @@ export default function CommentRow({
       {!showAllReplies && hiddenCount > 0 && (
         <div className="pl-8 mt-2">
           <button
-            className="flex items-center gap-1 text-[12px] text-gray-500 font-medium"
+            className="flex items-center gap-1 text-[12px] text-black font-semibold"
             onClick={() => setShowAllReplies(true)}
           >
             <ChevronDown size={13} />

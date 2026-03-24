@@ -55,7 +55,7 @@ export default function ReplyBox({
             </span>
             <span className="text-gray-400 text-[12px]">·</span>
             <button
-              className="text-[13px] text-black font-semibold"
+              className="text-[13px] text-gray-600 font-bold"
               onClick={onCancel}
             >
               Cancel
@@ -65,7 +65,7 @@ export default function ReplyBox({
 
         <div className="border border-gray-300 rounded-2xl px-3 py-2.5">
           {mentionName && (
-            <div className="inline-flex items-center text-blue-500 text-[13px] font-medium mb-1.5">
+            <div className="inline-flex items-center text-blue-500 text-[13px] font-bold mb-1.5">
               {mentionName}
             </div>
           )}

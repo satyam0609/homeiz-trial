@@ -45,8 +45,13 @@ export default function CommentsPage({ postId }: { postId: string }) {
     mentionName: string;
   } | null>(null);
   const [newCommentText, setNewCommentText] = useState("");
+  const [sortLabel, setSortLabel] = useState("Newest");
 
-  function handleReply(commentId: string, replyToId: string, mentionName: string) {
+  function handleReply(
+    commentId: string,
+    replyToId: string,
+    mentionName: string,
+  ) {
     setReplyTarget({ commentId, replyToId, mentionName });
   }
 
@@ -56,7 +61,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
     if (!newCommentText.trim()) return;
     try {
       await api.post(`/posts/${postId}/comment`, {
-        userId: 8,
+        userId: Number(currentUser!.id),
         text: newCommentText.trim(),
       });
       setNewCommentText("");
@@ -129,7 +134,9 @@ export default function CommentsPage({ postId }: { postId: string }) {
   };
 
   useEffect(() => {
-    Promise.all([getPost(), fetchComments(1, true)]).finally(() => setInitialLoading(false));
+    Promise.all([getPost(), fetchComments(1, true)]).finally(() =>
+      setInitialLoading(false),
+    );
   }, []);
 
   useEffect(() => {
@@ -195,66 +202,67 @@ export default function CommentsPage({ postId }: { postId: string }) {
             <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
           </div>
         ) : (
-        <div
-          ref={scrollRef}
-          className={`flex-1 overflow-y-auto ${ready ? "" : "invisible"}`}
-        >
-          {postCardData && (
-            <div className="px-2 py-2">
-              <PostCard post={postCardData} />
-            </div>
-          )}
-
           <div
-            ref={commentsSectionRef}
-            className="flex items-center px-4 py-2"
+            ref={scrollRef}
+            className={`flex-1 overflow-y-auto ${ready ? "" : "invisible"}`}
           >
-            <Dropdown
-              trigger={
-                <button className="flex items-center gap-1 font-semibold text-[14px] text-black">
-                  Newest <ChevronDown size={14} strokeWidth={2.5} />
-                </button>
-              }
-              items={[
-                { label: "Newest" },
-                { label: "All comments" },
-              ]}
-              side="left"
-            />
-          </div>
-
-          <div className="px-3 pt-2 pb-4 space-y-4 min-h-screen">
-            {comments.length === 0 && !loadingComments ? (
-              <p className="text-center text-gray-400 text-[14px] py-8">
-                No comments yet
-              </p>
-            ) : (
-              comments.map((comment) => (
-                <div key={comment.id}>
-                  <CommentRow
-                    comment={comment}
-                    postOwnerId={postAuthor ? String(postAuthor.id) : ""}
-                    onReply={handleReply}
-                    onLike={handleLike}
-                    replyTarget={replyTarget}
-                    onCancelReply={() => setReplyTarget(null)}
-                    onSendReply={handleSendReply}
-                    currentUser={currentUser}
-                  />
-                </div>
-              ))
-            )}
-
-            {hasMore && (
-              <div ref={loadMoreRef} className="flex justify-center py-4">
-                {loadingComments && (
-                  <span className="text-[12px] text-gray-400">Loading...</span>
-                )}
+            {postCardData && (
+              <div className="px-2 py-2">
+                <PostCard post={postCardData} />
               </div>
             )}
-          </div>
-        </div>
 
+            <div
+              ref={commentsSectionRef}
+              className="flex items-center px-4 py-2"
+            >
+              <Dropdown
+                trigger={
+                  <button className="flex items-center gap-1 font-semibold text-[14px] text-black">
+                    {sortLabel} <ChevronDown size={14} strokeWidth={2.5} />
+                  </button>
+                }
+                items={[
+                  { label: "Newest", onClick: () => setSortLabel("Newest") },
+                  { label: "All comments", onClick: () => setSortLabel("All comments") },
+                ]}
+                side="left"
+              />
+            </div>
+
+            <div className="px-3 pt-2 pb-4 space-y-4 min-h-screen">
+              {comments.length === 0 && !loadingComments ? (
+                <p className="text-center text-gray-400 text-[14px] py-8">
+                  No comments yet
+                </p>
+              ) : (
+                comments.map((comment) => (
+                  <div key={comment.id}>
+                    <CommentRow
+                      comment={comment}
+                      postOwnerId={postAuthor ? String(postAuthor.id) : ""}
+                      onReply={handleReply}
+                      onLike={handleLike}
+                      replyTarget={replyTarget}
+                      onCancelReply={() => setReplyTarget(null)}
+                      onSendReply={handleSendReply}
+                      currentUser={currentUser}
+                    />
+                  </div>
+                ))
+              )}
+
+              {hasMore && (
+                <div ref={loadMoreRef} className="flex justify-center py-4">
+                  {loadingComments && (
+                    <span className="text-[12px] text-gray-400">
+                      Loading...
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
         <div className="border-t border-gray-200 px-3 py-3 flex items-center gap-2">
