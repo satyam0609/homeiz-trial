@@ -63,7 +63,7 @@ export default function ReplyBox({
           </div>
         )}
 
-        <div className="border border-gray-300 rounded-2xl px-3 py-2.5">
+        <div className="bg-gray-100 rounded-2xl px-3 py-2.5">
           {mentionName && (
             <div className="inline-flex items-center text-blue-500 text-[13px] font-bold mb-1.5">
               {mentionName}

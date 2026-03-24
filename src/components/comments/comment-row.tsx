@@ -56,13 +56,7 @@ export default function CommentRow({
           <div className="w-9 h-9 rounded-full bg-gray-300 flex-shrink-0 mt-0.5" />
         )}
         <div className="flex-1 min-w-0 max-w-[60%]">
-          <div
-            className={
-              isTopLevel
-                ? "border border-gray-300 rounded-2xl px-3 py-2.5"
-                : "bg-gray-100 rounded-2xl px-3 py-2"
-            }
-          >
+          <div className="px-3 py-2">
             <div className="flex items-center gap-1 flex-wrap">
               <span className="font-bold text-[13px] text-black">
                 {comment.user.name}
