@@ -4,9 +4,10 @@ import Dropdown from "@/components/dropdown";
 // import { posts } from "@/components/feed/data";
 import PostCard from "@/components/feed/post-card";
 import SearchBox from "@/components/searchbox";
-import { getPosts, Post } from "@/api-service/feed-api";
+import { getPosts, Post, reactPost } from "@/api-service/feed-api";
 import { ChevronDown, Menu } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useInView } from "react-intersection-observer";
 
 const SORT_OPTIONS = [
   { label: "Newest First", value: "newest" },
@@ -21,59 +22,125 @@ const FeedPage = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-
+  const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState("newest");
+
   const selectedSort = SORT_OPTIONS.find((opt) => opt.value === sortBy);
 
-  const observerRef = useRef<HTMLDivElement | null>(null);
+  const { ref, inView } = useInView({ threshold: 1 });
+
+  const handleReact = async (postId: number, reaction: string) => {
+    const userId = 1;
+
+    setPosts((prev) =>
+      prev.map((post) => {
+        if (post.id !== postId) return post;
+
+        const existingLike = post.likes.find((l) => l.userId === userId);
+
+        let updatedLikes = [...post.likes];
+        let updatedReactionCounts = { ...post.reactionCounts };
+        let updatedCount = post._count.likes;
+
+        if (existingLike) {
+          // ❌ remove reaction
+          updatedLikes = post.likes.filter((l) => l.userId !== userId);
+
+          // decrease count
+          updatedCount = Math.max(0, post._count.likes - 1);
+
+          // decrease reactionCounts
+          const prevReaction = existingLike.reaction;
+          if (updatedReactionCounts[prevReaction]) {
+            updatedReactionCounts[prevReaction] -= 1;
+            if (updatedReactionCounts[prevReaction] === 0) {
+              delete updatedReactionCounts[prevReaction];
+            }
+          }
+        } else {
+          // ✅ add reaction
+          updatedLikes.push({
+            id: Date.now(), // temp id
+            userId,
+            postId,
+            reaction,
+            createdAt: new Date().toISOString(),
+          });
+
+          updatedCount = post._count.likes + 1;
+
+          updatedReactionCounts[reaction] =
+            (updatedReactionCounts[reaction] || 0) + 1;
+        }
+
+        return {
+          ...post,
+          likes: updatedLikes,
+          _count: {
+            ...post._count,
+            likes: updatedCount,
+          },
+          reactionCounts: updatedReactionCounts,
+        };
+      }),
+    );
+
+    try {
+      await reactPost({
+        id: postId,
+        body: {
+          userId,
+          reaction,
+        },
+      });
+    } catch (error) {
+      console.error("Reaction failed");
+    }
+  };
+
+  const loadMore = useCallback(
+    async (currentPage: number) => {
+      if (loading || !hasMore) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const newPosts = await getPosts({ page: currentPage, limit: 10 });
+
+        if (newPosts.length === 0) {
+          setHasMore(false);
+          return;
+        }
+
+        setPosts((prev) => [...prev, ...newPosts]);
+        setPage(currentPage + 1);
+      } catch (err) {
+        setError("Failed to Load Posts");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loading, hasMore],
+  );
+
+  useEffect(() => {
+    if (inView && hasMore && !loading && !error) {
+      loadMore(page);
+    }
+  }, [inView]);
 
   const handleSortChange = (value: string) => {
     setSortBy(value);
-
-    console.log("Sorting by:", value);
-  };
-
-  const loadMore = async () => {
-    if (loading || !hasMore) return;
-
-    try {
-      setLoading(true);
-
-      const newPosts = await getPosts({
-        page: page + 1,
-        limit: 10,
-      });
-
-      if (newPosts.length === 0) {
-        setHasMore(false);
-        return;
-      }
-
-      setPosts((prev) => [...prev, ...newPosts]);
-      setPage((prev) => prev + 1);
-    } finally {
-      setLoading(false);
-    }
+    setPosts([]);
+    setPage(1);
+    setHasMore(true);
+    setError(null);
   };
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMore();
-        }
-      },
-      {
-        threshold: 1,
-      },
-    );
-
-    if (observerRef.current) {
-      observer.observe(observerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [page, loading, hasMore]);
+    loadMore(1);
+  }, [sortBy]);
 
   return (
     <>
@@ -110,12 +177,30 @@ const FeedPage = () => {
       </div>
       <section id="posts" className="mt-4">
         {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard key={post.id} post={post} handleReact={handleReact} />
         ))}
       </section>
-      <div ref={observerRef} className="h-10 flex justify-center items-center">
+      <div ref={ref} className="h-10 flex justify-center items-center">
         {loading && <span>Loading...</span>}
-        {!hasMore && <span>No more posts</span>}
+
+        {error && (
+          <div className="flex flex-col justify-center items-center gap-2">
+            <p className="text-sm text-text-primary">
+              Failed to load the posts.
+            </p>
+            <button
+              onClick={() => {
+                setError(null);
+                loadMore(page); // 👈 resume from the failed page, not page + 1
+              }}
+              className="text-white border bg-blue-500 px-2 py-1 rounded-md"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {!hasMore && !error && <span>No more posts</span>}
       </div>
     </>
   );

@@ -19,6 +19,8 @@ export interface Like {
   id: number;
   userId: number;
   postId: number;
+  reaction: string;
+  createdAt: any;
 }
 
 export interface Post {
@@ -30,12 +32,14 @@ export interface Post {
   userId: number;
   user: User;
   //   comments: Comment[];
-  //   likes: Like[];
+  likes: Like[];
   _count: {
     likes: number;
     comments: number;
   };
   isCommentPage?: boolean;
+  reactionCounts: any;
+  userReaction: any;
 }
 
 export interface GetPostsParams {
@@ -54,5 +58,13 @@ export const getPosts = async ({
     },
   });
 
+  return res.data.data;
+};
+
+export const reactPost = async (payload: {
+  id: number;
+  body: { userId: number; reaction: string };
+}) => {
+  const res = await api.post(`/posts/${payload.id}/reaction`, payload.body);
   return res.data.data;
 };
