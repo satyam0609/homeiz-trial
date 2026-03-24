@@ -131,34 +131,12 @@ import {
   ThumbsUp,
   MessageCircle,
   Eye,
-  Share,
 } from "lucide-react";
-import Image from "next/image";
+
 import Separator from "../separator";
 import ActionButton from "../action-button";
 import { Post } from "@/api-service/feed-api";
-
-// export type PostType = {
-//   id: number;
-//   name: string;
-//   location: string;
-//   role: string;
-//   rating: number;
-//   reviews: number;
-//   price: string;
-//   beds: number;
-//   baths: number;
-//   area: string;
-//   address: string;
-//   company: string;
-//   image: any;
-//   stats: {
-//     likes: string;
-//     comments: string;
-//     shares: string;
-//     views: string;
-//   };
-// };
+import ShareIcon from "@/assets/icons/forward";
 
 const PostCard = ({ post }: { post: Post }) => {
   return (
@@ -252,7 +230,7 @@ const PostCard = ({ post }: { post: Post }) => {
           icon={MessageCircle}
           count={post?._count?.comments.toString()}
         />
-        <ActionButton icon={Share} count={"30"} />
+        <ActionButton icon={ShareIcon} count={"30"} />
         <ActionButton icon={Eye} count={"200"} />
 
         <div className="flex items-center gap-1 px-2">

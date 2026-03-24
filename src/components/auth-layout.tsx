@@ -1,9 +1,11 @@
 "use client";
 
-import { Menu, Home, User, Settings, Search } from "lucide-react";
-import React, { ReactNode } from "react";
+import { Menu, Home, User, Settings, Search, X } from "lucide-react";
+import React, { ReactNode, useState } from "react";
+import Navbar from "./navbar";
 
 const AuthLayout = ({ children }: { children: ReactNode }) => {
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="flex flex-col h-screen bg-white">
       <header className="flex items-center justify-between px-4 py-3 bg-white sticky top-0 z-50">
@@ -20,9 +22,19 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
             <Search size={22} />
           </button>
 
-          <button className="p-2 rounded-lg hover:bg-gray-100 transition">
-            <Menu size={24} />
+          <button
+            onClick={() => setIsOpen((prev) => !prev)}
+            className="p-2 rounded-lg hover:bg-gray-100 transition"
+          >
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
+        </div>
+        <div
+          className={`absolute top-full left-0 w-full bg-white shadow-md transition-all duration-300 overflow-hidden ${
+            isOpen ? "max-h-100 opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <Navbar />
         </div>
       </header>
 
