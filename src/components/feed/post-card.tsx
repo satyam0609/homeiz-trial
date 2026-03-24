@@ -137,8 +137,14 @@ import Separator from "../separator";
 import ActionButton from "../action-button";
 import { Post } from "@/api-service/feed-api";
 import ShareIcon from "@/assets/icons/forward";
+import ReactionPicker from "../reaction-picker";
+import { useState } from "react";
+import ReactionPopover from "../popover";
+import PostImage from "../image-renderer";
+import ImageRenderer from "../image-renderer";
 
 const PostCard = ({ post }: { post: Post }) => {
+  const [openEmojiPickerV1, setOpenEmojiPickerV1] = useState(false);
   return (
     <div className="bg-white">
       {/* Header */}
@@ -187,13 +193,7 @@ const PostCard = ({ post }: { post: Post }) => {
         <button className="text-gray-700 hover:underline">Reviews</button>
       </div>
 
-      <div className="mt-4 w-full">
-        <img
-          src={post?.image}
-          alt="property"
-          className="w-full h-auto object-contain"
-        />
-      </div>
+      <ImageRenderer src={post?.image} />
 
       {/* Details */}
       <div className="px-4 mt-2">
@@ -225,7 +225,20 @@ const PostCard = ({ post }: { post: Post }) => {
 
       {/* Actions */}
       <div className="flex items-center justify-between text-gray-500 text-sm px-4 py-2">
-        <ActionButton icon={ThumbsUp} count={post?._count?.likes.toString()} />
+        <ReactionPopover
+          trigger={
+            <ActionButton
+              icon={ThumbsUp}
+              count={post?._count?.likes.toString()}
+            />
+          }
+        >
+          <ReactionPicker
+            onSelect={(reaction) => {
+              console.log(reaction);
+            }}
+          />
+        </ReactionPopover>
         <ActionButton
           icon={MessageCircle}
           count={post?._count?.comments.toString()}
