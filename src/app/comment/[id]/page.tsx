@@ -1,5 +1,6 @@
 import CommentsPage from "@/components/comments-component";
 
-export default function Page({ params }: { params: { id: string } }) {
-  return <CommentsPage postId={params.id} />;
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <CommentsPage postId={id} />;
 }

@@ -1,3 +1,5 @@
+"use client";
+
 // import {
 //   MoreHorizontal,
 //   X,
@@ -133,7 +135,7 @@ import {
   Eye,
   Share,
 } from "lucide-react";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 import Separator from "../separator";
 import ActionButton from "../action-button";
 import { Post } from "@/api-service/feed-api";
@@ -161,6 +163,8 @@ import { Post } from "@/api-service/feed-api";
 // };
 
 const PostCard = ({ post }: { post: Post }) => {
+  const router = useRouter();
+  const handleCommentPage = () => router.push(`/comment/${post.id}`);
   return (
     <div className="bg-white">
       {/* Header */}
@@ -251,6 +255,7 @@ const PostCard = ({ post }: { post: Post }) => {
         <ActionButton
           icon={MessageCircle}
           count={post?._count?.comments.toString()}
+          onClick={handleCommentPage}
         />
         <ActionButton icon={Share} count={"30"} />
         <ActionButton icon={Eye} count={"200"} />
