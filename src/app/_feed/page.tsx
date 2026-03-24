@@ -32,16 +32,58 @@ const FeedPage = () => {
   const handleReact = async (postId: number, reaction: string) => {
     const userId = 1;
 
-    // setPosts((prev) =>
-    //   prev.map((post) =>
-    //     post.id === postId
-    //       ? {
-    //           ...post,
-    //           userReaction: reaction,
-    //         }
-    //       : post,
-    //   ),
-    // );
+    setPosts((prev) =>
+      prev.map((post) => {
+        if (post.id !== postId) return post;
+
+        const existingLike = post.likes.find((l) => l.userId === userId);
+
+        let updatedLikes = [...post.likes];
+        let updatedReactionCounts = { ...post.reactionCounts };
+        let updatedCount = post._count.likes;
+
+        if (existingLike) {
+          // ❌ remove reaction
+          updatedLikes = post.likes.filter((l) => l.userId !== userId);
+
+          // decrease count
+          updatedCount = Math.max(0, post._count.likes - 1);
+
+          // decrease reactionCounts
+          const prevReaction = existingLike.reaction;
+          if (updatedReactionCounts[prevReaction]) {
+            updatedReactionCounts[prevReaction] -= 1;
+            if (updatedReactionCounts[prevReaction] === 0) {
+              delete updatedReactionCounts[prevReaction];
+            }
+          }
+        } else {
+          // ✅ add reaction
+          updatedLikes.push({
+            id: Date.now(), // temp id
+            userId,
+            postId,
+            reaction,
+            createdAt: new Date().toISOString(),
+          });
+
+          updatedCount = post._count.likes + 1;
+
+          updatedReactionCounts[reaction] =
+            (updatedReactionCounts[reaction] || 0) + 1;
+        }
+
+        return {
+          ...post,
+          likes: updatedLikes,
+          _count: {
+            ...post._count,
+            likes: updatedCount,
+          },
+          reactionCounts: updatedReactionCounts,
+        };
+      }),
+    );
 
     try {
       await reactPost({
@@ -53,18 +95,6 @@ const FeedPage = () => {
       });
     } catch (error) {
       console.error("Reaction failed");
-
-      // ❌ rollback (optional)
-      // setPosts((prev) =>
-      //   prev.map((post) =>
-      //     post.id === postId
-      //       ? {
-      //           ...post,
-      //           userReaction: null,
-      //         }
-      //       : post,
-      //   ),
-      // );
     }
   };
 

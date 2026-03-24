@@ -19,6 +19,8 @@ export interface Like {
   id: number;
   userId: number;
   postId: number;
+  reaction: string;
+  createdAt: any;
 }
 
 export interface Post {
@@ -30,11 +32,13 @@ export interface Post {
   userId: number;
   user: User;
   //   comments: Comment[];
-  //   likes: Like[];
+  likes: Like[];
   _count: {
     likes: number;
     comments: number;
   };
+  reactionCounts: any;
+  userReaction: any;
 }
 
 export interface GetPostsParams {

@@ -5,3 +5,7 @@ export const REACTIONS = [
   { id: "WOW", emoji: "😮", file: "1f62e.png" },
   { id: "SAD", emoji: "😞", file: "1f525.png" },
 ];
+
+export const REACTION_MAP = Object.fromEntries(
+  REACTIONS.map((r) => [r.id, r.emoji]),
+);
