@@ -10,18 +10,44 @@ import {
   Send,
   Pencil,
 } from "lucide-react";
-import {
-  Comment,
-  MOCK_COMMENTS,
-  MOCK_POST_OWNER,
-  addComment,
-  addReply,
-  toggleLike,
-} from "../utils/comments-utils";
 import { useRouter } from "next/navigation";
 import api from "@/config/api";
 
-const CURRENT_USER = MOCK_POST_OWNER;
+interface PostDetail {
+  id: number;
+  content: string;
+  image: string;
+  location: string;
+  createdAt: string;
+  userId: number;
+  user: PostAuthor;
+  comments: any[];
+  likes: any[];
+}
+
+interface PostAuthor {
+  id: number;
+  name: string;
+  profile: string;
+  role: string;
+}
+
+interface CommentUser {
+  id: string;
+  name: string;
+  avatar: string;
+}
+
+interface Comment {
+  id: string;
+  user: CommentUser;
+  text: string;
+  mention?: string;
+  timestamp: string;
+  likes: number;
+  likedByMe: boolean;
+  replies: Comment[];
+}
 
 interface CommentRowProps {
   comment: Comment;
@@ -32,9 +58,24 @@ interface CommentRowProps {
   replyTarget?: { parentId: string; mentionName: string } | null;
   onCancelReply?: () => void;
   onSendReply?: (text: string) => void;
+  currentUser?: CommentUser | null;
 }
 
 const REPLIES_PREVIEW = 1;
+
+function timeAgo(dateStr: string): string {
+  if (!dateStr) return "";
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "now";
+  if (mins < 60) return `${mins}m`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d`;
+  const weeks = Math.floor(days / 7);
+  return `${weeks}w`;
+}
 
 function CommentRow({
   comment,
@@ -45,6 +86,7 @@ function CommentRow({
   replyTarget,
   onCancelReply,
   onSendReply,
+  currentUser,
 }: CommentRowProps) {
   const [showAllReplies, setShowAllReplies] = useState(false);
   const isAuthor = comment.user.id === postOwnerId;
@@ -59,10 +101,14 @@ function CommentRow({
   return (
     <div className={depth > 0 ? "pl-8" : ""}>
       <div className="flex gap-2 items-start">
-        <img
-          src={comment.user.avatar}
-          className="w-9 h-9 rounded-full object-cover flex-shrink-0 mt-0.5"
-        />
+        {comment.user.avatar ? (
+          <img
+            src={comment.user.avatar}
+            className="w-9 h-9 rounded-full object-cover flex-shrink-0 mt-0.5"
+          />
+        ) : (
+          <div className="w-9 h-9 rounded-full bg-gray-300 flex-shrink-0 mt-0.5" />
+        )}
         <div className="flex-1 min-w-0">
           <div
             className={
@@ -129,12 +175,13 @@ function CommentRow({
         </button>
       </div>
 
-      {replyTarget && replyTarget.parentId === comment.id && (
+      {replyTarget && replyTarget.parentId === comment.id && currentUser && (
         <div className="mt-3 pl-8">
           <ReplyBox
             mentionName={replyTarget.mentionName}
             onCancel={onCancelReply!}
             onSend={onSendReply!}
+            currentUser={currentUser}
           />
         </div>
       )}
@@ -150,6 +197,7 @@ function CommentRow({
             replyTarget={replyTarget}
             onCancelReply={onCancelReply}
             onSendReply={onSendReply}
+            currentUser={currentUser}
           />
         </div>
       ))}
@@ -184,9 +232,15 @@ interface ReplyBoxProps {
   mentionName?: string;
   onCancel: () => void;
   onSend: (text: string) => void;
+  currentUser: CommentUser;
 }
 
-function ReplyBox({ mentionName, onCancel, onSend }: ReplyBoxProps) {
+function ReplyBox({
+  mentionName,
+  onCancel,
+  onSend,
+  currentUser,
+}: ReplyBoxProps) {
   const [text, setText] = useState("");
 
   function handleSend() {
@@ -198,14 +252,13 @@ function ReplyBox({ mentionName, onCancel, onSend }: ReplyBoxProps) {
   return (
     <div className="flex gap-2 items-start">
       <img
-        src={CURRENT_USER.avatar}
+        src={currentUser.avatar}
         className="w-9 h-9 rounded-full object-cover flex-shrink-0 mt-0.5"
       />
       <div className="flex-1 min-w-0">
-        {/* Meta */}
         <div className="flex items-center flex-wrap gap-x-1 mb-1">
           <span className="font-bold text-[13px] text-black">
-            {CURRENT_USER.name}
+            {currentUser.name}
           </span>
           {mentionName && (
             <>
@@ -234,7 +287,6 @@ function ReplyBox({ mentionName, onCancel, onSend }: ReplyBoxProps) {
           </div>
         )}
 
-        {/* Input box */}
         <div className="border border-gray-300 rounded-2xl px-3 py-2.5">
           {mentionName && (
             <div className="inline-flex items-center text-blue-500 text-[13px] font-medium mb-1.5">
@@ -268,7 +320,6 @@ function ReplyBox({ mentionName, onCancel, onSend }: ReplyBoxProps) {
           </div>
         </div>
 
-        {/* Cancel for top-level */}
         {!mentionName && (
           <button
             className="text-[12px] text-gray-500 mt-1.5 pl-1"
@@ -282,8 +333,27 @@ function ReplyBox({ mentionName, onCancel, onSend }: ReplyBoxProps) {
   );
 }
 
+function mapComment(c: any): Comment {
+  return {
+    id: String(c.id),
+    user: {
+      id: String(c.user?.id ?? c.userId),
+      name: c.user?.name ?? `User ${c.userId}`,
+      avatar: c.user?.profile ?? "",
+    },
+    text: c.text,
+    timestamp: timeAgo(c.createdAt ?? ""),
+    likes: 0,
+    likedByMe: false,
+    replies: (c.replies ?? []).map(mapComment),
+  };
+}
+
 export default function CommentsPage({ postId }: { postId: string }) {
-  const [comments, setComments] = useState(MOCK_COMMENTS);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [postDetail, setPostDetail] = useState<PostDetail | null>(null);
+  const [postAuthor, setPostAuthor] = useState<PostAuthor | null>(null);
+  const [currentUser, setCurrentUser] = useState<CommentUser | null>(null);
   const router = useRouter();
 
   const [replyTarget, setReplyTarget] = useState<
@@ -294,23 +364,29 @@ export default function CommentsPage({ postId }: { postId: string }) {
     setReplyTarget({ parentId, mentionName });
   }
 
-  function handleLike(commentId: string) {
-    setComments((prev) => toggleLike(prev, commentId));
-  }
+  function handleLike(commentId: string) {}
 
-  function handleSend(text: string) {
+  async function handleSend(text: string) {
     if (replyTarget === "new") {
-      setComments((prev) => addComment(prev, CURRENT_USER, text));
-    } else if (replyTarget) {
-      setComments((prev) =>
-        addReply(
-          prev,
-          replyTarget.parentId,
-          CURRENT_USER,
-          replyTarget.mentionName,
+      try {
+        await api.post(`/posts/20/comment`, {
+          userId: Number(currentUser!.id),
           text,
-        ),
-      );
+        });
+        await getComments();
+      } catch (error) {
+        console.log(error);
+      }
+    } else if (replyTarget) {
+      try {
+        await api.post(`/comments/${replyTarget.parentId}/reply`, {
+          userId: Number(currentUser!.id),
+          text,
+        });
+        await getComments();
+      } catch (error) {
+        console.log(error);
+      }
     }
     setReplyTarget(null);
   }
@@ -319,16 +395,40 @@ export default function CommentsPage({ postId }: { postId: string }) {
     router.replace("/");
   }
 
-  const getPosts = () => {
+  const getPost = async () => {
     try {
-      const res = api.get(`posts`);
+      const res = await api.get(`/posts/20`);
+      const post = res?.data?.data;
+      setPostDetail(post);
+      const user = post?.user;
+      setPostAuthor(user);
+      setCurrentUser({
+        id: String(user?.id),
+        name: user?.name,
+        avatar: user?.profile,
+      });
+      if (post?.comments) {
+        setComments(post.comments.map(mapComment));
+      }
+    } catch (error) {
+      console.log("getPost error:", error);
+    }
+  };
+
+  const getComments = async () => {
+    try {
+      const res = await api.get(`/posts/20/comments`);
+      const raw = res?.data;
+      const commentsArr = Array.isArray(raw) ? raw : (raw?.data || []);
+      setComments(commentsArr.map(mapComment));
     } catch (error) {
       console.log(error);
     }
   };
 
   useEffect(() => {
-    getPosts();
+    getPost();
+    getComments();
   }, []);
 
   return (
@@ -338,7 +438,9 @@ export default function CommentsPage({ postId }: { postId: string }) {
           <button className="text-black" onClick={goTOHome}>
             <ChevronLeft size={24} strokeWidth={2.5} />
           </button>
-          <h1 className="font-bold text-[16px] text-black">John Doe post</h1>
+          <h1 className="font-bold text-[16px] text-black">
+            {postAuthor ? `${postAuthor.name} post` : "Post"}
+          </h1>
         </div>
 
         <div className="flex items-center gap-3 px-4 py-2">
@@ -353,36 +455,40 @@ export default function CommentsPage({ postId }: { postId: string }) {
             <div key={comment.id}>
               <CommentRow
                 comment={comment}
-                postOwnerId={MOCK_POST_OWNER.id}
+                postOwnerId={postAuthor ? String(postAuthor.id) : ""}
                 onReply={handleReply}
                 onLike={handleLike}
                 replyTarget={replyTarget !== "new" ? replyTarget : null}
                 onCancelReply={() => setReplyTarget(null)}
                 onSendReply={handleSend}
+                currentUser={currentUser}
               />
             </div>
           ))}
 
-          {replyTarget === "new" && (
+          {replyTarget === "new" && currentUser && (
             <ReplyBox
               onCancel={() => setReplyTarget(null)}
               onSend={handleSend}
+              currentUser={currentUser}
             />
           )}
         </div>
-        {/* 
+
         <div className="border-t border-gray-200 px-3 py-3">
           <button
             className="w-full flex items-center gap-2 bg-gray-100 rounded-full px-4 py-2.5 text-[13px] text-gray-400"
             onClick={() => setReplyTarget("new")}
           >
-            <img
-              src={CURRENT_USER.avatar}
-              className="w-6 h-6 rounded-full object-cover"
-            />
+            {currentUser && (
+              <img
+                src={currentUser.avatar}
+                className="w-6 h-6 rounded-full object-cover"
+              />
+            )}
             Write a comment…
           </button>
-        </div> */}
+        </div>
       </div>
     </div>
   );
