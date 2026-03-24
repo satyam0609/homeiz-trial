@@ -7,6 +7,7 @@ interface Props {
 
 const SearchBox = ({ placeholder, onChange }: Props) => {
   const [active, setActive] = React.useState(false);
+
   return (
     <input
       onFocus={() => setActive(true)}
