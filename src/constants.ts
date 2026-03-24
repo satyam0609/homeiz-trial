@@ -1,7 +1,7 @@
 export const REACTIONS = [
-  { id: "like", emoji: "👍", file: "1f44d.png" },
-  { id: "love", emoji: "❤️", file: "2764-fe0f.png" },
-  { id: "haha", emoji: "😂", file: "1f602.png" },
-  { id: "wow", emoji: "😮", file: "1f62e.png" },
-  { id: "fire", emoji: "🔥", file: "1f525.png" },
+  { id: "LIKE", emoji: "👍", file: "1f44d.png" },
+  { id: "LOVE", emoji: "❤️", file: "2764-fe0f.png" },
+  { id: "HAHA", emoji: "😂", file: "1f602.png" },
+  { id: "WOW", emoji: "😮", file: "1f62e.png" },
+  { id: "SAD", emoji: "😞", file: "1f525.png" },
 ];

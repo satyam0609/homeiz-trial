@@ -4,7 +4,7 @@ import Dropdown from "@/components/dropdown";
 // import { posts } from "@/components/feed/data";
 import PostCard from "@/components/feed/post-card";
 import SearchBox from "@/components/searchbox";
-import { getPosts, Post } from "@/api-service/feed-api";
+import { getPosts, Post, reactPost } from "@/api-service/feed-api";
 import { ChevronDown, Menu } from "lucide-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
@@ -28,6 +28,45 @@ const FeedPage = () => {
   const selectedSort = SORT_OPTIONS.find((opt) => opt.value === sortBy);
 
   const { ref, inView } = useInView({ threshold: 1 });
+
+  const handleReact = async (postId: number, reaction: string) => {
+    const userId = 1;
+
+    // setPosts((prev) =>
+    //   prev.map((post) =>
+    //     post.id === postId
+    //       ? {
+    //           ...post,
+    //           userReaction: reaction,
+    //         }
+    //       : post,
+    //   ),
+    // );
+
+    try {
+      await reactPost({
+        id: postId,
+        body: {
+          userId,
+          reaction,
+        },
+      });
+    } catch (error) {
+      console.error("Reaction failed");
+
+      // ❌ rollback (optional)
+      // setPosts((prev) =>
+      //   prev.map((post) =>
+      //     post.id === postId
+      //       ? {
+      //           ...post,
+      //           userReaction: null,
+      //         }
+      //       : post,
+      //   ),
+      // );
+    }
+  };
 
   const loadMore = useCallback(
     async (currentPage: number) => {
@@ -108,7 +147,7 @@ const FeedPage = () => {
       </div>
       <section id="posts" className="mt-4">
         {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard key={post.id} post={post} handleReact={handleReact} />
         ))}
       </section>
       <div ref={ref} className="h-10 flex justify-center items-center">

@@ -55,3 +55,11 @@ export const getPosts = async ({
 
   return res.data.data;
 };
+
+export const reactPost = async (payload: {
+  id: number;
+  body: { userId: number; reaction: string };
+}) => {
+  const res = await api.post(`/posts/${payload.id}/reaction`, payload.body);
+  return res.data.data;
+};

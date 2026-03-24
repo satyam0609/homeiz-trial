@@ -119,7 +119,7 @@ const ReactionPicker = ({ onSelect, onMoreClick }: Props) => {
           onClick={() => onSelect(reaction.id)}
           style={{ animationDelay: `${index * 0.05}s` }}
           className="
-            w-8 h-8 rounded-full flex items-center justify-center
+            w-10 h-10 rounded-full flex items-center justify-center
             animate-emoji-alive
             hover:scale-110
             active:scale-125
@@ -129,8 +129,8 @@ const ReactionPicker = ({ onSelect, onMoreClick }: Props) => {
           <img
             src={toTwemojiUrl(reaction.emoji)}
             alt={reaction.emoji}
-            width={24}
-            height={24}
+            width={30}
+            height={30}
             draggable={false}
             className="select-none pointer-events-none"
           />

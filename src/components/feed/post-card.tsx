@@ -143,7 +143,13 @@ import ReactionPopover from "../popover";
 import PostImage from "../image-renderer";
 import ImageRenderer from "../image-renderer";
 
-const PostCard = ({ post }: { post: Post }) => {
+const PostCard = ({
+  post,
+  handleReact,
+}: {
+  post: Post;
+  handleReact: (userId: number, reaction: string) => void;
+}) => {
   const [openEmojiPickerV1, setOpenEmojiPickerV1] = useState(false);
   return (
     <div className="bg-white">
@@ -235,7 +241,7 @@ const PostCard = ({ post }: { post: Post }) => {
         >
           <ReactionPicker
             onSelect={(reaction) => {
-              console.log(reaction);
+              handleReact(post.id, reaction);
             }}
           />
         </ReactionPopover>
@@ -246,14 +252,14 @@ const PostCard = ({ post }: { post: Post }) => {
         <ActionButton icon={ShareIcon} count={"30"} />
         <ActionButton icon={Eye} count={"200"} />
 
-        <div className="flex items-center px-2">
+        {/* <div className="flex items-center px-2">
           <span className="w-6 h-6 flex items-center justify-center bg-white rounded-full  -ml-1 first:ml-0">
             👍
           </span>
           <span className="w-6 h-6 flex items-center justify-center bg-white rounded-full  -ml-1">
             😂
           </span>
-        </div>
+        </div> */}
       </div>
 
       <Separator />
