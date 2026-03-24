@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #050505;
+  --bluish_black: 38 39 41;
+  --primary-blue: 16 131 254;
 }
 
 @theme inline {
@@ -13,6 +15,8 @@
   --color-text-primary: #050505;
   --color-text-secondary: #65676b;
   --color-text-tertary: #8a8d91;
+  --color-bluish-black: rgb(var(--bluish_black));
+  --color-primary-blue: rgb(var(--primary-blue));
 }
 
 @media (prefers-color-scheme: dark) {

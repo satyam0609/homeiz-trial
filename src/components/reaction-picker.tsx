@@ -58,53 +58,6 @@
 import { REACTIONS } from "@/constants";
 import { ChevronDown } from "lucide-react";
 
-type Props = {
-  onSelect: (id: string) => void;
-  onMoreClick?: () => void;
-};
-
-const ReactionPicker = ({ onSelect, onMoreClick }: Props) => {
-  return (
-    <div className="flex gap-1 bg-white shadow-lg rounded-full px-1 py-1 items-center">
-      {REACTIONS.map((reaction, index) => (
-        <button
-          key={reaction.id}
-          onClick={() => onSelect(reaction.id)}
-          style={{ animationDelay: `${index * 0.1}s` }} // 🔥 stagger effect
-          className="
-    w-8 h-8 rounded-full overflow-hidden flex items-center justify-center
-    animate-emoji-alive
-    hover:scale-110
-    active:scale-125
-    transition-transform
-  "
-        >
-          <span className="text-2xl">{reaction.emoji}</span>
-        </button>
-      ))}
-
-      {/* <button
-        onClick={onMoreClick}
-        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100"
-      >
-        <ChevronDown className="h-4 w-4" />
-      </button> */}
-    </div>
-  );
-};
-
-export default ReactionPicker;
-
-// Converts an emoji character to its Twemoji CDN URL
-// const toTwemojiUrl = (emoji: string): string => {
-//   const codePoint = [...emoji]
-//     .map((char) => char.codePointAt(0)!.toString(16))
-//     .filter((hex) => hex !== "fe0f") // strip variation selector
-//     .join("-");
-
-//   return `https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/${codePoint}.svg`;
-// };
-
 // type Props = {
 //   onSelect: (id: string) => void;
 //   onMoreClick?: () => void;
@@ -117,27 +70,74 @@ export default ReactionPicker;
 //         <button
 //           key={reaction.id}
 //           onClick={() => onSelect(reaction.id)}
-//           style={{ animationDelay: `${index * 0.05}s` }}
+//           style={{ animationDelay: `${index * 0.1}s` }} // 🔥 stagger effect
 //           className="
-//             w-8 h-8 rounded-full flex items-center justify-center
-//             animate-emoji-alive
-//             hover:scale-110
-//             active:scale-125
-//             transition-transform
-//           "
+//     w-8 h-8 rounded-full overflow-hidden flex items-center justify-center
+//     animate-emoji-alive
+//     hover:scale-110
+//     active:scale-125
+//     transition-transform
+//   "
 //         >
-//           <img
-//             src={toTwemojiUrl(reaction.emoji)}
-//             alt={reaction.emoji}
-//             width={24}
-//             height={24}
-//             draggable={false}
-//             className="select-none pointer-events-none"
-//           />
+//           <span className="text-2xl">{reaction.emoji}</span>
 //         </button>
 //       ))}
+
+//       {/* <button
+//         onClick={onMoreClick}
+//         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100"
+//       >
+//         <ChevronDown className="h-4 w-4" />
+//       </button> */}
 //     </div>
 //   );
 // };
 
 // export default ReactionPicker;
+
+// Converts an emoji character to its Twemoji CDN URL
+const toTwemojiUrl = (emoji: string): string => {
+  const codePoint = [...emoji]
+    .map((char) => char.codePointAt(0)!.toString(16))
+    .filter((hex) => hex !== "fe0f") // strip variation selector
+    .join("-");
+
+  return `https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/${codePoint}.svg`;
+};
+
+type Props = {
+  onSelect: (id: string) => void;
+  onMoreClick?: () => void;
+};
+
+const ReactionPicker = ({ onSelect, onMoreClick }: Props) => {
+  return (
+    <div className="flex gap-1 bg-white shadow-lg rounded-full px-1 py-1 items-center">
+      {REACTIONS.map((reaction, index) => (
+        <button
+          key={reaction.id}
+          onClick={() => onSelect(reaction.id)}
+          style={{ animationDelay: `${index * 0.05}s` }}
+          className="
+            w-8 h-8 rounded-full flex items-center justify-center
+            animate-emoji-alive
+            hover:scale-110
+            active:scale-125
+            transition-transform
+          "
+        >
+          <img
+            src={toTwemojiUrl(reaction.emoji)}
+            alt={reaction.emoji}
+            width={24}
+            height={24}
+            draggable={false}
+            className="select-none pointer-events-none"
+          />
+        </button>
+      ))}
+    </div>
+  );
+};
+
+export default ReactionPicker;
