@@ -182,6 +182,10 @@ export default function CommentsPage({ postId }: { postId: string }) {
           likes: postDetail.likes?.length ?? 0,
           comments: postDetail.comments?.length ?? 0,
         },
+        likes: postDetail.likes ?? [],
+        isCommentPage: true,
+        reactionCounts: 0,
+        userReaction: 0,
       }
     : null;
 
@@ -208,7 +212,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
           >
             {postCardData && (
               <div className="px-2 py-2">
-                <PostCard post={postCardData} />
+                <PostCard post={postCardData} handleReact={() => {}} />
               </div>
             )}
 
@@ -224,7 +228,10 @@ export default function CommentsPage({ postId }: { postId: string }) {
                 }
                 items={[
                   { label: "Newest", onClick: () => setSortLabel("Newest") },
-                  { label: "All comments", onClick: () => setSortLabel("All comments") },
+                  {
+                    label: "All comments",
+                    onClick: () => setSortLabel("All comments"),
+                  },
                 ]}
                 side="left"
               />
