@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://9nk386xw-3000.inc1.devtunnels.ms",
+  baseURL: "https://news-feed-neon-one.vercel.app",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
