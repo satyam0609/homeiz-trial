@@ -6,7 +6,8 @@ import PostCard from "@/components/feed/post-card";
 import SearchBox from "@/components/searchbox";
 import { getPosts, Post } from "@/api-service/feed-api";
 import { ChevronDown, Menu } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useInView } from "react-intersection-observer";
 
 const SORT_OPTIONS = [
   { label: "Newest First", value: "newest" },
@@ -21,59 +22,56 @@ const FeedPage = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-
+  const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState("newest");
+
   const selectedSort = SORT_OPTIONS.find((opt) => opt.value === sortBy);
 
-  const observerRef = useRef<HTMLDivElement | null>(null);
+  const { ref, inView } = useInView({ threshold: 1 });
+
+  const loadMore = useCallback(
+    async (currentPage: number) => {
+      if (loading || !hasMore) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const newPosts = await getPosts({ page: currentPage, limit: 10 });
+
+        if (newPosts.length === 0) {
+          setHasMore(false);
+          return;
+        }
+
+        setPosts((prev) => [...prev, ...newPosts]);
+        setPage(currentPage + 1);
+      } catch (err) {
+        setError("Failed to Load Posts");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loading, hasMore],
+  );
+
+  useEffect(() => {
+    if (inView && hasMore && !loading && !error) {
+      loadMore(page);
+    }
+  }, [inView]);
 
   const handleSortChange = (value: string) => {
     setSortBy(value);
-
-    console.log("Sorting by:", value);
-  };
-
-  const loadMore = async () => {
-    if (loading || !hasMore) return;
-
-    try {
-      setLoading(true);
-
-      const newPosts = await getPosts({
-        page: page + 1,
-        limit: 10,
-      });
-
-      if (newPosts.length === 0) {
-        setHasMore(false);
-        return;
-      }
-
-      setPosts((prev) => [...prev, ...newPosts]);
-      setPage((prev) => prev + 1);
-    } finally {
-      setLoading(false);
-    }
+    setPosts([]);
+    setPage(1);
+    setHasMore(true);
+    setError(null);
   };
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMore();
-        }
-      },
-      {
-        threshold: 1,
-      },
-    );
-
-    if (observerRef.current) {
-      observer.observe(observerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [page, loading, hasMore]);
+    loadMore(1);
+  }, [sortBy]);
 
   return (
     <>
@@ -113,9 +111,27 @@ const FeedPage = () => {
           <PostCard key={post.id} post={post} />
         ))}
       </section>
-      <div ref={observerRef} className="h-10 flex justify-center items-center">
+      <div ref={ref} className="h-10 flex justify-center items-center">
         {loading && <span>Loading...</span>}
-        {!hasMore && <span>No more posts</span>}
+
+        {error && (
+          <div className="flex flex-col justify-center items-center gap-2">
+            <p className="text-sm text-text-primary">
+              Failed to load the posts.
+            </p>
+            <button
+              onClick={() => {
+                setError(null);
+                loadMore(page); // 👈 resume from the failed page, not page + 1
+              }}
+              className="text-white border bg-blue-500 px-2 py-1 rounded-md"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {!hasMore && !error && <span>No more posts</span>}
       </div>
     </>
   );
