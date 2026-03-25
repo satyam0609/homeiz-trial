@@ -64,7 +64,14 @@ export default function BottomNav() {
 
   useEffect(() => {
     const syncUser = () => {
-      const current = getCurrentUser();
+      let current = getCurrentUser();
+
+      // ✅ if no user → set default
+      if (!current) {
+        current = { userName: "User 1", id: 1 };
+        localStorage.setItem("user", JSON.stringify(current));
+      }
+
       setUser(current);
     };
 
@@ -74,16 +81,6 @@ export default function BottomNav() {
     return () => window.removeEventListener("storage", syncUser);
   }, []);
 
-  useEffect(() => {
-    const existingUser = localStorage.getItem("user");
-
-    if (!existingUser) {
-      localStorage.setItem(
-        "user",
-        JSON.stringify({ userName: "User 1", id: 1 }),
-      );
-    }
-  }, []);
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
       <div className="flex items-center justify-between px-6 py-4 bg-bluish-black backdrop-blur-md shadow-lg border border-white/10">
