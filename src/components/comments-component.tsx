@@ -212,7 +212,11 @@ export default function CommentsPage({ postId }: { postId: string }) {
           >
             {postCardData && (
               <div className="px-2 py-2">
-                <PostCard post={postCardData} handleReact={() => {}} />
+                <PostCard
+                  post={postCardData}
+                  handleReact={() => {}}
+                  handleLike={() => {}}
+                />
               </div>
             )}
 
