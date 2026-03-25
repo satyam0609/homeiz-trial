@@ -247,6 +247,10 @@ const FeedPage = () => {
     setError(null);
   };
 
+  const handleRemovePost = (postId: number) => {
+    setPosts((prev) => prev.filter((post) => post.id !== postId));
+  };
+
   useEffect(() => {
     loadMore(1);
   }, [sortBy]);
@@ -302,6 +306,7 @@ const FeedPage = () => {
             post={post}
             handleReact={handleReact}
             handleLike={handleLike}
+            handleRemove={handleRemovePost}
           />
         ))}
       </section>
