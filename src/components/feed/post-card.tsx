@@ -47,7 +47,7 @@ const PostCard = ({
       <div className="flex gap-2 px-4">
         <div>
           <Avatar
-            size={48}
+            size={42}
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDR8H0rgV-zmSodkT_erGjzA_VhfWE22Pg7Q&s"
           />
         </div>
