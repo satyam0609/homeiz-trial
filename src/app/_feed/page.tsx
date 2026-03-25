@@ -145,11 +145,13 @@ const FeedPage = () => {
   return (
     <>
       <div className="flex items-center gap-3 w-full px-4 mb-4">
-        <Avatar
-          className="shrink-0"
-          size={42}
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDR8H0rgV-zmSodkT_erGjzA_VhfWE22Pg7Q&s"
-        />
+        <div>
+          <Avatar
+            className="shrink-0"
+            size={42}
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDR8H0rgV-zmSodkT_erGjzA_VhfWE22Pg7Q&s"
+          />
+        </div>
         <div className="flex-1">
           <SearchBox placeholder="Start a post" />
         </div>
