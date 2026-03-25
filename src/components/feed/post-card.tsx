@@ -39,8 +39,9 @@ const PostCard = ({
   handleLike: (userId: number) => void;
 }) => {
   const [openEmojiPickerV1, setOpenEmojiPickerV1] = useState(false);
-  const [showFollow, setShowFollow] = useState(true);
+
   const user = getCurrentUser();
+  const [showFollow, setShowFollow] = useState(user.id !== post.user.id);
   const isLiked = user
     ? post.likes.some((like) => like.userId === user.id)
     : false;
@@ -81,34 +82,36 @@ const PostCard = ({
             </div>
 
             <div className="flex gap-4 items-center shrink-0">
-              <Dropdown
-                trigger={
-                  <button>
-                    <MoreHorizontal />
-                  </button>
-                }
-                items={[
-                  {
-                    icon: <Edit2Icon strokeWidth={2.5} size={14} />,
-                    label: "Edit Post",
-                    onClick: () => {
-                      console.log("Edit Post");
+              {user.id === post.user.id && (
+                <Dropdown
+                  trigger={
+                    <button>
+                      <MoreHorizontal />
+                    </button>
+                  }
+                  items={[
+                    {
+                      icon: <Edit2Icon strokeWidth={2.5} size={14} />,
+                      label: "Edit Post",
+                      onClick: () => {
+                        console.log("Edit Post");
+                      },
                     },
-                  },
-                  {
-                    icon: (
-                      <Trash2Icon
-                        strokeWidth={2.5}
-                        size={14}
-                        className="text-red-600"
-                      />
-                    ),
-                    label: "Delete Post",
-                    onClick: () => console.log("Delete post"),
-                    type: "item",
-                  },
-                ]}
-              />
+                    {
+                      icon: (
+                        <Trash2Icon
+                          strokeWidth={2.5}
+                          size={14}
+                          className="text-red-600"
+                        />
+                      ),
+                      label: "Delete Post",
+                      onClick: () => console.log("Delete post"),
+                      type: "item",
+                    },
+                  ]}
+                />
+              )}
 
               <button>
                 <X size={18} />
