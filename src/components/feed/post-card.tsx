@@ -6,6 +6,8 @@ import {
   ThumbsUp,
   MessageCircle,
   Eye,
+  Edit2Icon,
+  Trash2Icon,
 } from "lucide-react";
 
 import Separator from "../separator";
@@ -20,6 +22,8 @@ import ImageRenderer from "../image-renderer";
 import { toTwemojiUrl } from "@/utils/utils";
 import { REACTION_MAP, REACTIONS } from "@/constants";
 import { useRouter } from "next/navigation";
+import Dropdown from "../dropdown";
+import Avatar from "../avatar";
 
 const PostCard = ({
   post,
@@ -40,58 +44,86 @@ const PostCard = ({
   return (
     <div className="bg-white">
       {/* Header */}
-      <div className="flex justify-between px-4">
-        <div className="flex gap-2 items-center min-w-0">
-          <h1 className="text-[18px] font-bold truncate max-w-40">
-            {post?.user?.name}
-          </h1>
-          {showFollow && (
-            <button
-              type="button"
-              onClick={() => {
-                console.log("follow clicked");
-                setShowFollow(false);
-              }}
-              className="text-[18px] font-bold text-blue-500 shrink-0"
-            >
-              + Follow
-            </button>
-          )}
+      <div className="flex gap-2 px-4">
+        <div>
+          <Avatar
+            size={48}
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDR8H0rgV-zmSodkT_erGjzA_VhfWE22Pg7Q&s"
+          />
         </div>
+        <div className="flex flex-col flex-1">
+          <div className="flex flex-1 justify-between">
+            <div className="flex gap-2 items-center min-w-0">
+              <h1 className="text-[18px] font-bold truncate max-w-40">
+                {post?.user?.name}
+              </h1>
+              {showFollow && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    console.log("follow clicked");
+                    setShowFollow(false);
+                  }}
+                  className="text-[18px] font-bold text-blue-500 shrink-0"
+                >
+                  + Follow
+                </button>
+              )}
+            </div>
 
-        <div className="flex gap-4 items-center shrink-0">
-          <button>
-            <MoreHorizontal />
-          </button>
-          <button>
-            <X size={18} />
-          </button>
+            <div className="flex gap-4 items-center shrink-0">
+              <Dropdown
+                trigger={
+                  <button>
+                    <MoreHorizontal />
+                  </button>
+                }
+                items={[
+                  {
+                    icon: <Edit2Icon />,
+                    label: "Edit Post",
+                    onClick: () => {
+                      console.log("Edit Post");
+                    },
+                  },
+                  {
+                    icon: <Trash2Icon />,
+                    label: "Delete Post",
+                    onClick: () => console.log("Delete post"),
+                  },
+                ]}
+              />
+
+              <button>
+                <X size={18} />
+              </button>
+            </div>
+          </div>
+          {/* Info */}
+          <div className="flex-1 text-base font-bold ">{post.location}</div>
+
+          <div className="flex-1 text-sm font-bold flex items-center gap-3 flex-wrap">
+            <span>{post?.user?.role}</span>
+
+            <div className="flex items-center">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Star
+                  key={i}
+                  size={14}
+                  className={
+                    i <= Math.floor(3)
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "fill-gray-300 text-gray-300"
+                  }
+                />
+              ))}
+            </div>
+
+            <span className="text-blue-500 font-semibold">{3}</span>
+
+            <button className="text-gray-700 hover:underline">Reviews</button>
+          </div>
         </div>
-      </div>
-
-      {/* Info */}
-      <div className="text-base font-bold px-4">{post.location}</div>
-
-      <div className="text-sm font-bold px-4 flex items-center gap-3 flex-wrap">
-        <span>{post?.user?.role}</span>
-
-        <div className="flex items-center">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <Star
-              key={i}
-              size={14}
-              className={
-                i <= Math.floor(3)
-                  ? "fill-yellow-400 text-yellow-400"
-                  : "fill-gray-300 text-gray-300"
-              }
-            />
-          ))}
-        </div>
-
-        <span className="text-blue-500 font-semibold">{3}</span>
-
-        <button className="text-gray-700 hover:underline">Reviews</button>
       </div>
 
       <ImageRenderer src={post?.image} />
