@@ -138,6 +138,7 @@ export default function CommentRow({
             onCancel={onCancelReply!}
             onSend={onSendReply!}
             currentUser={currentUser}
+            postOwnerId={postOwnerId}
           />
         </div>
       )}

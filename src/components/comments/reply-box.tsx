@@ -9,6 +9,7 @@ interface ReplyBoxProps {
   onCancel: () => void;
   onSend: (text: string) => void;
   currentUser: CommentUser;
+  postOwnerId?: string;
 }
 
 export default function ReplyBox({
@@ -16,6 +17,7 @@ export default function ReplyBox({
   onCancel,
   onSend,
   currentUser,
+  postOwnerId,
 }: ReplyBoxProps) {
   const [text, setText] = useState("");
 
@@ -36,7 +38,7 @@ export default function ReplyBox({
           <span className="font-bold text-[13px] text-black">
             {currentUser.name}
           </span>
-          {mentionName && (
+          {currentUser.id === postOwnerId && (
             <>
               <span className="text-gray-400 text-[12px]">·</span>
               <Pencil size={11} className="text-blue-600" strokeWidth={2} />
