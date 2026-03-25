@@ -19,7 +19,7 @@ import { useState } from "react";
 import ReactionPopover from "../popover";
 import PostImage from "../image-renderer";
 import ImageRenderer from "../image-renderer";
-import { toTwemojiUrl } from "@/utils/utils";
+import { getCurrentUser, toTwemojiUrl } from "@/utils/utils";
 import { REACTION_MAP, REACTIONS } from "@/constants";
 import { useRouter } from "next/navigation";
 import Dropdown from "../dropdown";
@@ -36,7 +36,10 @@ const PostCard = ({
 }) => {
   const [openEmojiPickerV1, setOpenEmojiPickerV1] = useState(false);
   const [showFollow, setShowFollow] = useState(true);
-  const isLiked = post.likes.some((like) => like.userId === 1);
+  const user = getCurrentUser();
+  const isLiked = user
+    ? post.likes.some((like) => like.userId === user.id)
+    : false;
 
   const router = useRouter();
 

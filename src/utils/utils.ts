@@ -6,3 +6,14 @@ export const toTwemojiUrl = (emoji: string): string => {
 
   return `https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/${codePoint}.svg`;
 };
+
+export const getCurrentUser = () => {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  } catch {
+    return null;
+  }
+};
