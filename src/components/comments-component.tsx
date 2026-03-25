@@ -126,7 +126,10 @@ export default function CommentsPage({ postId }: { postId: string }) {
       await api.post(`/comments/${replyTarget.commentId}/reply`, {
         userId: Number(currentUser!.id),
         text,
-        parentId: replyTarget.replyToId === replyTarget.commentId ? null : Number(replyTarget.replyToId),
+        parentId:
+          replyTarget.replyToId === replyTarget.commentId
+            ? null
+            : Number(replyTarget.replyToId),
       });
       await fetchComments(1, true);
     } catch (error) {
@@ -273,8 +276,8 @@ export default function CommentsPage({ postId }: { postId: string }) {
     : null;
 
   return (
-    <div className="min-h-screen flex justify-center bg-white">
-      <div className="w-full bg-white min-h-screen flex flex-col font-sans">
+    <div className="h-screen flex justify-center bg-white">
+      <div className="w-full bg-white h-screen flex flex-col font-sans">
         <div className="flex items-center gap-2 py-3 max-w-sm mx-auto w-full">
           <button className="text-black" onClick={goTOHome}>
             <ChevronLeft size={24} strokeWidth={2.5} />
@@ -291,7 +294,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
         ) : (
           <div
             ref={scrollRef}
-            className={`flex-1 overflow-y-auto ${ready ? "" : "invisible"}`}
+            className={`flex-1 overflow-y-auto overflow-x-hidden pb-16 ${ready ? "" : "invisible"}`}
           >
             {postCardData && (
               <div className="py-2">
@@ -310,7 +313,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
               >
                 <Dropdown
                   trigger={
-                    <button className="flex items-center gap-1 font-semibold text-[14px] text-black">
+                    <button className="flex items-center gap-1 font-semibold text-[18px] text-black">
                       {sortLabel} <ChevronDown size={14} strokeWidth={2.5} />
                     </button>
                   }

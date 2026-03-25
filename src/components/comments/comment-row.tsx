@@ -5,12 +5,15 @@ import { ChevronDown, ThumbsUp, Pencil } from "lucide-react";
 import ReplyBox from "./reply-box";
 import { Comment, CommentUser } from "./types";
 
-const REPLIES_PREVIEW_TOP = 1;
-const REPLIES_PREVIEW_NESTED = 1;
-const REPLIES_PREVIEW_DEEP = 0;
+const REPLIES_PREVIEW = 1;
 
-function countAllReplies(replies: Comment[]): number {
-  return replies.reduce((sum, r) => sum + 1 + countAllReplies(r.replies), 0);
+function flattenReplies(replies: Comment[]): Comment[] {
+  const result: Comment[] = [];
+  for (const reply of replies) {
+    result.push({ ...reply, replies: [] });
+    result.push(...flattenReplies(reply.replies));
+  }
+  return result;
 }
 
 interface CommentRowProps {
@@ -52,13 +55,13 @@ export default function CommentRow({
   const isAuthor = comment.user.id === postOwnerId;
   const isTopLevel = depth === 0;
 
-  const previewCount = depth === 0 ? REPLIES_PREVIEW_TOP : depth === 1 ? REPLIES_PREVIEW_NESTED : REPLIES_PREVIEW_DEEP;
-
-  const visibleReplies = showAllReplies
-    ? comment.replies
-    : comment.replies.slice(0, previewCount);
-
-  const totalHidden = countAllReplies(comment.replies.slice(previewCount));
+  const allRepliesFlat = isTopLevel ? flattenReplies(comment.replies) : [];
+  const visibleReplies = isTopLevel
+    ? showAllReplies
+      ? allRepliesFlat
+      : allRepliesFlat.slice(0, REPLIES_PREVIEW)
+    : [];
+  const hiddenCount = isTopLevel ? allRepliesFlat.length - REPLIES_PREVIEW : 0;
 
   return (
     <div className={depth > 0 ? "pl-8" : ""}>
@@ -160,11 +163,11 @@ export default function CommentRow({
         )}
 
       {visibleReplies.map((reply) => (
-        <div key={reply.id} className="mt-3">
+        <div key={`${commentPath}-${reply.id}`} className="mt-3">
           <CommentRow
             comment={reply}
             postOwnerId={postOwnerId}
-            depth={depth + 1}
+            depth={1}
             commentPath={`${commentPath}-${reply.id}`}
             onReply={onReply}
             onLike={onLike}
@@ -176,18 +179,18 @@ export default function CommentRow({
         </div>
       ))}
 
-      {!showAllReplies && totalHidden > 0 && (
+      {!showAllReplies && hiddenCount > 0 && (
         <div className="pl-8 mt-2">
           <button
             className="flex items-center gap-1 text-[12px] text-black font-semibold"
             onClick={() => setShowAllReplies(true)}
           >
             <ChevronDown size={13} />
-            View {totalHidden} more {totalHidden === 1 ? "reply" : "replies"}...
+            View {hiddenCount} more {hiddenCount === 1 ? "reply" : "replies"}...
           </button>
         </div>
       )}
-      {showAllReplies && comment.replies.length > previewCount && (
+      {showAllReplies && allRepliesFlat.length > REPLIES_PREVIEW && (
         <div className="pl-8 mt-2">
           <button
             className="flex items-center gap-1 text-[12px] text-gray-500 font-medium"
