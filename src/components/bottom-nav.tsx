@@ -65,12 +65,6 @@ export default function BottomNav() {
         "user",
         JSON.stringify({ userName: "User 1", id: 1 }),
       );
-      window.dispatchEvent(
-        new StorageEvent("storage", {
-          key: "user",
-          newValue: JSON.stringify({ userName: `User ${i}`, id: i }),
-        }),
-      );
     }
   }, []);
   return (
