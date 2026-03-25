@@ -5,7 +5,13 @@ import { ChevronDown, ThumbsUp, Pencil } from "lucide-react";
 import ReplyBox from "./reply-box";
 import { Comment, CommentUser } from "./types";
 
-const REPLIES_PREVIEW = 1;
+const REPLIES_PREVIEW_TOP = 1;
+const REPLIES_PREVIEW_NESTED = 1;
+const REPLIES_PREVIEW_DEEP = 0;
+
+function countAllReplies(replies: Comment[]): number {
+  return replies.reduce((sum, r) => sum + 1 + countAllReplies(r.replies), 0);
+}
 
 interface CommentRowProps {
   comment: Comment;
@@ -46,11 +52,13 @@ export default function CommentRow({
   const isAuthor = comment.user.id === postOwnerId;
   const isTopLevel = depth === 0;
 
+  const previewCount = depth === 0 ? REPLIES_PREVIEW_TOP : depth === 1 ? REPLIES_PREVIEW_NESTED : REPLIES_PREVIEW_DEEP;
+
   const visibleReplies = showAllReplies
     ? comment.replies
-    : comment.replies.slice(0, REPLIES_PREVIEW);
+    : comment.replies.slice(0, previewCount);
 
-  const hiddenCount = comment.replies.length - REPLIES_PREVIEW;
+  const totalHidden = countAllReplies(comment.replies.slice(previewCount));
 
   return (
     <div className={depth > 0 ? "pl-8" : ""}>
@@ -66,7 +74,7 @@ export default function CommentRow({
         <div className="flex-1 min-w-0 max-w-[60%]">
           <div className="px-3 py-2">
             <div className="flex items-center gap-1 flex-wrap">
-              <span className="font-bold text-[15px] text-black">
+              <span className="font-bold text-[18px] text-black">
                 {comment.user.name}
               </span>
               <span className="text-[12px] text-gray-500">
@@ -168,18 +176,18 @@ export default function CommentRow({
         </div>
       ))}
 
-      {!showAllReplies && hiddenCount > 0 && (
+      {!showAllReplies && totalHidden > 0 && (
         <div className="pl-8 mt-2">
           <button
             className="flex items-center gap-1 text-[12px] text-black font-semibold"
             onClick={() => setShowAllReplies(true)}
           >
             <ChevronDown size={13} />
-            View {hiddenCount} more {hiddenCount === 1 ? "reply" : "replies"}...
+            View {totalHidden} more {totalHidden === 1 ? "reply" : "replies"}...
           </button>
         </div>
       )}
-      {showAllReplies && comment.replies.length > REPLIES_PREVIEW && (
+      {showAllReplies && comment.replies.length > previewCount && (
         <div className="pl-8 mt-2">
           <button
             className="flex items-center gap-1 text-[12px] text-gray-500 font-medium"
