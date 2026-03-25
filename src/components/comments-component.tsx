@@ -297,7 +297,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
             className={`flex-1 overflow-y-auto ${ready ? "" : "invisible"}`}
           >
             {postCardData && (
-              <div className="px-2 py-2">
+              <div className="py-2">
                 <PostCard
                   post={postCardData}
                   handleReact={() => {}}
