@@ -151,23 +151,26 @@ export default function CommentsPage({ postId }: { postId: string }) {
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
         const userData = JSON.parse(storedUser);
-        try {
-          const userRes = await api.get(`/users/${userData.id}`);
+        // Set user immediately with stored data, then update with API data
+        setCurrentUser({
+          id: String(userData.id),
+          name: userData.userName,
+          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.userName}`,
+        });
+        
+        // Fetch detailed user info in background
+        api.get(`/users/${userData.id}`).then(userRes => {
           const userDetails = userRes?.data?.data;
-          setCurrentUser({
-            id: String(userDetails.id),
-            name: userDetails.name,
-            avatar: userDetails.profile || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userDetails.name}`,
-          });
-        } catch (error) {
+          if (userDetails) {
+            setCurrentUser({
+              id: String(userDetails.id),
+              name: userDetails.name,
+              avatar: userDetails.profile || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userDetails.name}`,
+            });
+          }
+        }).catch(error => {
           console.log("Error fetching user details:", error);
-          // Fallback to stored user data
-          setCurrentUser({
-            id: String(userData.id),
-            name: userData.userName,
-            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.userName}`,
-          });
-        }
+        });
       } else {
         // Fallback to post author if no user in localStorage
         setCurrentUser({
@@ -192,6 +195,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
       const raw = res?.data;
       const commentsArr = Array.isArray(raw) ? raw : raw?.data || [];
       const mapped = commentsArr.map(mapComment);
+      
       if (reset) {
         setComments(mapped);
         setPage(1);
@@ -200,7 +204,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
       }
       setHasMore(mapped.length >= COMMENTS_LIMIT);
     } catch (error) {
-      console.log(error);
+      console.log('fetchComments error:', error);
     } finally {
       loadingRef.current = false;
       setLoadingComments(false);
@@ -222,18 +226,14 @@ export default function CommentsPage({ postId }: { postId: string }) {
         const target = commentsSectionRef.current;
         if (container && target) {
           const targetTop = target.offsetTop - container.offsetTop;
-          container.scrollTo({
-            top: targetTop,
-            behavior: 'auto' // Instant scroll, no animation
-          });
+          container.scrollTop = targetTop; // Instant scroll
           hasScrolled.current = true;
-          // Show content after scroll is complete
-          setTimeout(() => setReady(true), 50);
+          setReady(true); // Show content immediately after scroll
         }
       };
       
-      // Immediate scroll
-      setTimeout(scrollToComments, 0);
+      // Immediate scroll with no delay
+      requestAnimationFrame(scrollToComments);
     }
   }, [postDetail, comments, loadingComments]);
 
@@ -323,20 +323,29 @@ export default function CommentsPage({ postId }: { postId: string }) {
                     No comments yet
                   </p>
                 ) : (
-                  comments.map((comment) => (
-                    <div key={comment.id}>
-                      <CommentRow
-                        comment={comment}
-                        postOwnerId={postAuthor ? String(postAuthor.id) : ""}
-                        onReply={handleReply}
-                        onLike={handleLike}
-                        replyTarget={replyTarget}
-                        onCancelReply={() => setReplyTarget(null)}
-                        onSendReply={handleSendReply}
-                        currentUser={currentUser}
-                      />
-                    </div>
-                  ))
+                  <>
+                    {comments.map((comment) => (
+                      <div key={comment.id}>
+                        <CommentRow
+                          comment={comment}
+                          postOwnerId={postAuthor ? String(postAuthor.id) : ""}
+                          onReply={handleReply}
+                          onLike={handleLike}
+                          replyTarget={replyTarget}
+                          onCancelReply={() => setReplyTarget(null)}
+                          onSendReply={handleSendReply}
+                          currentUser={currentUser}
+                        />
+                      </div>
+                    ))}
+                    {loadingComments && (
+                      <div className="text-center py-4">
+                        <span className="text-[12px] text-gray-400">
+                          Loading comments...
+                        </span>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 {hasMore && (
