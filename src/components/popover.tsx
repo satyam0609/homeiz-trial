@@ -35,7 +35,7 @@
 
 // export default ReactionPopover;
 
-// "use client";
+"use client";
 import React, { useRef, useState, useCallback } from "react";
 
 type Props = {
@@ -48,7 +48,7 @@ const ReactionPopover = ({ trigger, children }: Props) => {
   const [closing, setClosing] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isTouch = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const openPopover = useCallback(() => {
     if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
@@ -63,6 +63,25 @@ const ReactionPopover = ({ trigger, children }: Props) => {
       setClosing(false);
     }, 150); // match animation duration
   }, []);
+
+  // Click outside to close
+  React.useEffect(() => {
+    if (!open) return;
+    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        closePopover();
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+    };
+  }, [open, closePopover]);
 
   // Desktop: hover
   const handlePointerEnter = useCallback(
@@ -130,6 +149,7 @@ const ReactionPopover = ({ trigger, children }: Props) => {
       `}</style>
 
       <div
+        ref={containerRef}
         className="relative inline-block"
         onPointerEnter={handlePointerEnter}
         onPointerLeave={handlePointerLeave}
