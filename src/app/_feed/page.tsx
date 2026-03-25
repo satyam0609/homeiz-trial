@@ -30,6 +30,7 @@ const FeedPage = () => {
   const { ref, inView } = useInView({ threshold: 1 });
 
   const handleReact = async (postId: number, reaction: string) => {
+    console.log(reaction, postId);
     const userId = 1;
 
     setPosts((prev) =>
