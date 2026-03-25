@@ -30,7 +30,6 @@ const FeedPage = () => {
   const { ref, inView } = useInView({ threshold: 1 });
 
   const handleReact = async (postId: number, reaction: string) => {
-    console.log(reaction, postId);
     const userId = 1;
 
     setPosts((prev) =>
@@ -43,32 +42,50 @@ const FeedPage = () => {
         let updatedReactionCounts = { ...post.reactionCounts };
         let updatedCount = post._count.likes;
 
+        // ✅ CASE 1: user already reacted
         if (existingLike) {
-          // ❌ remove reaction
-          updatedLikes = post.likes.filter((l) => l.userId !== userId);
-
-          // decrease count
-          updatedCount = Math.max(0, post._count.likes - 1);
-
-          // decrease reactionCounts
           const prevReaction = existingLike.reaction;
-          if (updatedReactionCounts[prevReaction]) {
-            updatedReactionCounts[prevReaction] -= 1;
-            if (updatedReactionCounts[prevReaction] === 0) {
+
+          // 👉 SAME reaction → REMOVE
+          if (prevReaction === reaction) {
+            updatedLikes = post.likes.filter((l) => l.userId !== userId);
+            updatedCount -= 1;
+
+            updatedReactionCounts[reaction] =
+              (updatedReactionCounts[reaction] || 1) - 1;
+
+            if (updatedReactionCounts[reaction] <= 0) {
+              delete updatedReactionCounts[reaction];
+            }
+          } else {
+            // 👉 DIFFERENT reaction → UPDATE
+            updatedLikes = post.likes.map((l) =>
+              l.userId === userId ? { ...l, reaction } : l,
+            );
+
+            // decrease old
+            updatedReactionCounts[prevReaction] =
+              (updatedReactionCounts[prevReaction] || 1) - 1;
+
+            if (updatedReactionCounts[prevReaction] <= 0) {
               delete updatedReactionCounts[prevReaction];
             }
+
+            // increase new
+            updatedReactionCounts[reaction] =
+              (updatedReactionCounts[reaction] || 0) + 1;
           }
         } else {
-          // ✅ add reaction
+          // ✅ CASE 2: no reaction → ADD
           updatedLikes.push({
-            id: Date.now(), // temp id
+            id: Date.now(),
             userId,
             postId,
             reaction,
             createdAt: new Date().toISOString(),
           });
 
-          updatedCount = post._count.likes + 1;
+          updatedCount += 1;
 
           updatedReactionCounts[reaction] =
             (updatedReactionCounts[reaction] || 0) + 1;
@@ -89,13 +106,80 @@ const FeedPage = () => {
     try {
       await reactPost({
         id: postId,
-        body: {
-          userId,
-          reaction,
-        },
+        body: { userId, reaction },
       });
     } catch (error) {
       console.error("Reaction failed");
+    }
+  };
+
+  const handleLike = async (postId: number) => {
+    const userId = 1;
+
+    setPosts((prev) =>
+      prev.map((post) => {
+        if (post.id !== postId) return post;
+
+        const existingLike = post.likes.find((l) => l.userId === userId);
+
+        let updatedLikes = [...post.likes];
+        let updatedReactionCounts = { ...post.reactionCounts };
+        let updatedCount = post._count.likes;
+
+        // ✅ CASE 1: already reacted → REMOVE
+        if (existingLike) {
+          const prevReaction = existingLike.reaction;
+
+          updatedLikes = post.likes.filter((l) => l.userId !== userId);
+          updatedCount -= 1;
+
+          // decrease count
+          updatedReactionCounts[prevReaction] =
+            (updatedReactionCounts[prevReaction] || 1) - 1;
+
+          if (updatedReactionCounts[prevReaction] <= 0) {
+            delete updatedReactionCounts[prevReaction];
+          }
+        } else {
+          // ✅ CASE 2: no reaction → ADD LIKE
+          const newReaction = "LIKE";
+
+          updatedLikes.push({
+            id: Math.floor(Math.random() * 1_000_000_000), // random id
+            userId,
+            postId,
+            reaction: newReaction,
+            createdAt: new Date().toISOString(),
+          });
+
+          updatedCount += 1;
+
+          updatedReactionCounts[newReaction] =
+            (updatedReactionCounts[newReaction] || 0) + 1;
+        }
+
+        return {
+          ...post,
+          likes: updatedLikes,
+          _count: {
+            ...post._count,
+            likes: updatedCount,
+          },
+          reactionCounts: updatedReactionCounts,
+        };
+      }),
+    );
+
+    try {
+      await reactPost({
+        id: postId,
+        body: {
+          userId,
+          reaction: "LIKE",
+        },
+      });
+    } catch (error) {
+      console.error("Like failed");
     }
   };
 
@@ -184,6 +268,7 @@ const FeedPage = () => {
             key={`${post.id}-${index}`}
             post={post}
             handleReact={handleReact}
+            handleLike={handleLike}
           />
         ))}
       </section>
