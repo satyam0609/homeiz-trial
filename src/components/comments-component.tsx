@@ -146,7 +146,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
       setPostDetail(post);
       const user = post?.user;
       setPostAuthor(user);
-      
+
       // Get current user from localStorage and fetch user details
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
@@ -155,28 +155,35 @@ export default function CommentsPage({ postId }: { postId: string }) {
         setCurrentUser({
           id: String(userData.id),
           name: userData.userName,
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.userName}`,
+          avatar: `no-image`,
         });
-        
+
         // Fetch detailed user info in background
-        api.get(`/users/${userData.id}`).then(userRes => {
-          const userDetails = userRes?.data?.data;
-          if (userDetails) {
-            setCurrentUser({
-              id: String(userDetails.id),
-              name: userDetails.name,
-              avatar: userDetails.profile || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userDetails.name}`,
-            });
-          }
-        }).catch(error => {
-          console.log("Error fetching user details:", error);
-        });
+        api
+          .get(`/users/${userData.id}`)
+          .then((userRes) => {
+            const userDetails = userRes?.data?.data;
+            if (userDetails) {
+              setCurrentUser({
+                id: String(userDetails.id),
+                name: userDetails.name,
+                avatar:
+                  userDetails.profile ||
+                  `https://api.dicebear.com/7.x/avataaars/svg?seed=${userDetails.name}`,
+              });
+            }
+          })
+          .catch((error) => {
+            console.log("Error fetching user details:", error);
+          });
       } else {
         // Fallback to post author if no user in localStorage
         setCurrentUser({
           id: String(user?.id),
           name: user?.name,
-          avatar: user?.profile || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`,
+          avatar:
+            user?.profile ||
+            `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`,
         });
       }
     } catch (error) {
@@ -195,7 +202,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
       const raw = res?.data;
       const commentsArr = Array.isArray(raw) ? raw : raw?.data || [];
       const mapped = commentsArr.map(mapComment);
-      
+
       if (reset) {
         setComments(mapped);
         setPage(1);
@@ -204,7 +211,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
       }
       setHasMore(mapped.length >= COMMENTS_LIMIT);
     } catch (error) {
-      console.log('fetchComments error:', error);
+      console.log("fetchComments error:", error);
     } finally {
       loadingRef.current = false;
       setLoadingComments(false);
@@ -231,7 +238,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
           setReady(true); // Show content immediately after scroll
         }
       };
-      
+
       // Immediate scroll with no delay
       requestAnimationFrame(scrollToComments);
     }
@@ -362,7 +369,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
           </div>
         )}
 
-        <div className="border-t border-gray-200 px-3 py-3 flex items-center gap-2 max-w-sm mx-auto w-full">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-3 py-3 flex items-center gap-2 max-w-sm mx-auto w-full z-50">
           {currentUser && (
             <img
               src={currentUser.avatar}
