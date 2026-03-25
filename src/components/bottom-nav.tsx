@@ -69,7 +69,7 @@ export default function BottomNav() {
   }, []);
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
-      <div className="flex items-center justify-between px-6 py-3 bg-bluish-black backdrop-blur-md shadow-lg border border-white/10">
+      <div className="flex items-center justify-between px-6 py-4 bg-bluish-black backdrop-blur-md shadow-lg border border-white/10">
         {NAV_ITEMS.map((item: any) => {
           const Icon = item.icon;
 
@@ -81,7 +81,7 @@ export default function BottomNav() {
               <Dropdown
                 trigger={
                   <div className="flex items-center gap-1 cursor-pointer">
-                    <div className="h-8 w-8 bg-primary-blue rounded-full flex justify-center items-center text-sm font-normal">
+                    <div className="h-8 w-8 text-xs bg-primary-blue rounded-full flex justify-center items-center font-medium leading-3">
                       CJ
                     </div>
                     <DropdownIcon size={18} />

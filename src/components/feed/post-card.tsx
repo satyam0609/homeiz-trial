@@ -8,6 +8,10 @@ import {
   Eye,
   Edit2Icon,
   Trash2Icon,
+  Globe2,
+  Globe,
+  GlobeIcon,
+  Globe2Icon,
 } from "lucide-react";
 
 import Separator from "../separator";
@@ -105,7 +109,7 @@ const PostCard = ({
             </div>
           </div>
           {/* Info */}
-          <div className="flex-1 text-base font-bold ">{post.location}</div>
+          <div className="flex-1 text-[18px] font-bold ">{post.location}</div>
 
           <div className="flex-1 text-sm font-bold flex items-center gap-3 flex-wrap">
             <span>{post?.user?.role}</span>
@@ -126,7 +130,15 @@ const PostCard = ({
 
             <span className="text-blue-500 font-semibold">{3}</span>
 
-            <button className="text-gray-700 hover:underline">Reviews</button>
+            <button className="text-gray-700 hover:underline flex items-center gap-1">
+              <Star size={14} className={"text-gray-400"} />
+              Reviews
+            </button>
+          </div>
+          <div className="flex gap-2 items-center text-text-primary">
+            <span className="text-[11px] font-bold ">41 m</span>
+            <span className="h-0.5 w-0.5 bg-text-secondary"></span>
+            <Globe2Icon className="h-[11px] w-[11px] text-text-secondary" />
           </div>
         </div>
       </div>
@@ -197,32 +209,56 @@ const PostCard = ({
             😂
           </span>
         </div> */}
-        <div className="flex items-center px-2">
-          {Object.entries(post.reactionCounts || {})
-            .slice(0, 3)
-            .map(([type], index) => {
-              const emoji = REACTION_MAP[type];
+        {Object.keys(post.reactionCounts).length > 0 && (
+          <div className="flex items-center px-2">
+            {Object.entries(post.reactionCounts || {})
+              .slice(0, 3)
+              .map(([type], index) => {
+                const emoji = REACTION_MAP[type];
 
-              if (!emoji) return null;
+                if (!emoji) return null;
 
-              return (
-                <span
-                  key={type}
-                  style={{ zIndex: 10 - index }}
-                  className="w-6 h-6 flex items-center justify-center
+                return (
+                  <span
+                    key={type}
+                    style={{ zIndex: 10 - index }}
+                    className="w-6 h-6 flex items-center justify-center
                      bg-white rounded-full shadow-sm
                      -ml-1 first:ml-0"
-                >
-                  <img
-                    src={toTwemojiUrl(emoji)}
-                    className="w-4 h-4"
-                    alt={type}
-                  />
-                </span>
-              );
-            })}
-        </div>
+                  >
+                    <img
+                      src={toTwemojiUrl(emoji)}
+                      className="w-4 h-4"
+                      alt={type}
+                    />
+                  </span>
+                );
+              })}
+          </div>
+        )}
       </div>
+
+      {/* <div className="flex items-center px-2">
+        {Object.entries(post.reactionCounts || {})
+          .slice(0, 3)
+          .map(([type], index) => {
+            const emoji = REACTION_MAP[type];
+
+            if (!emoji) return null;
+
+            return (
+              <span
+                key={type}
+                style={{ zIndex: 10 - index }}
+                className="w-6 h-6 flex items-center justify-center
+                     bg-white rounded-full shadow-sm
+                     -ml-1 first:ml-0"
+              >
+                <img src={toTwemojiUrl(emoji)} className="w-4 h-4" alt={type} />
+              </span>
+            );
+          })}
+      </div> */}
 
       <Separator />
     </div>
