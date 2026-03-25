@@ -119,7 +119,7 @@ export default function CommentRow({
 
         {isTopLevel && (
           <button
-            className={`mt-1 ml-auto flex-shrink-0 ${comment.likedByMe ? "text-blue-500" : "text-gray-300"}`}
+            className={`mt-1 ml-5 flex-shrink-0 ${comment.likedByMe ? "text-blue-500" : "text-gray-300"}`}
             onClick={() => onLike(comment.id)}
           >
             <ThumbsUp size={16} strokeWidth={1.8} />
