@@ -1,6 +1,9 @@
+"use client";
+
 import DropdownIcon from "@/assets/icons/dropdown";
 import NavigationArrowIcon from "@/assets/icons/navigation";
 import PlayCircleIcon from "@/assets/icons/playIcon";
+import Dropdown from "@/components/dropdown";
 import {
   Home,
   Bell,
@@ -59,7 +62,34 @@ export default function BottomNav() {
         {NAV_ITEMS.map((item: any) => {
           const Icon = item.icon;
 
-          return (
+          return item.isProfile ? (
+            <div
+              key={item.id}
+              className="text-white hover:text-white transition"
+            >
+              <Dropdown
+                trigger={
+                  <div className="flex items-center gap-1 cursor-pointer">
+                    <div className="h-8 w-8 bg-primary-blue rounded-full flex justify-center items-center text-sm font-normal">
+                      CJ
+                    </div>
+                    <DropdownIcon size={18} />
+                  </div>
+                }
+                items={[1, 2, 3, 4].map((i) => ({
+                  label: `User ${i}`,
+                  onClick: () => {
+                    localStorage.setItem(
+                      "user",
+                      JSON.stringify({ userName: `User ${i}`, id: i }),
+                    );
+                  },
+                }))}
+                side="right"
+                position="top"
+              />
+            </div>
+          ) : (
             <button
               key={item.id}
               className={
@@ -69,14 +99,6 @@ export default function BottomNav() {
               }
             >
               {Icon && <Icon size={item.id !== "create" ? 24 : 28} />}
-              {item.isProfile && (
-                <div className="flex items-center gap-1">
-                  <div className="h-8 w-8 bg-primary-blue rounded-full flex justify-center items-center text-sm font-normal">
-                    CJ
-                  </div>
-                  <DropdownIcon size={18} />
-                </div>
-              )}
             </button>
           );
         })}
