@@ -11,12 +11,14 @@ interface CommentRowProps {
   comment: Comment;
   postOwnerId: string;
   depth?: number;
-  onReply: (commentId: string, replyToId: string, mentionName: string) => void;
+  commentPath?: string;
+  onReply: (commentId: string, replyToId: string, mentionName: string, commentPath: string) => void;
   onLike: (commentId: string) => void;
   replyTarget?: {
     commentId: string;
     replyToId: string;
     mentionName: string;
+    commentPath: string;
   } | null;
   onCancelReply?: () => void;
   onSendReply?: (text: string) => void;
@@ -27,6 +29,7 @@ export default function CommentRow({
   comment,
   postOwnerId,
   depth = 0,
+  commentPath = comment.id,
   onReply,
   onLike,
   replyTarget,
@@ -92,6 +95,7 @@ export default function CommentRow({
                   comment.rootId || comment.id,
                   comment.id,
                   comment.user.name,
+                  commentPath,
                 )
               }
             >
@@ -127,7 +131,7 @@ export default function CommentRow({
         )}
       </div>
 
-      {replyTarget && replyTarget.replyToId === comment.id && currentUser && (
+      {replyTarget && replyTarget.replyToId === comment.id && replyTarget.commentPath === commentPath && currentUser && (
         <div className="mt-3 pl-8">
           <ReplyBox
             mentionName={replyTarget.mentionName}
@@ -144,6 +148,7 @@ export default function CommentRow({
             comment={reply}
             postOwnerId={postOwnerId}
             depth={depth + 1}
+            commentPath={`${commentPath}-${reply.id}`}
             onReply={onReply}
             onLike={onLike}
             replyTarget={replyTarget}

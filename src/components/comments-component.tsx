@@ -43,6 +43,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
     commentId: string;
     replyToId: string;
     mentionName: string;
+    commentPath: string;
   } | null>(null);
   const [newCommentText, setNewCommentText] = useState("");
   const [sortLabel, setSortLabel] = useState("Newest");
@@ -52,8 +53,9 @@ export default function CommentsPage({ postId }: { postId: string }) {
     commentId: string,
     replyToId: string,
     mentionName: string,
+    commentPath: string,
   ) {
-    setReplyTarget({ commentId, replyToId, mentionName });
+    setReplyTarget({ commentId, replyToId, mentionName, commentPath });
   }
 
   function handleLike(commentId: string) {
@@ -144,11 +146,36 @@ export default function CommentsPage({ postId }: { postId: string }) {
       setPostDetail(post);
       const user = post?.user;
       setPostAuthor(user);
-      setCurrentUser({
-        id: String(user?.id),
-        name: user?.name,
-        avatar: user?.profile,
-      });
+      
+      // Get current user from localStorage and fetch user details
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        try {
+          const userRes = await api.get(`/users/${userData.id}`);
+          const userDetails = userRes?.data?.data;
+          setCurrentUser({
+            id: String(userDetails.id),
+            name: userDetails.name,
+            avatar: userDetails.profile || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userDetails.name}`,
+          });
+        } catch (error) {
+          console.log("Error fetching user details:", error);
+          // Fallback to stored user data
+          setCurrentUser({
+            id: String(userData.id),
+            name: userData.userName,
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.userName}`,
+          });
+        }
+      } else {
+        // Fallback to post author if no user in localStorage
+        setCurrentUser({
+          id: String(user?.id),
+          name: user?.name,
+          avatar: user?.profile || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`,
+        });
+      }
     } catch (error) {
       console.log("getPost error:", error);
     }
@@ -181,27 +208,32 @@ export default function CommentsPage({ postId }: { postId: string }) {
   };
 
   useEffect(() => {
-    Promise.all([getPost(), fetchComments(1, true)]).finally(() =>
-      setInitialLoading(false),
-    );
+    Promise.all([getPost(), fetchComments(1, true)]).finally(() => {
+      setInitialLoading(false);
+      // Don't set ready here - let the scroll effect handle it
+    });
   }, []);
 
   useEffect(() => {
-    if (!postDetail || hasScrolled.current) return;
+    if (!postDetail || !comments || hasScrolled.current) return;
     if (!loadingComments) {
-      hasScrolled.current = true;
       const scrollToComments = () => {
         const container = scrollRef.current;
         const target = commentsSectionRef.current;
         if (container && target) {
-          container.scrollTop = target.offsetTop - container.offsetTop;
+          const targetTop = target.offsetTop - container.offsetTop;
+          container.scrollTo({
+            top: targetTop,
+            behavior: 'auto' // Instant scroll, no animation
+          });
+          hasScrolled.current = true;
+          // Show content after scroll is complete
+          setTimeout(() => setReady(true), 50);
         }
       };
-      requestAnimationFrame(scrollToComments);
-      setTimeout(() => {
-        scrollToComments();
-        setReady(true);
-      }, 300);
+      
+      // Immediate scroll
+      setTimeout(scrollToComments, 0);
     }
   }, [postDetail, comments, loadingComments]);
 
