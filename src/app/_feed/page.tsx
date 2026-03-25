@@ -176,8 +176,12 @@ const FeedPage = () => {
         </div>
       </div>
       <section id="posts" className="mt-4">
-        {posts.map((post) => (
-          <PostCard key={post.id} post={post} handleReact={handleReact} />
+        {posts.map((post, index) => (
+          <PostCard
+            key={`${post.id}-${index}`}
+            post={post}
+            handleReact={handleReact}
+          />
         ))}
       </section>
       <div ref={ref} className="h-10 flex justify-center items-center">

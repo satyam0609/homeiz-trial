@@ -145,7 +145,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
         {open && (
           <div
-            className={`dropdown-menu absolute mt-1.5 min-w-[11rem] ${alignmentClass}`}
+            className={`dropdown-menu absolute mt-1.5 min-w-32 ${alignmentClass}`}
             style={{
               background: "#ffffff",
               border: "1px solid #e4e4e7",
