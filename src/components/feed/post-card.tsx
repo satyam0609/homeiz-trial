@@ -36,7 +36,7 @@ const PostCard = ({
   handleRemove,
 }: {
   post: Post;
-  handleRemove: (postId: number) => void;
+  handleRemove?: (postId: number) => void;
   handleReact: (postId: number, reaction: string) => void;
   handleLike: (userId: number) => void;
 }) => {
@@ -115,7 +115,7 @@ const PostCard = ({
                 />
               )}
 
-              <button onClick={() => handleRemove(post.id)}>
+              <button onClick={() => handleRemove && handleRemove(post.id)}>
                 <X size={18} />
               </button>
             </div>
