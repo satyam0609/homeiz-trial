@@ -11,6 +11,7 @@ type DropdownItem =
       destructive?: boolean;
       disabled?: boolean;
       onClick?: () => void;
+      selected?: boolean;
     }
   | { type: "separator" }
   | { type: "label"; label: string };
@@ -195,10 +196,13 @@ const Dropdown: React.FC<DropdownProps> = ({
                   >
                     {item.label}
                   </span>
-                  {item.shortcut && (
+                  {/* {item.shortcut && (
                     <span className="dropdown-item-shortcut">
                       {item.shortcut}
                     </span>
+                  )} */}
+                  {item.selected && (
+                    <span className="h-2 w-2 bg-blue-500 rounded-full"></span>
                   )}
                 </button>
               );
