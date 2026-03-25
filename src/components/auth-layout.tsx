@@ -12,10 +12,10 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
       <header className="flex items-center justify-between px-4 py-3 bg-white sticky top-0 z-50">
         <div className="flex items-center gap-2">
           <img src="/images/logo.svg" alt="logo" className="w-8 h-8" />
-          <h1 className="text-lg font-semibold tracking-wide">
-            HOME<span className="text-primary text-blue-500">I</span>Z
-          </h1>
         </div>
+        <h1 className="text-lg font-semibold tracking-wide ml-11">
+          HOME<span className="text-primary text-blue-500">I</span>Z
+        </h1>
 
         {/* Right side actions */}
         <div className="flex items-center gap-2">

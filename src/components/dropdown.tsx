@@ -169,7 +169,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
               if (item.type === "label") {
                 return (
-                  <div key={index} className="dropdown-group-label">
+                  <div key={index} className="dropdown-group-label font-bold">
                     {item.label}
                   </div>
                 );
@@ -186,9 +186,15 @@ const Dropdown: React.FC<DropdownProps> = ({
                   }}
                 >
                   {item.icon && (
-                    <span className="dropdown-item-icon">{item.icon}</span>
+                    <span className="dropdown-item-icon font-semibold">
+                      {item.icon}
+                    </span>
                   )}
-                  <span className="dropdown-item-label">{item.label}</span>
+                  <span
+                    className={`dropdown-item-label font-semibold ${item.label === "Delete Post" ? "text-red-600" : ""}`}
+                  >
+                    {item.label}
+                  </span>
                   {item.shortcut && (
                     <span className="dropdown-item-shortcut">
                       {item.shortcut}
