@@ -126,7 +126,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
       await api.post(`/comments/${replyTarget.commentId}/reply`, {
         userId: Number(currentUser!.id),
         text,
-        parentId: Number(replyTarget.replyToId),
+        parentId: replyTarget.replyToId === replyTarget.commentId ? null : Number(replyTarget.replyToId),
       });
       await fetchComments(1, true);
     } catch (error) {
@@ -147,11 +147,9 @@ export default function CommentsPage({ postId }: { postId: string }) {
       const user = post?.user;
       setPostAuthor(user);
 
-      // Get current user from localStorage and fetch user details
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
         const userData = JSON.parse(storedUser);
-        // Set user immediately with stored data, then update with API data
         setCurrentUser({
           id: String(userData.id),
           name: userData.userName,
@@ -177,7 +175,6 @@ export default function CommentsPage({ postId }: { postId: string }) {
             console.log("Error fetching user details:", error);
           });
       } else {
-        // Fallback to post author if no user in localStorage
         setCurrentUser({
           id: String(user?.id),
           name: user?.name,

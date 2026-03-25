@@ -12,7 +12,12 @@ interface CommentRowProps {
   postOwnerId: string;
   depth?: number;
   commentPath?: string;
-  onReply: (commentId: string, replyToId: string, mentionName: string, commentPath: string) => void;
+  onReply: (
+    commentId: string,
+    replyToId: string,
+    mentionName: string,
+    commentPath: string,
+  ) => void;
   onLike: (commentId: string) => void;
   replyTarget?: {
     commentId: string;
@@ -61,7 +66,7 @@ export default function CommentRow({
         <div className="flex-1 min-w-0 max-w-[60%]">
           <div className="px-3 py-2">
             <div className="flex items-center gap-1 flex-wrap">
-              <span className="font-bold text-[13px] text-black">
+              <span className="font-bold text-[15px] text-black">
                 {comment.user.name}
               </span>
               <span className="text-[12px] text-gray-500">
@@ -77,7 +82,7 @@ export default function CommentRow({
                 </>
               )}
             </div>
-            <p className="text-[13px] font-semibold text-black mt-0.5 leading-snug">
+            <p className="text-[15px] font-semibold text-black mt-0.5 leading-snug">
               {depth > 0 && comment.mention && (
                 <span className="text-blue-600 font-semibold pr-1">
                   {comment.mention}
@@ -131,17 +136,20 @@ export default function CommentRow({
         )}
       </div>
 
-      {replyTarget && replyTarget.replyToId === comment.id && replyTarget.commentPath === commentPath && currentUser && (
-        <div className="mt-3 pl-8">
-          <ReplyBox
-            mentionName={replyTarget.mentionName}
-            onCancel={onCancelReply!}
-            onSend={onSendReply!}
-            currentUser={currentUser}
-            postOwnerId={postOwnerId}
-          />
-        </div>
-      )}
+      {replyTarget &&
+        replyTarget.replyToId === comment.id &&
+        replyTarget.commentPath === commentPath &&
+        currentUser && (
+          <div className="mt-3 pl-8">
+            <ReplyBox
+              mentionName={replyTarget.mentionName}
+              onCancel={onCancelReply!}
+              onSend={onSendReply!}
+              currentUser={currentUser}
+              postOwnerId={postOwnerId}
+            />
+          </div>
+        )}
 
       {visibleReplies.map((reply) => (
         <div key={reply.id} className="mt-3">
