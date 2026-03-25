@@ -11,12 +11,14 @@ interface CommentRowProps {
   comment: Comment;
   postOwnerId: string;
   depth?: number;
-  onReply: (commentId: string, replyToId: string, mentionName: string) => void;
+  commentPath?: string;
+  onReply: (commentId: string, replyToId: string, mentionName: string, commentPath: string) => void;
   onLike: (commentId: string) => void;
   replyTarget?: {
     commentId: string;
     replyToId: string;
     mentionName: string;
+    commentPath: string;
   } | null;
   onCancelReply?: () => void;
   onSendReply?: (text: string) => void;
@@ -27,6 +29,7 @@ export default function CommentRow({
   comment,
   postOwnerId,
   depth = 0,
+  commentPath = comment.id,
   onReply,
   onLike,
   replyTarget,
@@ -84,14 +87,15 @@ export default function CommentRow({
             </p>
           </div>
 
-          <div className="flex items-center gap-3 mt-1.5 pl-1">
+          <div className="flex items-center gap-5 mt-1.5 pl-3">
             <button
-              className="text-[12px] text-gray-500 font-semibold"
+              className="text-[12px] text-gray-500 font-bold"
               onClick={() =>
                 onReply(
                   comment.rootId || comment.id,
                   comment.id,
                   comment.user.name,
+                  commentPath,
                 )
               }
             >
@@ -99,12 +103,16 @@ export default function CommentRow({
             </button>
             {comment.likes > 0 || comment.likedByMe ? (
               <button
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 justify-center"
                 onClick={() => onLike(comment.id)}
               >
-                <div className="bg-blue-500 rounded-full p-0.5">
-                  <ThumbsUp size={10} className="text-white fill-white" />
+                <div className="bg-blue-500 rounded-full w-4 h-4 flex items-center justify-center">
+                  <ThumbsUp
+                    size={8}
+                    className="text-white fill-white stroke-white"
+                  />
                 </div>
+
                 <span className="text-[12px] text-gray-500">
                   {comment.likes}
                 </span>
@@ -115,7 +123,7 @@ export default function CommentRow({
 
         {isTopLevel && (
           <button
-            className={`mt-1 ml-auto flex-shrink-0 ${comment.likedByMe ? "text-blue-500" : "text-gray-300"}`}
+            className={`mt-1 ml-5 flex-shrink-0 ${comment.likedByMe ? "text-blue-500" : "text-gray-300"}`}
             onClick={() => onLike(comment.id)}
           >
             <ThumbsUp size={16} strokeWidth={1.8} />
@@ -123,7 +131,7 @@ export default function CommentRow({
         )}
       </div>
 
-      {replyTarget && replyTarget.replyToId === comment.id && currentUser && (
+      {replyTarget && replyTarget.replyToId === comment.id && replyTarget.commentPath === commentPath && currentUser && (
         <div className="mt-3 pl-8">
           <ReplyBox
             mentionName={replyTarget.mentionName}
@@ -140,6 +148,7 @@ export default function CommentRow({
             comment={reply}
             postOwnerId={postOwnerId}
             depth={depth + 1}
+            commentPath={`${commentPath}-${reply.id}`}
             onReply={onReply}
             onLike={onLike}
             replyTarget={replyTarget}

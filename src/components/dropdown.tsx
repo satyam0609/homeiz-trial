@@ -19,6 +19,7 @@ type DropdownProps = {
   trigger: React.ReactNode;
   items: DropdownItem[];
   side?: "left" | "right";
+  position?: "bottom" | "top";
   label?: string;
 };
 
@@ -26,6 +27,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   trigger,
   items,
   side = "right",
+  position = "bottom",
   label,
 }) => {
   const [open, setOpen] = useState(false);
@@ -145,7 +147,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
         {open && (
           <div
-            className={`dropdown-menu absolute mt-1.5 min-w-32 ${alignmentClass}`}
+            className={`dropdown-menu absolute min-w-32 ${alignmentClass} ${position === "top" ? "bottom-full mb-1.5" : "mt-1.5"}`}
             style={{
               background: "#ffffff",
               border: "1px solid #e4e4e7",

@@ -43,19 +43,68 @@ export default function CommentsPage({ postId }: { postId: string }) {
     commentId: string;
     replyToId: string;
     mentionName: string;
+    commentPath: string;
   } | null>(null);
   const [newCommentText, setNewCommentText] = useState("");
   const [sortLabel, setSortLabel] = useState("Newest");
+  const [likedComments, setLikedComments] = useState<Set<string>>(new Set());
 
   function handleReply(
     commentId: string,
     replyToId: string,
     mentionName: string,
+    commentPath: string,
   ) {
-    setReplyTarget({ commentId, replyToId, mentionName });
+    setReplyTarget({ commentId, replyToId, mentionName, commentPath });
   }
 
-  function handleLike(commentId: string) {}
+  function handleLike(commentId: string) {
+    setLikedComments((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(commentId)) {
+        newSet.delete(commentId);
+      } else {
+        newSet.add(commentId);
+      }
+      return newSet;
+    });
+
+    setComments((prev) =>
+      prev.map((comment) => {
+        if (comment.id === commentId) {
+          const isLiked = likedComments.has(commentId);
+          return {
+            ...comment,
+            likedByMe: !isLiked,
+            likes: isLiked ? comment.likes - 1 : comment.likes + 1,
+          };
+        }
+
+        const updateReplies = (
+          replies: typeof comment.replies,
+        ): typeof comment.replies =>
+          replies.map((reply) => {
+            if (reply.id === commentId) {
+              const isLiked = likedComments.has(commentId);
+              return {
+                ...reply,
+                likedByMe: !isLiked,
+                likes: isLiked ? reply.likes - 1 : reply.likes + 1,
+              };
+            }
+            return {
+              ...reply,
+              replies: updateReplies(reply.replies),
+            };
+          });
+
+        return {
+          ...comment,
+          replies: updateReplies(comment.replies),
+        };
+      }),
+    );
+  }
 
   async function handleSendComment() {
     if (!newCommentText.trim()) return;
@@ -97,11 +146,46 @@ export default function CommentsPage({ postId }: { postId: string }) {
       setPostDetail(post);
       const user = post?.user;
       setPostAuthor(user);
-      setCurrentUser({
-        id: String(user?.id),
-        name: user?.name,
-        avatar: user?.profile,
-      });
+
+      // Get current user from localStorage and fetch user details
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        // Set user immediately with stored data, then update with API data
+        setCurrentUser({
+          id: String(userData.id),
+          name: userData.userName,
+          avatar: `no-image`,
+        });
+
+        // Fetch detailed user info in background
+        api
+          .get(`/users/${userData.id}`)
+          .then((userRes) => {
+            const userDetails = userRes?.data?.data;
+            if (userDetails) {
+              setCurrentUser({
+                id: String(userDetails.id),
+                name: userDetails.name,
+                avatar:
+                  userDetails.profile ||
+                  `https://api.dicebear.com/7.x/avataaars/svg?seed=${userDetails.name}`,
+              });
+            }
+          })
+          .catch((error) => {
+            console.log("Error fetching user details:", error);
+          });
+      } else {
+        // Fallback to post author if no user in localStorage
+        setCurrentUser({
+          id: String(user?.id),
+          name: user?.name,
+          avatar:
+            user?.profile ||
+            `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`,
+        });
+      }
     } catch (error) {
       console.log("getPost error:", error);
     }
@@ -118,6 +202,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
       const raw = res?.data;
       const commentsArr = Array.isArray(raw) ? raw : raw?.data || [];
       const mapped = commentsArr.map(mapComment);
+
       if (reset) {
         setComments(mapped);
         setPage(1);
@@ -126,7 +211,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
       }
       setHasMore(mapped.length >= COMMENTS_LIMIT);
     } catch (error) {
-      console.log(error);
+      console.log("fetchComments error:", error);
     } finally {
       loadingRef.current = false;
       setLoadingComments(false);
@@ -134,27 +219,28 @@ export default function CommentsPage({ postId }: { postId: string }) {
   };
 
   useEffect(() => {
-    Promise.all([getPost(), fetchComments(1, true)]).finally(() =>
-      setInitialLoading(false),
-    );
+    Promise.all([getPost(), fetchComments(1, true)]).finally(() => {
+      setInitialLoading(false);
+      // Don't set ready here - let the scroll effect handle it
+    });
   }, []);
 
   useEffect(() => {
-    if (!postDetail || hasScrolled.current) return;
+    if (!postDetail || !comments || hasScrolled.current) return;
     if (!loadingComments) {
-      hasScrolled.current = true;
       const scrollToComments = () => {
         const container = scrollRef.current;
         const target = commentsSectionRef.current;
         if (container && target) {
-          container.scrollTop = target.offsetTop - container.offsetTop;
+          const targetTop = target.offsetTop - container.offsetTop;
+          container.scrollTop = targetTop; // Instant scroll
+          hasScrolled.current = true;
+          setReady(true); // Show content immediately after scroll
         }
       };
+
+      // Immediate scroll with no delay
       requestAnimationFrame(scrollToComments);
-      setTimeout(() => {
-        scrollToComments();
-        setReady(true);
-      }, 300);
     }
   }, [postDetail, comments, loadingComments]);
 
@@ -191,7 +277,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
 
   return (
     <div className="min-h-screen flex justify-center bg-white">
-      <div className="w-full max-w-sm bg-white min-h-screen flex flex-col font-sans">
+      <div className="w-full bg-white min-h-screen flex flex-col font-sans">
         <div className="flex items-center gap-2 px-3 py-3">
           <button className="text-black" onClick={goTOHome}>
             <ChevronLeft size={24} strokeWidth={2.5} />
@@ -220,63 +306,74 @@ export default function CommentsPage({ postId }: { postId: string }) {
               </div>
             )}
 
-            <div
-              ref={commentsSectionRef}
-              className="flex items-center px-4 py-2"
-            >
-              <Dropdown
-                trigger={
-                  <button className="flex items-center gap-1 font-semibold text-[14px] text-black">
-                    {sortLabel} <ChevronDown size={14} strokeWidth={2.5} />
-                  </button>
-                }
-                items={[
-                  { label: "Newest", onClick: () => setSortLabel("Newest") },
-                  {
-                    label: "All comments",
-                    onClick: () => setSortLabel("All comments"),
-                  },
-                ]}
-                side="left"
-              />
-            </div>
+            <div className="max-w-sm mx-auto">
+              <div
+                ref={commentsSectionRef}
+                className="flex items-center px-4 py-2"
+              >
+                <Dropdown
+                  trigger={
+                    <button className="flex items-center gap-1 font-semibold text-[14px] text-black">
+                      {sortLabel} <ChevronDown size={14} strokeWidth={2.5} />
+                    </button>
+                  }
+                  items={[
+                    { label: "Newest", onClick: () => setSortLabel("Newest") },
+                    {
+                      label: "All comments",
+                      onClick: () => setSortLabel("All comments"),
+                    },
+                  ]}
+                  side="left"
+                />
+              </div>
 
-            <div className="px-3 pt-2 pb-4 space-y-4 min-h-screen">
-              {comments.length === 0 && !loadingComments ? (
-                <p className="text-center text-gray-400 text-[14px] py-8">
-                  No comments yet
-                </p>
-              ) : (
-                comments.map((comment) => (
-                  <div key={comment.id}>
-                    <CommentRow
-                      comment={comment}
-                      postOwnerId={postAuthor ? String(postAuthor.id) : ""}
-                      onReply={handleReply}
-                      onLike={handleLike}
-                      replyTarget={replyTarget}
-                      onCancelReply={() => setReplyTarget(null)}
-                      onSendReply={handleSendReply}
-                      currentUser={currentUser}
-                    />
+              <div className="px-3 pt-2 pb-4 space-y-4 min-h-screen">
+                {comments.length === 0 && !loadingComments ? (
+                  <p className="text-center text-gray-400 text-[14px] py-8">
+                    No comments yet
+                  </p>
+                ) : (
+                  <>
+                    {comments.map((comment) => (
+                      <div key={comment.id}>
+                        <CommentRow
+                          comment={comment}
+                          postOwnerId={postAuthor ? String(postAuthor.id) : ""}
+                          onReply={handleReply}
+                          onLike={handleLike}
+                          replyTarget={replyTarget}
+                          onCancelReply={() => setReplyTarget(null)}
+                          onSendReply={handleSendReply}
+                          currentUser={currentUser}
+                        />
+                      </div>
+                    ))}
+                    {loadingComments && (
+                      <div className="text-center py-4">
+                        <span className="text-[12px] text-gray-400">
+                          Loading comments...
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {hasMore && (
+                  <div ref={loadMoreRef} className="flex justify-center py-4">
+                    {loadingComments && (
+                      <span className="text-[12px] text-gray-400">
+                        Loading...
+                      </span>
+                    )}
                   </div>
-                ))
-              )}
-
-              {hasMore && (
-                <div ref={loadMoreRef} className="flex justify-center py-4">
-                  {loadingComments && (
-                    <span className="text-[12px] text-gray-400">
-                      Loading...
-                    </span>
-                  )}
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        <div className="border-t border-gray-200 px-3 py-3 flex items-center gap-2">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-3 py-3 flex items-center gap-2 max-w-sm mx-auto w-full z-50">
           {currentUser && (
             <img
               src={currentUser.avatar}

@@ -49,7 +49,9 @@ export default function ReplyBox({
 
         {mentionName && (
           <div className="flex items-center flex-wrap gap-x-1 mb-2">
-            <span className="text-[13px] text-gray-700">Replying to</span>
+            <span className="text-[13px] text-black font-semibold">
+              Replying to
+            </span>
             <span className="text-[13px] font-bold text-black">
               {mentionName}
             </span>
@@ -63,37 +65,39 @@ export default function ReplyBox({
           </div>
         )}
 
-        <div className="bg-gray-100 rounded-2xl px-3 py-2.5">
-          {mentionName && (
-            <div className="inline-flex items-center text-blue-500 text-[13px] font-bold mb-1.5">
-              {mentionName}
+        <div className="flex items-center gap-2">
+          <div className="bg-gray-100 rounded-2xl px-3 py-2.5 flex-1 max-w-50">
+            {mentionName && (
+              <div className="inline-flex items-center text-blue-500 text-[13px] font-bold mb-1.5">
+                {mentionName}
+              </div>
+            )}
+            <input
+              autoFocus
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              placeholder={mentionName ? "Write a reply…" : "Write a comment…"}
+              className="w-full text-[13px] text-black bg-transparent outline-none placeholder-gray-400 mb-2"
+            />
+            <div className="flex items-center justify-end gap-3">
+              <button className="text-gray-500 hover:text-gray-700">
+                <Camera size={18} strokeWidth={1.8} />
+              </button>
+              <button className="border border-gray-400 rounded px-1 py-0.5 text-[10px] font-bold text-gray-500 leading-none tracking-wide">
+                GIF
+              </button>
+              <button className="text-gray-500 hover:text-gray-700">
+                <Smile size={18} strokeWidth={1.8} />
+              </button>
             </div>
-          )}
-          <input
-            autoFocus
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder={mentionName ? "Write a reply…" : "Write a comment…"}
-            className="w-full text-[13px] text-black bg-transparent outline-none placeholder-gray-400 mb-2"
-          />
-          <div className="flex items-center justify-end gap-3">
-            <button className="text-gray-500 hover:text-gray-700">
-              <Camera size={18} strokeWidth={1.8} />
-            </button>
-            <button className="border border-gray-400 rounded px-1 py-0.5 text-[10px] font-bold text-gray-500 leading-none tracking-wide">
-              GIF
-            </button>
-            <button className="text-gray-500 hover:text-gray-700">
-              <Smile size={18} strokeWidth={1.8} />
-            </button>
-            <button
-              onClick={handleSend}
-              className={`transition-colors ${text.trim() ? "text-blue-500 hover:text-blue-600" : "text-gray-300"}`}
-            >
-              <Send size={18} strokeWidth={1.8} />
-            </button>
           </div>
+          <button
+            onClick={handleSend}
+            className={`flex items-center justify-center transition-colors ${text.trim() ? "text-blue-500 hover:text-blue-600" : "text-gray-300"}`}
+          >
+            <Send size={18} strokeWidth={1.8} className="rotate-45" />
+          </button>
         </div>
 
         {!mentionName && (
