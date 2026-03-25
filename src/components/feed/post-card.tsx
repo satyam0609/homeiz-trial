@@ -28,9 +28,11 @@ import Avatar from "../avatar";
 const PostCard = ({
   post,
   handleReact,
+  handleLike,
 }: {
   post: Post;
-  handleReact: (userId: number, reaction: string) => void;
+  handleReact: (postId: number, reaction: string) => void;
+  handleLike: (userId: number) => void;
 }) => {
   const [openEmojiPickerV1, setOpenEmojiPickerV1] = useState(false);
   const [showFollow, setShowFollow] = useState(true);
@@ -159,6 +161,9 @@ const PostCard = ({
       {/* Actions */}
       <div className="flex items-center justify-between text-gray-500 text-sm px-4 py-2">
         <ReactionPopover
+          onTap={() => {
+            handleLike(post.id);
+          }}
           trigger={
             <ActionButton
               icon={ThumbsUp}
