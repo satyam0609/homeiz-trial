@@ -46,6 +46,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
   } | null>(null);
   const [newCommentText, setNewCommentText] = useState("");
   const [sortLabel, setSortLabel] = useState("Newest");
+  const [likedComments, setLikedComments] = useState<Set<string>>(new Set());
 
   function handleReply(
     commentId: string,
@@ -55,7 +56,53 @@ export default function CommentsPage({ postId }: { postId: string }) {
     setReplyTarget({ commentId, replyToId, mentionName });
   }
 
-  function handleLike(commentId: string) {}
+  function handleLike(commentId: string) {
+    setLikedComments((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(commentId)) {
+        newSet.delete(commentId);
+      } else {
+        newSet.add(commentId);
+      }
+      return newSet;
+    });
+
+    setComments((prev) =>
+      prev.map((comment) => {
+        if (comment.id === commentId) {
+          const isLiked = likedComments.has(commentId);
+          return {
+            ...comment,
+            likedByMe: !isLiked,
+            likes: isLiked ? comment.likes - 1 : comment.likes + 1,
+          };
+        }
+
+        const updateReplies = (
+          replies: typeof comment.replies,
+        ): typeof comment.replies =>
+          replies.map((reply) => {
+            if (reply.id === commentId) {
+              const isLiked = likedComments.has(commentId);
+              return {
+                ...reply,
+                likedByMe: !isLiked,
+                likes: isLiked ? reply.likes - 1 : reply.likes + 1,
+              };
+            }
+            return {
+              ...reply,
+              replies: updateReplies(reply.replies),
+            };
+          });
+
+        return {
+          ...comment,
+          replies: updateReplies(comment.replies),
+        };
+      }),
+    );
+  }
 
   async function handleSendComment() {
     if (!newCommentText.trim()) return;
@@ -191,7 +238,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
 
   return (
     <div className="min-h-screen flex justify-center bg-white">
-      <div className="w-full max-w-sm bg-white min-h-screen flex flex-col font-sans">
+      <div className="w-full bg-white min-h-screen flex flex-col font-sans">
         <div className="flex items-center gap-2 px-3 py-3">
           <button className="text-black" onClick={goTOHome}>
             <ChevronLeft size={24} strokeWidth={2.5} />
@@ -211,68 +258,70 @@ export default function CommentsPage({ postId }: { postId: string }) {
             className={`flex-1 overflow-y-auto ${ready ? "" : "invisible"}`}
           >
             {postCardData && (
-              <div className="px-2 py-2">
+              <div className="py-2">
                 <PostCard post={postCardData} handleReact={() => {}} />
               </div>
             )}
 
-            <div
-              ref={commentsSectionRef}
-              className="flex items-center px-4 py-2"
-            >
-              <Dropdown
-                trigger={
-                  <button className="flex items-center gap-1 font-semibold text-[14px] text-black">
-                    {sortLabel} <ChevronDown size={14} strokeWidth={2.5} />
-                  </button>
-                }
-                items={[
-                  { label: "Newest", onClick: () => setSortLabel("Newest") },
-                  {
-                    label: "All comments",
-                    onClick: () => setSortLabel("All comments"),
-                  },
-                ]}
-                side="left"
-              />
-            </div>
+            <div className="max-w-sm mx-auto">
+              <div
+                ref={commentsSectionRef}
+                className="flex items-center px-4 py-2"
+              >
+                <Dropdown
+                  trigger={
+                    <button className="flex items-center gap-1 font-semibold text-[14px] text-black">
+                      {sortLabel} <ChevronDown size={14} strokeWidth={2.5} />
+                    </button>
+                  }
+                  items={[
+                    { label: "Newest", onClick: () => setSortLabel("Newest") },
+                    {
+                      label: "All comments",
+                      onClick: () => setSortLabel("All comments"),
+                    },
+                  ]}
+                  side="left"
+                />
+              </div>
 
-            <div className="px-3 pt-2 pb-4 space-y-4 min-h-screen">
-              {comments.length === 0 && !loadingComments ? (
-                <p className="text-center text-gray-400 text-[14px] py-8">
-                  No comments yet
-                </p>
-              ) : (
-                comments.map((comment) => (
-                  <div key={comment.id}>
-                    <CommentRow
-                      comment={comment}
-                      postOwnerId={postAuthor ? String(postAuthor.id) : ""}
-                      onReply={handleReply}
-                      onLike={handleLike}
-                      replyTarget={replyTarget}
-                      onCancelReply={() => setReplyTarget(null)}
-                      onSendReply={handleSendReply}
-                      currentUser={currentUser}
-                    />
+              <div className="px-3 pt-2 pb-4 space-y-4 min-h-screen">
+                {comments.length === 0 && !loadingComments ? (
+                  <p className="text-center text-gray-400 text-[14px] py-8">
+                    No comments yet
+                  </p>
+                ) : (
+                  comments.map((comment) => (
+                    <div key={comment.id}>
+                      <CommentRow
+                        comment={comment}
+                        postOwnerId={postAuthor ? String(postAuthor.id) : ""}
+                        onReply={handleReply}
+                        onLike={handleLike}
+                        replyTarget={replyTarget}
+                        onCancelReply={() => setReplyTarget(null)}
+                        onSendReply={handleSendReply}
+                        currentUser={currentUser}
+                      />
+                    </div>
+                  ))
+                )}
+
+                {hasMore && (
+                  <div ref={loadMoreRef} className="flex justify-center py-4">
+                    {loadingComments && (
+                      <span className="text-[12px] text-gray-400">
+                        Loading...
+                      </span>
+                    )}
                   </div>
-                ))
-              )}
-
-              {hasMore && (
-                <div ref={loadMoreRef} className="flex justify-center py-4">
-                  {loadingComments && (
-                    <span className="text-[12px] text-gray-400">
-                      Loading...
-                    </span>
-                  )}
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        <div className="border-t border-gray-200 px-3 py-3 flex items-center gap-2">
+        <div className="border-t border-gray-200 px-3 py-3 flex items-center gap-2 max-w-sm mx-auto w-full">
           {currentUser && (
             <img
               src={currentUser.avatar}

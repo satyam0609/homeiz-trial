@@ -84,9 +84,9 @@ export default function CommentRow({
             </p>
           </div>
 
-          <div className="flex items-center gap-3 mt-1.5 pl-1">
+          <div className="flex items-center gap-5 mt-1.5 pl-3">
             <button
-              className="text-[12px] text-gray-500 font-semibold"
+              className="text-[12px] text-gray-500 font-bold"
               onClick={() =>
                 onReply(
                   comment.rootId || comment.id,
@@ -99,12 +99,16 @@ export default function CommentRow({
             </button>
             {comment.likes > 0 || comment.likedByMe ? (
               <button
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 justify-center"
                 onClick={() => onLike(comment.id)}
               >
-                <div className="bg-blue-500 rounded-full p-0.5">
-                  <ThumbsUp size={10} className="text-white fill-white" />
+                <div className="bg-blue-500 rounded-full w-4 h-4 flex items-center justify-center">
+                  <ThumbsUp
+                    size={8}
+                    className="text-white fill-white stroke-white"
+                  />
                 </div>
+
                 <span className="text-[12px] text-gray-500">
                   {comment.likes}
                 </span>
