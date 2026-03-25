@@ -8,6 +8,7 @@ import { getPosts, Post, reactPost } from "@/api-service/feed-api";
 import { ChevronDown, Menu } from "lucide-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
+import { getCurrentUser } from "@/utils/utils";
 
 const SORT_OPTIONS = [
   { label: "Newest First", value: "newest" },
@@ -18,6 +19,9 @@ const SORT_OPTIONS = [
 ];
 
 const FeedPage = () => {
+  const [user, setUser] = useState<{ id: number; userName: string } | null>(
+    null,
+  );
   const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -30,7 +34,9 @@ const FeedPage = () => {
   const { ref, inView } = useInView({ threshold: 1 });
 
   const handleReact = async (postId: number, reaction: string) => {
-    const userId = 1;
+    if (!user) return;
+
+    const userId = user.id;
 
     setPosts((prev) =>
       prev.map((post) => {
@@ -46,7 +52,7 @@ const FeedPage = () => {
         if (existingLike) {
           const prevReaction = existingLike.reaction;
 
-          // 👉 SAME reaction → REMOVE
+          // SAME reaction → REMOVE
           if (prevReaction === reaction) {
             updatedLikes = post.likes.filter((l) => l.userId !== userId);
             updatedCount -= 1;
@@ -58,7 +64,7 @@ const FeedPage = () => {
               delete updatedReactionCounts[reaction];
             }
           } else {
-            // 👉 DIFFERENT reaction → UPDATE
+            // DIFFERENT reaction → UPDATE
             updatedLikes = post.likes.map((l) =>
               l.userId === userId ? { ...l, reaction } : l,
             );
@@ -114,7 +120,9 @@ const FeedPage = () => {
   };
 
   const handleLike = async (postId: number) => {
-    const userId = 1;
+    if (!user) return; // safety
+
+    const userId = user.id;
 
     setPosts((prev) =>
       prev.map((post) => {
@@ -126,7 +134,7 @@ const FeedPage = () => {
         let updatedReactionCounts = { ...post.reactionCounts };
         let updatedCount = post._count.likes;
 
-        // ✅ CASE 1: already reacted → REMOVE
+        // CASE 1: already reacted → REMOVE
         if (existingLike) {
           const prevReaction = existingLike.reaction;
 
@@ -141,7 +149,7 @@ const FeedPage = () => {
             delete updatedReactionCounts[prevReaction];
           }
         } else {
-          // ✅ CASE 2: no reaction → ADD LIKE
+          // CASE 2: no reaction → ADD LIKE
           const newReaction = "LIKE";
 
           updatedLikes.push({
@@ -215,6 +223,22 @@ const FeedPage = () => {
     }
   }, [inView]);
 
+  useEffect(() => {
+    const currentUser = getCurrentUser();
+    setUser(currentUser);
+  }, []);
+
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "user") {
+        setUser(getCurrentUser());
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   const handleSortChange = (value: string) => {
     setSortBy(value);
     setPosts([]);
@@ -226,6 +250,15 @@ const FeedPage = () => {
   useEffect(() => {
     loadMore(1);
   }, [sortBy]);
+
+  useEffect(() => {
+    if (user) {
+      setPosts([]);
+      setPage(1);
+      setHasMore(true);
+      loadMore(1);
+    }
+  }, [user]);
 
   return (
     <>
@@ -262,7 +295,7 @@ const FeedPage = () => {
           />
         </div>
       </div>
-      <section id="posts" className="mt-4">
+      <section id="posts">
         {posts.map((post, index) => (
           <PostCard
             key={`${post.id}-${index}`}
@@ -272,8 +305,12 @@ const FeedPage = () => {
           />
         ))}
       </section>
-      <div ref={ref} className="h-10 flex justify-center items-center">
-        {loading && <span>Loading...</span>}
+      <div ref={ref} className="h-10 flex justify-center items-center mb-20">
+        {loading && (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+          </div>
+        )}
 
         {error && (
           <div className="flex flex-col justify-center items-center gap-2">

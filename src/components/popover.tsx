@@ -192,7 +192,7 @@
 "use client";
 import React, { useRef, useState, useCallback } from "react";
 
-const LONG_PRESS_DURATION = 500;
+const LONG_PRESS_DURATION = 300;
 
 type Props = {
   trigger: React.ReactNode;

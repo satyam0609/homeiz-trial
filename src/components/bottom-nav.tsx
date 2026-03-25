@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Divide,
 } from "lucide-react";
+import { useEffect } from "react";
 
 export const NAV_ITEMS = [
   {
@@ -56,6 +57,22 @@ export const NAV_ITEMS = [
 ];
 
 export default function BottomNav() {
+  useEffect(() => {
+    const existingUser = localStorage.getItem("user");
+
+    if (!existingUser) {
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ userName: "User 1", id: 1 }),
+      );
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: "user",
+          newValue: JSON.stringify({ userName: `User ${i}`, id: i }),
+        }),
+      );
+    }
+  }, []);
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
       <div className="flex items-center justify-between px-6 py-3 bg-bluish-black backdrop-blur-md shadow-lg border border-white/10">
@@ -82,6 +99,15 @@ export default function BottomNav() {
                     localStorage.setItem(
                       "user",
                       JSON.stringify({ userName: `User ${i}`, id: i }),
+                    );
+                    window.dispatchEvent(
+                      new StorageEvent("storage", {
+                        key: "user",
+                        newValue: JSON.stringify({
+                          userName: `User ${i}`,
+                          id: i,
+                        }),
+                      }),
                     );
                   },
                 }))}
