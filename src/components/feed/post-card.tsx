@@ -89,16 +89,23 @@ const PostCard = ({
                 }
                 items={[
                   {
-                    icon: <Edit2Icon />,
+                    icon: <Edit2Icon strokeWidth={2.5} size={14} />,
                     label: "Edit Post",
                     onClick: () => {
                       console.log("Edit Post");
                     },
                   },
                   {
-                    icon: <Trash2Icon />,
+                    icon: (
+                      <Trash2Icon
+                        strokeWidth={2.5}
+                        size={14}
+                        className="text-red-600"
+                      />
+                    ),
                     label: "Delete Post",
                     onClick: () => console.log("Delete post"),
+                    type: "item",
                   },
                 ]}
               />
