@@ -278,7 +278,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
   return (
     <div className="min-h-screen flex justify-center bg-white">
       <div className="w-full bg-white min-h-screen flex flex-col font-sans">
-        <div className="flex items-center gap-2 px-3 py-3">
+        <div className="flex items-center gap-2 py-3 max-w-sm mx-auto w-full">
           <button className="text-black" onClick={goTOHome}>
             <ChevronLeft size={24} strokeWidth={2.5} />
           </button>
