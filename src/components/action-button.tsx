@@ -23,7 +23,7 @@ const ActionButton = ({
         ${className}
       `}
     >
-      <Icon size={18} />
+      <Icon size={22} />
       <span className="text-base font-semibold">{count}</span>
     </button>
   );

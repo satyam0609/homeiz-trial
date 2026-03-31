@@ -44,7 +44,7 @@ export default function RootLayout({
       document.addEventListener('wheel', function(e) {
         if (e.ctrlKey) e.preventDefault();
       }, { passive: false });
-      document.addEventListener('touchmove', function(e) {
+        document.addEventListener('touchmove', function(e) {
         if (e.touches.length > 1) e.preventDefault();
       }, { passive: false });
       var lastTouchEnd = 0;
@@ -58,7 +58,8 @@ export default function RootLayout({
         />
       </head>
       <body className="h-dvh flex flex-col">
-        <DeviceGuard>{children}</DeviceGuard>
+        {/* <DeviceGuard>{children}</DeviceGuard> */}
+        {children}
       </body>
     </html>
   );

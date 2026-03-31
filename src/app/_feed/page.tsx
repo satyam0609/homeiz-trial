@@ -9,6 +9,8 @@ import { ChevronDown, Menu } from "lucide-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { getCurrentUser } from "@/utils/utils";
+import SearchButton from "@/components/search-button";
+import { useRouter } from "next/navigation";
 
 const SORT_OPTIONS = [
   { label: "Newest First", value: "newest" },
@@ -28,6 +30,7 @@ const FeedPage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState("newest");
+  const router = useRouter();
 
   const selectedSort = SORT_OPTIONS.find((opt) => opt.value === sortBy);
 
@@ -247,6 +250,10 @@ const FeedPage = () => {
     setError(null);
   };
 
+  const handleRemovePost = (postId: number) => {
+    setPosts((prev) => prev.filter((post) => post.id !== postId));
+  };
+
   useEffect(() => {
     loadMore(1);
   }, [sortBy]);
@@ -262,7 +269,7 @@ const FeedPage = () => {
 
   return (
     <>
-      <div className="flex items-center gap-3 w-full px-4 mb-4">
+      <div className="flex items-center gap-3 w-full px-4 mb-4 md:py-6">
         <div>
           <Avatar
             className="shrink-0"
@@ -271,19 +278,24 @@ const FeedPage = () => {
           />
         </div>
         <div className="flex-1">
-          <SearchBox placeholder="Start a post" />
+          <SearchButton
+            onClick={() => {
+              router.push("/create-post");
+            }}
+            label="Start a post"
+          />
         </div>
       </div>
-      <div className="flex justify-between bg-sky-200 px-4 py-4">
+      <div className="flex justify-between bg-[#b3e3ff] px-4 py-1.5 mb-4">
         <div className="flex gap-2 items-center">
           <Menu />
-          <span className="font-bold text-sm">Sort posts by</span>
+          <span className="font-bold text-base">Sort By</span>
         </div>
 
         <div className="flex items-center">
           <Dropdown
             trigger={
-              <button className="p-2 rounded-lg hover:bg-gray-100 font-bold text-sm flex items-center">
+              <button className="p-2 rounded-lg hover:bg-gray-100 font-bold text-base flex items-center">
                 {selectedSort?.label}
                 <ChevronDown className="ml-2" />
               </button>
@@ -295,19 +307,23 @@ const FeedPage = () => {
           />
         </div>
       </div>
-      <section id="posts">
+      <section id="posts" className="">
         {posts.map((post, index) => (
           <PostCard
             key={`${post.id}-${index}`}
             post={post}
             handleReact={handleReact}
             handleLike={handleLike}
+            handleRemove={handleRemovePost}
           />
         ))}
       </section>
-      <div ref={ref} className="h-10 flex justify-center items-center mb-20">
+      <div
+        ref={ref}
+        className={`flex justify-center  mb-20 ${posts.length === 0 ? "min-h-[60vh]" : "h-10"}`}
+      >
         {loading && (
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex items-start justify-center">
             <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
           </div>
         )}

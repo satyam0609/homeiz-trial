@@ -10,18 +10,18 @@ const Separator = ({
   className = "",
 }: SeparatorProps) => {
   if (orientation === "vertical") {
-    return <div className={`w-px bg-gray-500 mx-2 ${className}`} />;
+    return <div className={`w-0.5 bg-text-primary mx-2 ${className}`} />;
   }
 
   return (
     <div className={`flex items-center my-4 ${className}`}>
-      <div className="flex-1 h-px bg-gray-200" />
+      <div className="flex-1 h-0.5 bg-text-primary" />
       {label && (
-        <span className="px-3 text-sm text-gray-500 whitespace-nowrap">
+        <span className="px-3 text-sm text-text-primary whitespace-nowrap">
           {label}
         </span>
       )}
-      <div className="flex-1 h-px bg-gray-200" />
+      <div className="flex-1 h-0.5 bg-text-primary" />
     </div>
   );
 };

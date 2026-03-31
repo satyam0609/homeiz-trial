@@ -33,14 +33,17 @@ const PostCard = ({
   post,
   handleReact,
   handleLike,
+  handleRemove,
 }: {
   post: Post;
+  handleRemove?: (postId: number) => void;
   handleReact: (postId: number, reaction: string) => void;
   handleLike: (userId: number) => void;
 }) => {
   const [openEmojiPickerV1, setOpenEmojiPickerV1] = useState(false);
-  const [showFollow, setShowFollow] = useState(true);
+
   const user = getCurrentUser();
+  const [showFollow, setShowFollow] = useState(user.id !== post.user.id);
   const isLiked = user
     ? post.likes.some((like) => like.userId === user.id)
     : false;
@@ -81,29 +84,38 @@ const PostCard = ({
             </div>
 
             <div className="flex gap-4 items-center shrink-0">
-              <Dropdown
-                trigger={
-                  <button>
-                    <MoreHorizontal />
-                  </button>
-                }
-                items={[
-                  {
-                    icon: <Edit2Icon />,
-                    label: "Edit Post",
-                    onClick: () => {
-                      console.log("Edit Post");
+              {user.id === post.user.id && (
+                <Dropdown
+                  trigger={
+                    <button>
+                      <MoreHorizontal />
+                    </button>
+                  }
+                  items={[
+                    {
+                      icon: <Edit2Icon strokeWidth={2.5} size={14} />,
+                      label: "Edit Post",
+                      onClick: () => {
+                        console.log("Edit Post");
+                      },
                     },
-                  },
-                  {
-                    icon: <Trash2Icon />,
-                    label: "Delete Post",
-                    onClick: () => console.log("Delete post"),
-                  },
-                ]}
-              />
+                    {
+                      icon: (
+                        <Trash2Icon
+                          strokeWidth={2.5}
+                          size={14}
+                          className="text-red-600"
+                        />
+                      ),
+                      label: "Delete Post",
+                      onClick: () => console.log("Delete post"),
+                      type: "item",
+                    },
+                  ]}
+                />
+              )}
 
-              <button>
+              <button onClick={() => handleRemove && handleRemove(post.id)}>
                 <X size={18} />
               </button>
             </div>
@@ -159,18 +171,18 @@ const PostCard = ({
           House for sale
         </div> */}
 
-        <div className="flex text-sm flex-wrap items-center">
+        <div className="flex text-base font-medium flex-wrap items-center">
           2 bds
           <Separator orientation="vertical" className="h-4 mx-1" />
           2 ba
           <Separator orientation="vertical" className="h-4 mx-1" />
-          5,800
+          sqrt 5,800
           <Separator orientation="vertical" className="h-4 mx-1" />
           House for sale
         </div>
 
-        <div className="text-sm">{post.location}</div>
-        <div className="text-sm text-gray-400">{"LUXURY"}</div>
+        <div className="text-base font-medium">{post.location}</div>
+        <div className="text-base font-medium ">{"LUXURY"}</div>
       </div>
 
       {/* Actions */}
@@ -179,6 +191,9 @@ const PostCard = ({
           onTap={() => {
             handleLike(post.id);
           }}
+          handleReact={(reaction) => {
+            handleReact(post.id, reaction);
+          }}
           trigger={
             <ActionButton
               icon={ThumbsUp}
@@ -186,13 +201,7 @@ const PostCard = ({
               className={isLiked ? "text-blue-500" : ""}
             />
           }
-        >
-          <ReactionPicker
-            onSelect={(reaction) => {
-              handleReact(post.id, reaction);
-            }}
-          />
-        </ReactionPopover>
+        />
         <ActionButton
           icon={MessageCircle}
           count={post?._count?.comments.toString()}

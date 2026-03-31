@@ -4,6 +4,7 @@ import DropdownIcon from "@/assets/icons/dropdown";
 import NavigationArrowIcon from "@/assets/icons/navigation";
 import PlayCircleIcon from "@/assets/icons/playIcon";
 import Dropdown from "@/components/dropdown";
+import { getCurrentUser } from "@/utils/utils";
 import {
   Home,
   Bell,
@@ -13,7 +14,7 @@ import {
   ChevronDown,
   Divide,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export const NAV_ITEMS = [
   {
@@ -57,16 +58,29 @@ export const NAV_ITEMS = [
 ];
 
 export default function BottomNav() {
-  useEffect(() => {
-    const existingUser = localStorage.getItem("user");
+  const [user, setUser] = useState<{ id: number; userName: string } | null>(
+    null,
+  );
 
-    if (!existingUser) {
-      localStorage.setItem(
-        "user",
-        JSON.stringify({ userName: "User 1", id: 1 }),
-      );
-    }
+  useEffect(() => {
+    const syncUser = () => {
+      let current = getCurrentUser();
+
+      // ✅ if no user → set default
+      if (!current) {
+        current = { userName: "User 1", id: 1 };
+        localStorage.setItem("user", JSON.stringify(current));
+      }
+
+      setUser(current);
+    };
+
+    syncUser(); // initial load
+
+    window.addEventListener("storage", syncUser);
+    return () => window.removeEventListener("storage", syncUser);
   }, []);
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
       <div className="flex items-center justify-between px-6 py-4 bg-bluish-black backdrop-blur-md shadow-lg border border-white/10">
@@ -104,6 +118,7 @@ export default function BottomNav() {
                       }),
                     );
                   },
+                  selected: user?.id === i,
                 }))}
                 side="right"
                 position="top"
