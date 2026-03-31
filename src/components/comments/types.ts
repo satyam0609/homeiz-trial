@@ -12,6 +12,7 @@ export interface Comment {
   timestamp: string;
   likes: number;
   likedByMe: boolean;
+  myReaction?: string;
   user: CommentUser;
   replies: Comment[];
 }

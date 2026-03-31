@@ -4,6 +4,8 @@ import { useState } from "react";
 import { ChevronDown, ThumbsUp, Pencil } from "lucide-react";
 import ReplyBox from "./reply-box";
 import { Comment, CommentUser } from "./types";
+import ReactionPopover from "@/components/popover";
+import ReactionPicker from "@/components/reaction-picker";
 
 const REPLIES_PREVIEW = 1;
 
@@ -28,6 +30,7 @@ interface CommentRowProps {
     commentPath: string,
   ) => void;
   onLike: (commentId: string) => void;
+  onReact?: (commentId: string, reaction: string) => void;
   replyTarget?: {
     commentId: string;
     replyToId: string;
@@ -46,6 +49,7 @@ export default function CommentRow({
   commentPath = comment.id,
   onReply,
   onLike,
+  onReact,
   replyTarget,
   onCancelReply,
   onSendReply,
@@ -87,7 +91,7 @@ export default function CommentRow({
                 <>
                   <span className="text-[12px] text-gray-400">·</span>
                   <Pencil size={11} className="text-blue-600" strokeWidth={2} />
-                  <span className="text-blue-600 font-semibold text-[12px]">
+                  <span className="text-blue-600 font-semibold text-[15px]">
                     Author
                   </span>
                 </>
@@ -138,12 +142,25 @@ export default function CommentRow({
         </div>
 
         {isTopLevel && (
-          <button
-            className={`mt-1 ml-5 flex-shrink-0 ${comment.likedByMe ? "text-blue-500" : "text-gray-300"}`}
-            onClick={() => onLike(comment.id)}
-          >
-            <ThumbsUp size={16} strokeWidth={1.8} />
-          </button>
+          <div className="mt-1 ml-auto flex-shrink-0">
+            <ReactionPopover
+              onTap={() => onLike(comment.id)}
+              align="right"
+              trigger={
+                <button
+                  className={
+                    comment.likedByMe ? "text-blue-500" : "text-gray-300"
+                  }
+                >
+                  <ThumbsUp size={16} strokeWidth={1.8} />
+                </button>
+              }
+            >
+              <ReactionPicker
+                onSelect={(reaction) => onReact?.(comment.id, reaction)}
+              />
+            </ReactionPopover>
+          </div>
         )}
       </div>
 
@@ -171,6 +188,7 @@ export default function CommentRow({
             commentPath={`${commentPath}-${reply.id}`}
             onReply={onReply}
             onLike={onLike}
+            onReact={onReact}
             replyTarget={replyTarget}
             onCancelReply={onCancelReply}
             onSendReply={onSendReply}
