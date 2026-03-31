@@ -155,11 +155,7 @@ export default function CommentRow({
                   <ThumbsUp size={16} strokeWidth={1.8} />
                 </button>
               }
-            >
-              <ReactionPicker
-                onSelect={(reaction) => onReact?.(comment.id, reaction)}
-              />
-            </ReactionPopover>
+            ></ReactionPopover>
           </div>
         )}
       </div>
