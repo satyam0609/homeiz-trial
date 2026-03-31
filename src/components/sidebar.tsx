@@ -8,92 +8,92 @@ import {
   Bookmark,
   Film,
   User,
+  X,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
-const Sidebar = () => {
+const navItems = [
+  { id: "home", label: "Home news feed", icon: Newspaper, href: "/" },
+  {
+    id: "community",
+    label: "Community news feed",
+    icon: Users,
+    href: "/community",
+  },
+  { id: "search", label: "Real estate search", icon: Search, href: "/search" },
+  {
+    id: "advertise",
+    label: "Advertise a property",
+    icon: Home,
+    href: "/advertise",
+  },
+  { id: "bookmarks", label: "Bookmarks", icon: Bookmark, href: "/bookmarks" },
+  { id: "vids", label: "Vids", icon: Film, href: "/videos" },
+  { id: "profile", label: "Profile", icon: User, href: "/profile" },
+];
+
+const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const path = usePathname();
   const router = useRouter();
 
-  const navItems = [
-    {
-      id: "home",
-      label: "Home news feed",
-      icon: <Newspaper size={20} />,
-      href: "/",
-    },
-    {
-      id: "community",
-      label: "Community news feed",
-      icon: <Users size={20} />,
-      href: "/community",
-    },
-    {
-      id: "search",
-      label: "Real estate search",
-      icon: <Search size={20} />,
-      href: "/search",
-    },
-    {
-      id: "advertise",
-      label: "Advertise a property",
-      icon: <Home size={20} />,
-      href: "/advertise",
-    },
-    {
-      id: "bookmarks",
-      label: "Bookmarks",
-      icon: <Bookmark size={20} />,
-      href: "/bookmarks",
-    },
-    { id: "vids", label: "Vids", icon: <Film size={20} />, href: "/videos" },
-    {
-      id: "profile",
-      label: "Profile",
-      icon: <User size={20} />,
-      href: "/profile",
-    },
-  ];
-
   return (
-    <div
-      className="
-        hidden md:flex flex-col
-        w-80  h-screen
-        sticky top-0
-        p-4 
-      "
-    >
-      {/* Logo */}
-      {/* <h1 className="text-2xl font-semibold tracking-wide ml-4 mb-6">
-        HOME<span className="text-blue-500">I</span>Z
-      </h1> */}
+    <aside className="flex flex-col h-full w-72 bg-white border-r border-gray-100 px-3 py-6">
+      {/* Logo / Brand */}
+      <div className="px-3 mb-8 flex items-center gap-2">
+        <div className="flex items-center gap-2 ">
+          <img src="/images/logo.svg" alt="logo" className="size-10" />
+        </div>
+        <h1 className="text-2xl font-semibold tracking-wide">
+          HOME<span className="text-blue-500">I</span>Z
+        </h1>
+      </div>
 
-      {/* Nav */}
-      <div className="flex flex-col gap-2">
-        {navItems.map((item) => {
-          const isActive = path === item.href;
-
+      {/* Nav Items */}
+      <nav className="flex-1 flex flex-col gap-1">
+        {navItems.map(({ id, label, icon: Icon, href }) => {
+          const isActive = path === href;
           return (
             <button
-              key={item.id}
-              onClick={() => router.push(item.href)}
-              className={`flex items-center space-x-3 p-3 rounded-lg transition
+              key={id}
+              onClick={() => {
+                router.push(href);
+                onClose?.();
+              }}
+              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 w-full text-left
                 ${
                   isActive
-                    ? "text-blue-600 bg-blue-50 font-semibold"
-                    : "hover:bg-gray-100"
+                    ? "bg-blue-50 text-blue-600"
+                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                 }`}
             >
-              <span className={isActive ? "text-blue-600" : ""}>
-                {item.icon}
-              </span>
-              <span className="text-base font-semibold">{item.label}</span>
+              <Icon
+                size={20}
+                className={`shrink-0 transition-colors ${
+                  isActive
+                    ? "text-blue-600"
+                    : "text-gray-400 group-hover:text-gray-600"
+                }`}
+              />
+              <span className="text-base">{label}</span>
+              {/* {isActive && (
+                <ChevronRight size={14} className="ml-auto text-blue-400" />
+              )} */}
             </button>
           );
         })}
+      </nav>
+
+      {/* User footer */}
+      <div className="mt-6 px-3 py-3 rounded-xl bg-gray-50 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+          <User size={15} className="text-blue-600" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-gray-800 truncate">John Doe</p>
+          <p className="text-xs text-gray-400 truncate">john@example.com</p>
+        </div>
       </div>
-    </div>
+    </aside>
   );
 };
 

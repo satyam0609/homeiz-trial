@@ -15,6 +15,7 @@ import {
   PostDetail,
   mapComment,
 } from "@/components/comments/types";
+import AuthLayout from "./auth-layout";
 
 const COMMENTS_LIMIT = 5;
 
@@ -275,8 +276,8 @@ export default function CommentsPage({ postId }: { postId: string }) {
     : null;
 
   return (
-    <div className="h-screen flex justify-center bg-white">
-      <div className="w-full bg-white h-screen flex flex-col font-sans">
+    <div className="flex justify-center bg-white">
+      <div className="w-full bg-white flex flex-col font-sans">
         <div className="flex items-center gap-2 py-3 max-w-sm mx-auto w-full">
           <button className="text-black" onClick={goTOHome}>
             <ChevronLeft size={24} strokeWidth={2.5} />
@@ -317,7 +318,10 @@ export default function CommentsPage({ postId }: { postId: string }) {
                     </button>
                   }
                   items={[
-                    { label: "Newest", onClick: () => setSortLabel("Newest") },
+                    {
+                      label: "Newest",
+                      onClick: () => setSortLabel("Newest"),
+                    },
                     {
                       label: "All comments",
                       onClick: () => setSortLabel("All comments"),

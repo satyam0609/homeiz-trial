@@ -191,6 +191,9 @@ const PostCard = ({
           onTap={() => {
             handleLike(post.id);
           }}
+          handleReact={(reaction) => {
+            handleReact(post.id, reaction);
+          }}
           trigger={
             <ActionButton
               icon={ThumbsUp}
@@ -198,13 +201,7 @@ const PostCard = ({
               className={isLiked ? "text-blue-500" : ""}
             />
           }
-        >
-          <ReactionPicker
-            onSelect={(reaction) => {
-              handleReact(post.id, reaction);
-            }}
-          />
-        </ReactionPopover>
+        />
         <ActionButton
           icon={MessageCircle}
           count={post?._count?.comments.toString()}

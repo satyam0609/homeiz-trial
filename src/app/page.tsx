@@ -1,4 +1,3 @@
-"use client";
 import AuthLayout from "@/components/auth-layout";
 import Avatar from "@/components/avatar";
 

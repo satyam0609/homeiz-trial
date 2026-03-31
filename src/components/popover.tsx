@@ -191,16 +191,18 @@
 
 "use client";
 import React, { useRef, useState, useCallback } from "react";
+import ReactionPicker from "./reaction-picker";
 
-const LONG_PRESS_DURATION = 300;
+const LONG_PRESS_DURATION = 100;
 
 type Props = {
   trigger: React.ReactNode;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   onTap?: () => void;
+  handleReact?: (reaction: any) => void;
 };
 
-const ReactionPopover = ({ trigger, children, onTap }: Props) => {
+const ReactionPopover = ({ trigger, children, onTap, handleReact }: Props) => {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -369,6 +371,12 @@ const ReactionPopover = ({ trigger, children, onTap }: Props) => {
             }}
           >
             {children}
+            <ReactionPicker
+              onSelect={(reaction) => {
+                handleReact && handleReact(reaction);
+                setOpen(false);
+              }}
+            />
           </div>
         )}
       </div>
