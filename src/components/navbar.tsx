@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 // Using lucide-react for the icons shown in your image
 import {
   Newspaper,
@@ -11,58 +11,76 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
-const Navbar = () => {
+const Navbar = ({ onClose }: { onClose: () => void }) => {
   const path = usePathname();
   const router = useRouter();
+  const navbarRef = useRef<HTMLDivElement | null>(null);
   const [activeTab, setActiveTab] = useState("home");
 
   const navItems = [
     {
       id: "home",
       label: "Home news feed",
-      icon: <Newspaper size={20} />,
+      icon: <Newspaper strokeWidth={2} size={20} />,
       href: "/",
     },
     {
       id: "community",
       label: "Community news feed",
-      icon: <Users size={20} />,
+      icon: <Users strokeWidth={2} size={20} />,
       href: "/community",
     },
     {
       id: "search",
       label: "Real estate search",
-      icon: <Search size={20} />,
+      icon: <Search strokeWidth={2} size={20} />,
       href: "/search",
     },
     {
       id: "advertise",
       label: "Advertise a property",
-      icon: <Home size={20} />,
+      icon: <Home strokeWidth={2} size={20} />,
       href: "/advertise",
     },
     {
       id: "bookmarks",
       label: "Bookmarks",
-      icon: <Bookmark size={20} />,
+      icon: <Bookmark strokeWidth={2} size={20} />,
       href: "/bookmarks",
     },
     {
       id: "vids",
       label: "Vids",
-      icon: <Film size={20} />,
+      icon: <Film strokeWidth={2} size={20} />,
       href: "/videos",
     },
     {
       id: "profile",
       label: "Profile",
-      icon: <User size={20} />,
+      icon: <User strokeWidth={2} size={20} />,
       href: "/profile",
     },
   ];
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        navbarRef.current &&
+        !navbarRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="flex flex-col p-4 space-y-2 ">
+    <div ref={navbarRef} className="flex flex-col p-4 space-y-2 ">
       {navItems.map((item) => {
         const isActive = path === item.href;
 
@@ -74,13 +92,13 @@ const Navbar = () => {
               ${
                 isActive
                   ? "text-blue-600 bg-blue-50 font-semibold"
-                  : "text-gray-700 hover:bg-gray-100"
+                  : "text-text-primary hover:bg-gray-100"
               }`}
           >
-            <span className={isActive ? "text-blue-600" : "text-gray-500"}>
+            <span className={isActive ? "text-blue-600" : "text-text-primary"}>
               {item.icon}
             </span>
-            <span className="text-sm">{item.label}</span>
+            <span className="text-base font-semibold">{item.label}</span>
           </button>
         );
       })}

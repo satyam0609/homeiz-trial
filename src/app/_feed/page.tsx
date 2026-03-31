@@ -278,16 +278,16 @@ const FeedPage = () => {
           <SearchBox placeholder="Start a post" />
         </div>
       </div>
-      <div className="flex justify-between bg-sky-200 px-4 py-4">
+      <div className="flex justify-between bg-[#b3e3ff] px-4 py-1.5 mb-4">
         <div className="flex gap-2 items-center">
           <Menu />
-          <span className="font-bold text-sm">Sort posts by</span>
+          <span className="font-bold text-base">Sort By</span>
         </div>
 
         <div className="flex items-center">
           <Dropdown
             trigger={
-              <button className="p-2 rounded-lg hover:bg-gray-100 font-bold text-sm flex items-center">
+              <button className="p-2 rounded-lg hover:bg-gray-100 font-bold text-base flex items-center">
                 {selectedSort?.label}
                 <ChevronDown className="ml-2" />
               </button>

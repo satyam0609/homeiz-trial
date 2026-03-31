@@ -16,12 +16,12 @@ const SearchBox = ({ placeholder, onChange }: Props) => {
       type="text"
       placeholder={placeholder}
       className={`w-full px-5 py-3 rounded-full  outline-none
-             text-sm font-bold text-text-primary
+             text-base font-bold text-text-primary
              placeholder:text-gray-600 border ${
                active ? "border-blue-500" : "border-[rgb(230,228,224)]"
              }`}
       style={{
-        backgroundColor: "rgb(241, 240, 237)",
+        backgroundColor: "#ebebeb",
       }}
     />
   );

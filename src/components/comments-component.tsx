@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronDown, Send } from "lucide-react";
 import Dropdown from "@/components/dropdown";

@@ -171,18 +171,18 @@ const PostCard = ({
           House for sale
         </div> */}
 
-        <div className="flex text-sm flex-wrap items-center">
+        <div className="flex text-base font-medium flex-wrap items-center">
           2 bds
           <Separator orientation="vertical" className="h-4 mx-1" />
           2 ba
           <Separator orientation="vertical" className="h-4 mx-1" />
-          5,800
+          sqrt 5,800
           <Separator orientation="vertical" className="h-4 mx-1" />
           House for sale
         </div>
 
-        <div className="text-sm">{post.location}</div>
-        <div className="text-sm text-gray-400">{"LUXURY"}</div>
+        <div className="text-base font-medium">{post.location}</div>
+        <div className="text-base font-medium ">{"LUXURY"}</div>
       </div>
 
       {/* Actions */}

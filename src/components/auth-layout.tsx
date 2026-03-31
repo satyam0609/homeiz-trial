@@ -11,23 +11,23 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
     <div className="flex flex-col h-screen bg-white">
       <header className="flex items-center justify-between px-4 py-3 bg-white sticky top-0 z-50">
         <div className="flex items-center gap-2">
-          <img src="/images/logo.svg" alt="logo" className="w-8 h-8" />
+          <img src="/images/logo.svg" alt="logo" className="size-10" />
         </div>
-        <h1 className="text-lg font-semibold tracking-wide ml-11">
+        <h1 className="text-2xl font-semibold tracking-wide ml-11">
           HOME<span className="text-primary text-blue-500">I</span>Z
         </h1>
 
         {/* Right side actions */}
         <div className="flex items-center gap-2">
           <button className="p-2 rounded-lg hover:bg-gray-100 transition">
-            <Search size={22} />
+            <Search size={28} />
           </button>
 
           <button
             onClick={() => setIsOpen((prev) => !prev)}
             className="p-2 rounded-lg hover:bg-gray-100 transition"
           >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            {isOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
         <div
@@ -35,7 +35,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
             isOpen ? "max-h-100 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <Navbar />
+          <Navbar onClose={() => setIsOpen(false)} />
         </div>
       </header>
 
