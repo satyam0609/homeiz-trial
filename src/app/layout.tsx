@@ -58,7 +58,8 @@ export default function RootLayout({
         />
       </head>
       <body className="h-dvh flex flex-col">
-        <DeviceGuard>{children}</DeviceGuard>
+        {/* <DeviceGuard>{children}</DeviceGuard> */}
+        {children}
       </body>
     </html>
   );
