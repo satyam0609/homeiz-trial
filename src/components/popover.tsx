@@ -199,10 +199,17 @@ type Props = {
   trigger: React.ReactNode;
   children?: React.ReactNode;
   onTap?: () => void;
+  align?: "left" | "right";
   handleReact?: (reaction: any) => void;
 };
 
-const ReactionPopover = ({ trigger, children, onTap, handleReact }: Props) => {
+const ReactionPopover = ({
+  trigger,
+  children,
+  onTap,
+  handleReact,
+  align,
+}: Props) => {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -364,10 +371,11 @@ const ReactionPopover = ({ trigger, children, onTap, handleReact }: Props) => {
         {/* Popover */}
         {open && (
           <div
-            className={`absolute left-0 z-50 ${closing ? "popover-exit" : "popover-enter"}`}
+            className={`absolute ${align === "right" ? "right-0" : "left-0"} z-50 ${closing ? "popover-exit" : "popover-enter"}`}
             style={{
               bottom: "calc(100% + 8px)",
-              transformOrigin: "bottom left",
+              transformOrigin:
+                align === "right" ? "bottom right" : "bottom left",
             }}
           >
             {children}

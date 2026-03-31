@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Camera, Smile, Send, Pencil } from "lucide-react";
 import { CommentUser } from "./types";
+import SendIcon from "@/assets/icons/send-svgrepo-com";
 
 interface ReplyBoxProps {
   mentionName?: string;
@@ -68,29 +69,28 @@ export default function ReplyBox({
         )}
 
         <div className="flex items-center gap-2">
-          <div className="bg-gray-100 rounded-2xl px-3 py-2.5 flex-1 max-w-50">
+          <div className="bg-gray-100 rounded-2xl px-3 py-2.5 flex items-center gap-2">
             {mentionName && (
-              <div className="inline-flex items-center text-blue-500 text-[13px] font-bold mb-1.5">
+              <span className="text-blue-500 text-[13px] font-bold whitespace-nowrap">
                 {mentionName}
-              </div>
+              </span>
             )}
             <input
               autoFocus
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder={mentionName ? "Write a reply…" : "Write a comment…"}
-              className="w-full text-[13px] text-black bg-transparent outline-none placeholder-gray-400 mb-2"
+              className="w-10 text-[13px] text-black bg-transparent outline-none"
             />
-            <div className="flex items-center justify-end gap-3">
+            <div className="flex items-center gap-1 flex-shrink-0">
               <button className="text-gray-500 hover:text-gray-700">
-                <Camera size={18} strokeWidth={1.8} />
+                <Camera size={18} strokeWidth={2} />
               </button>
               <button className="border border-gray-400 rounded px-1 py-0.5 text-[10px] font-bold text-gray-500 leading-none tracking-wide">
                 GIF
               </button>
               <button className="text-gray-500 hover:text-gray-700">
-                <Smile size={18} strokeWidth={1.8} />
+                <Smile size={18} strokeWidth={2} />
               </button>
             </div>
           </div>
@@ -98,7 +98,7 @@ export default function ReplyBox({
             onClick={handleSend}
             className={`flex items-center justify-center transition-colors ${text.trim() ? "text-blue-500 hover:text-blue-600" : "text-gray-300"}`}
           >
-            <Send size={18} strokeWidth={1.8} className="rotate-45" />
+            <SendIcon size={26} color="#0064FF" />
           </button>
         </div>
 

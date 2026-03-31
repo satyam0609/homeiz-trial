@@ -15,6 +15,7 @@ import {
   PostDetail,
   mapComment,
 } from "@/components/comments/types";
+import { userAgent } from "next/server";
 import AuthLayout from "./auth-layout";
 
 const COMMENTS_LIMIT = 5;
@@ -104,6 +105,12 @@ export default function CommentsPage({ postId }: { postId: string }) {
         };
       }),
     );
+  }
+
+  function handleReactComment(commentId: string, reaction: string) {
+    console.log(`Reacted to comment ${commentId} with ${reaction}`);
+    // For now, treat reaction as a like toggle + log the reaction type
+    handleLike(commentId);
   }
 
   async function handleSendComment() {
@@ -345,6 +352,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
                           postOwnerId={postAuthor ? String(postAuthor.id) : ""}
                           onReply={handleReply}
                           onLike={handleLike}
+                          onReact={handleReactComment}
                           replyTarget={replyTarget}
                           onCancelReply={() => setReplyTarget(null)}
                           onSendReply={handleSendReply}
@@ -383,13 +391,22 @@ export default function CommentsPage({ postId }: { postId: string }) {
               className="w-8 h-8 rounded-full object-cover flex-shrink-0"
             />
           )}
-          <input
-            value={newCommentText}
-            onChange={(e) => setNewCommentText(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSendComment()}
-            placeholder="Write a comment…"
-            className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 text-[13px] text-black outline-none placeholder-gray-400"
-          />
+          <div className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 relative">
+            {!newCommentText && (
+              <span className="absolute inset-0 flex items-center px-4 text-[16px] text-gray-500 font-semibold pointer-events-none">
+                Comment as{" "}
+                <span className="font-bold text-black ml-1">
+                  {currentUser?.name}
+                </span>
+              </span>
+            )}
+            <input
+              value={newCommentText}
+              onChange={(e) => setNewCommentText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSendComment()}
+              className="w-full text-[13px] text-black bg-transparent outline-none"
+            />
+          </div>
           <button
             onClick={handleSendComment}
             className={`flex-shrink-0 ${newCommentText.trim() ? "text-blue-500" : "text-gray-300"}`}
