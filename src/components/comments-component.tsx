@@ -1,6 +1,19 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronDown, Send } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronDown,
+  Send,
+  MoreHorizontal,
+  X,
+  Star,
+  Edit2Icon,
+  Trash2Icon,
+  Globe2Icon,
+  ThumbsUp,
+  MessageCircle,
+  Eye,
+} from "lucide-react";
 import Dropdown from "@/components/dropdown";
 import { useRouter } from "next/navigation";
 import api from "@/config/api";
@@ -15,8 +28,16 @@ import {
   PostDetail,
   mapComment,
 } from "@/components/comments/types";
-import { userAgent } from "next/server";
-import AuthLayout from "./auth-layout";
+import Avatar from "@/components/avatar";
+import Separator from "@/components/separator";
+import ActionButton from "@/components/action-button";
+import ShareIcon from "@/assets/icons/forward";
+import ImageRenderer from "@/components/image-renderer";
+import ReactionPopover from "@/components/popover";
+import ReactionPicker from "@/components/reaction-picker";
+import { REACTION_MAP } from "@/constants";
+import { toTwemojiUrl } from "@/utils/utils";
+import SendIcon from "@/assets/icons/send-svgrepo-com";
 
 const COMMENTS_LIMIT = 5;
 
@@ -37,8 +58,6 @@ export default function CommentsPage({ postId }: { postId: string }) {
   const router = useRouter();
 
   const { ref: loadMoreRef, inView } = useInView();
-
-  console.log(postId, "post id");
 
   const [replyTarget, setReplyTarget] = useState<{
     commentId: string;
@@ -108,9 +127,41 @@ export default function CommentsPage({ postId }: { postId: string }) {
   }
 
   function handleReactComment(commentId: string, reaction: string) {
-    console.log(`Reacted to comment ${commentId} with ${reaction}`);
-    // For now, treat reaction as a like toggle + log the reaction type
-    handleLike(commentId);
+    setComments((prev) =>
+      prev.map((comment) => {
+        if (comment.id === commentId) {
+          const alreadySame = comment.myReaction === reaction;
+          return {
+            ...comment,
+            myReaction: alreadySame ? undefined : reaction,
+            likedByMe: !alreadySame,
+            likes: alreadySame
+              ? comment.likes - (comment.likedByMe ? 1 : 0)
+              : comment.likes + (comment.likedByMe ? 0 : 1),
+          };
+        }
+
+        const updateReplies = (
+          replies: typeof comment.replies,
+        ): typeof comment.replies =>
+          replies.map((reply) => {
+            if (reply.id === commentId) {
+              const alreadySame = reply.myReaction === reaction;
+              return {
+                ...reply,
+                myReaction: alreadySame ? undefined : reaction,
+                likedByMe: !alreadySame,
+                likes: alreadySame
+                  ? reply.likes - (reply.likedByMe ? 1 : 0)
+                  : reply.likes + (reply.likedByMe ? 0 : 1),
+              };
+            }
+            return { ...reply, replies: updateReplies(reply.replies) };
+          });
+
+        return { ...comment, replies: updateReplies(comment.replies) };
+      }),
+    );
   }
 
   async function handleSendComment() {
@@ -166,7 +217,6 @@ export default function CommentsPage({ postId }: { postId: string }) {
           avatar: `no-image`,
         });
 
-        // Fetch detailed user info in background
         api
           .get(`/users/${userData.id}`)
           .then((userRes) => {
@@ -228,10 +278,10 @@ export default function CommentsPage({ postId }: { postId: string }) {
   useEffect(() => {
     Promise.all([getPost(), fetchComments(1, true)]).finally(() => {
       setInitialLoading(false);
-      // Don't set ready here - let the scroll effect handle it
     });
   }, []);
 
+  // Mobile: auto-scroll to comments section
   useEffect(() => {
     if (!postDetail || !comments || hasScrolled.current) return;
     if (!loadingComments) {
@@ -240,13 +290,11 @@ export default function CommentsPage({ postId }: { postId: string }) {
         const target = commentsSectionRef.current;
         if (container && target) {
           const targetTop = target.offsetTop - container.offsetTop;
-          container.scrollTop = targetTop; // Instant scroll
+          container.scrollTop = targetTop;
           hasScrolled.current = true;
-          setReady(true); // Show content immediately after scroll
+          setReady(true);
         }
       };
-
-      // Immediate scroll with no delay
       requestAnimationFrame(scrollToComments);
     }
   }, [postDetail, comments, loadingComments]);
@@ -282,8 +330,275 @@ export default function CommentsPage({ postId }: { postId: string }) {
       }
     : null;
 
-  return (
-    <div className="flex justify-center bg-white">
+  /* ─── Shared: Comments list ─── */
+  const commentsContent = (
+    <>
+      <div ref={commentsSectionRef} className="flex items-center px-4 py-2">
+        <Dropdown
+          trigger={
+            <button className="flex items-center gap-1 font-semibold text-[18px] text-black">
+              {sortLabel} <ChevronDown size={14} strokeWidth={2.5} />
+            </button>
+          }
+          items={[
+            { label: "Newest", onClick: () => setSortLabel("Newest") },
+            {
+              label: "All comments",
+              onClick: () => setSortLabel("All comments"),
+            },
+          ]}
+          side="left"
+        />
+      </div>
+
+      <div className="px-3 pt-2 pb-4 space-y-4">
+        {comments.length === 0 && !loadingComments ? (
+          <p className="text-center text-gray-400 text-[14px] py-8">
+            No comments yet
+          </p>
+        ) : (
+          <>
+            {comments.map((comment) => (
+              <div key={comment.id}>
+                <CommentRow
+                  comment={comment}
+                  postOwnerId={postAuthor ? String(postAuthor.id) : ""}
+                  onReply={handleReply}
+                  onLike={handleLike}
+                  onReact={handleReactComment}
+                  replyTarget={replyTarget}
+                  onCancelReply={() => setReplyTarget(null)}
+                  onSendReply={handleSendReply}
+                  currentUser={currentUser}
+                />
+              </div>
+            ))}
+            {loadingComments && (
+              <div className="text-center py-4">
+                <span className="text-[12px] text-gray-400">
+                  Loading comments...
+                </span>
+              </div>
+            )}
+          </>
+        )}
+
+        {hasMore && (
+          <div ref={loadMoreRef} className="flex justify-center py-4">
+            {loadingComments && (
+              <span className="text-[12px] text-gray-400">Loading...</span>
+            )}
+          </div>
+        )}
+      </div>
+    </>
+  );
+
+  const commentInput = (
+    <div className="bg-white border-t border-gray-200 px-3 py-3 flex items-center gap-2">
+      {currentUser && (
+        <img
+          src={currentUser.avatar}
+          className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+        />
+      )}
+      <div className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 relative">
+        {!newCommentText && (
+          <span className="absolute inset-0 flex items-center px-4 text-[14px] text-gray-400 pointer-events-none">
+            Comment as{" "}
+            <span className="font-bold text-black ml-1">
+              {currentUser?.name}
+            </span>
+          </span>
+        )}
+        <input
+          value={newCommentText}
+          onChange={(e) => setNewCommentText(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSendComment()}
+          className="w-full text-[13px] text-black bg-transparent outline-none"
+        />
+      </div>
+      <button
+        onClick={handleSendComment}
+        className={`flex-shrink-0 ${newCommentText.trim() ? "text-blue-500" : "text-gray-300"}`}
+      >
+        <SendIcon size={26} color="#0064FF" />
+      </button>
+    </div>
+  );
+
+  /* ─── Shared: Post header ─── */
+  const postHeader = postDetail && (
+    <div className="flex gap-3 p-4">
+      <div className="flex-shrink-0">
+        <Avatar
+          size={42}
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDR8H0rgV-zmSodkT_erGjzA_VhfWE22Pg7Q&s"
+        />
+      </div>
+      <div className="flex flex-col flex-1 min-w-0">
+        <div className="flex flex-1 justify-between">
+          <div className="flex gap-2 items-center min-w-0">
+            <h1 className="text-[16px] font-bold truncate">
+              {postDetail?.user?.name}
+            </h1>
+          </div>
+          <div className="flex gap-3 items-center shrink-0">
+            <Dropdown
+              trigger={
+                <button>
+                  <MoreHorizontal size={20} />
+                </button>
+              }
+              items={[
+                {
+                  icon: <Edit2Icon size={14} />,
+                  label: "Edit Post",
+                  onClick: () => console.log("Edit Post"),
+                },
+                {
+                  icon: <Trash2Icon size={14} />,
+                  label: "Delete Post",
+                  onClick: () => console.log("Delete post"),
+                },
+              ]}
+            />
+            <button onClick={goTOHome}>
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+        <div className="text-[14px] font-semibold">{postDetail.location}</div>
+        <div className="flex text-xs font-bold items-center gap-2 flex-wrap mt-0.5">
+          <span>{postDetail?.user?.role}</span>
+          <div className="flex items-center">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Star
+                key={i}
+                size={12}
+                className={
+                  i <= 3
+                    ? "fill-yellow-400 text-yellow-400"
+                    : "fill-gray-300 text-gray-300"
+                }
+              />
+            ))}
+          </div>
+          <span className="text-blue-500 font-semibold text-xs">{3}</span>
+        </div>
+        <div className="flex gap-2 items-center text-text-primary mt-0.5">
+          <span className="text-[11px] font-bold">41 m</span>
+          <span className="h-0.5 w-0.5 bg-text-secondary" />
+          <Globe2Icon className="h-[11px] w-[11px] text-text-secondary" />
+        </div>
+      </div>
+    </div>
+  );
+
+  /* ─── Loading state ─── */
+  if (initialLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-white">
+        <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  const desktopLayout = (
+    <div className="hidden md:flex h-screen bg-gray-100 flex-col">
+      {/* Top bar */}
+      <div className="flex items-center gap-2 px-6 py-3 flex-shrink-0">
+        <button className="text-black" onClick={goTOHome}>
+          <ChevronLeft size={24} strokeWidth={2.5} />
+        </button>
+        <h1 className="font-bold text-[16px] text-black">
+          {postAuthor ? `${postAuthor.name}'s post` : "Post"}
+        </h1>
+      </div>
+
+      {/* Modal card */}
+      <div className="flex-1 flex items-center justify-center px-6 pb-6">
+        <div
+          className="flex bg-white rounded-xl shadow-xl overflow-hidden max-w-5xl w-full"
+          style={{ maxHeight: "85vh" }}
+        >
+          {/* Left: Post image */}
+          <div className="w-[55%] bg-black flex items-center justify-center flex-shrink-0">
+            {postDetail?.image ? (
+              <img
+                src={postDetail.image}
+                alt="post"
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-900 flex items-center justify-center text-gray-500">
+                No image
+              </div>
+            )}
+          </div>
+
+          {/* Right: Header + Comments + Input */}
+          <div className="w-[45%] flex flex-col min-h-0">
+            {/* Post header */}
+            <div className="border-b border-gray-200 flex-shrink-0">
+              {postHeader}
+            </div>
+
+            {/* Post details */}
+            {postDetail && (
+              <div className="px-4 py-3 border-b border-gray-200 flex-shrink-0">
+                <div className="text-base font-bold">$98 000</div>
+                <div className="flex text-sm flex-wrap items-center text-gray-700">
+                  2 bds
+                  <Separator orientation="vertical" className="h-3 mx-1" />
+                  2 ba
+                  <Separator orientation="vertical" className="h-3 mx-1" />
+                  5,800
+                  <Separator orientation="vertical" className="h-3 mx-1" />
+                  House for sale
+                </div>
+                <div className="text-sm text-gray-600">
+                  {postDetail.location}
+                </div>
+
+                {/* Action buttons */}
+                {postCardData && (
+                  <div className="flex items-center justify-between text-gray-500 text-sm pt-2 mt-2 border-t border-gray-100">
+                    <ReactionPopover
+                      onTap={() => {}}
+                      trigger={
+                        <ActionButton
+                          icon={ThumbsUp}
+                          count={postCardData._count.likes.toString()}
+                        />
+                      }
+                    ></ReactionPopover>
+                    <ActionButton
+                      icon={MessageCircle}
+                      count={postCardData._count.comments.toString()}
+                    />
+                    <ActionButton icon={ShareIcon} count={"30"} />
+                    <ActionButton icon={Eye} count={"200"} />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Scrollable comments */}
+            <div className="flex-1 overflow-y-auto min-h-0">
+              {commentsContent}
+            </div>
+
+            {/* Fixed comment input */}
+            <div className="flex-shrink-0">{commentInput}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const mobileLayout = (
+    <div className="md:hidden flex justify-center bg-white">
       <div className="w-full bg-white flex flex-col font-sans">
         <div className="flex items-center gap-2 py-3 max-w-sm mx-auto w-full">
           <button className="text-black" onClick={goTOHome}>
@@ -294,127 +609,34 @@ export default function CommentsPage({ postId }: { postId: string }) {
           </h1>
         </div>
 
-        {initialLoading ? (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
-          </div>
-        ) : (
-          <div
-            ref={scrollRef}
-            className={`flex-1 overflow-y-auto overflow-x-hidden pb-16 ${ready ? "" : "invisible"}`}
-          >
-            {postCardData && (
-              <div className="py-2">
-                <PostCard
-                  post={postCardData}
-                  handleReact={() => {}}
-                  handleLike={() => {}}
-                />
-              </div>
-            )}
-
-            <div className="max-w-sm mx-auto">
-              <div
-                ref={commentsSectionRef}
-                className="flex items-center px-4 py-2"
-              >
-                <Dropdown
-                  trigger={
-                    <button className="flex items-center gap-1 font-semibold text-[18px] text-black">
-                      {sortLabel} <ChevronDown size={14} strokeWidth={2.5} />
-                    </button>
-                  }
-                  items={[
-                    {
-                      label: "Newest",
-                      onClick: () => setSortLabel("Newest"),
-                    },
-                    {
-                      label: "All comments",
-                      onClick: () => setSortLabel("All comments"),
-                    },
-                  ]}
-                  side="left"
-                />
-              </div>
-
-              <div className="px-3 pt-2 pb-4 space-y-4 min-h-screen">
-                {comments.length === 0 && !loadingComments ? (
-                  <p className="text-center text-gray-400 text-[14px] py-8">
-                    No comments yet
-                  </p>
-                ) : (
-                  <>
-                    {comments.map((comment) => (
-                      <div key={comment.id}>
-                        <CommentRow
-                          comment={comment}
-                          postOwnerId={postAuthor ? String(postAuthor.id) : ""}
-                          onReply={handleReply}
-                          onLike={handleLike}
-                          onReact={handleReactComment}
-                          replyTarget={replyTarget}
-                          onCancelReply={() => setReplyTarget(null)}
-                          onSendReply={handleSendReply}
-                          currentUser={currentUser}
-                        />
-                      </div>
-                    ))}
-                    {loadingComments && (
-                      <div className="text-center py-4">
-                        <span className="text-[12px] text-gray-400">
-                          Loading comments...
-                        </span>
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {hasMore && (
-                  <div ref={loadMoreRef} className="flex justify-center py-4">
-                    {loadingComments && (
-                      <span className="text-[12px] text-gray-400">
-                        Loading...
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
+        <div
+          ref={scrollRef}
+          className={`flex-1 overflow-y-auto overflow-x-hidden pb-16 ${ready ? "" : "invisible"}`}
+        >
+          {postCardData && (
+            <div className="py-2">
+              <PostCard
+                post={postCardData}
+                handleReact={() => {}}
+                handleLike={() => {}}
+              />
             </div>
-          </div>
-        )}
-
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-3 py-3 flex items-center gap-2 max-w-sm mx-auto w-full z-50">
-          {currentUser && (
-            <img
-              src={currentUser.avatar}
-              className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-            />
           )}
-          <div className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 relative">
-            {!newCommentText && (
-              <span className="absolute inset-0 flex items-center px-4 text-[16px] text-gray-500 font-semibold pointer-events-none">
-                Comment as{" "}
-                <span className="font-bold text-black ml-1">
-                  {currentUser?.name}
-                </span>
-              </span>
-            )}
-            <input
-              value={newCommentText}
-              onChange={(e) => setNewCommentText(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSendComment()}
-              className="w-full text-[13px] text-black bg-transparent outline-none"
-            />
-          </div>
-          <button
-            onClick={handleSendComment}
-            className={`flex-shrink-0 ${newCommentText.trim() ? "text-blue-500" : "text-gray-300"}`}
-          >
-            <Send size={20} strokeWidth={1.8} />
-          </button>
+
+          <div className="max-w-sm mx-auto">{commentsContent}</div>
+        </div>
+
+        <div className="fixed bottom-0 left-0 right-0 max-w-sm mx-auto w-full z-50">
+          {commentInput}
         </div>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      {desktopLayout}
+      {mobileLayout}
+    </>
   );
 }
