@@ -133,7 +133,7 @@ export default function CommentRow({
                   />
                 </div>
 
-                <span className="text-[12px] text-gray-500">
+                <span className="text-sm text-text-secondary font-bold">
                   {comment.likes}
                 </span>
               </button>
