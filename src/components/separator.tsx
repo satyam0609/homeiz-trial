@@ -10,7 +10,7 @@ const Separator = ({
   className = "",
 }: SeparatorProps) => {
   if (orientation === "vertical") {
-    return <div className={`w-0.5 bg-text-primary mx-2 ${className}`} />;
+    return <div className={`w-px bg-text-primary mx-2 ${className}`} />;
   }
 
   return (
