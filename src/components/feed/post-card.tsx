@@ -188,9 +188,9 @@ const PostCard = ({
       {/* Actions */}
       <div className="flex items-center justify-between text-gray-500 text-sm px-4 py-2">
         <ReactionPopover
-          onTap={() => {
-            handleLike(post.id);
-          }}
+          // onTap={() => {
+          //   handleLike(post.id);
+          // }}
           handleReact={(reaction) => {
             handleReact(post.id, reaction);
           }}
