@@ -269,7 +269,7 @@ const FeedPage = () => {
 
   return (
     <>
-      <div className="flex items-center gap-3 w-full px-4 mb-4 md:py-6">
+      <div className="flex items-center gap-3 w-full px-4 mb-4 py-2 md:py-6">
         <div>
           <Avatar
             className="shrink-0"
