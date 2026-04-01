@@ -685,7 +685,9 @@ export default function CommentsPage({ postId }: { postId: string }) {
 
           <div className="max-w-sm mx-auto">
             <div ref={mobileCommentsSectionRef} />
-            {commentsContent}
+            <div className="min-h-screen">
+              {commentsContent}
+            </div>
           </div>
         </div>
 
