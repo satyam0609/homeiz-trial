@@ -52,6 +52,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
   const loadingRef = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const commentsSectionRef = useRef<HTMLDivElement>(null);
+  const mobileCommentsSectionRef = useRef<HTMLDivElement>(null);
   const hasScrolled = useRef(false);
   const [ready, setReady] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -346,7 +347,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
     if (!loadingComments) {
       const scrollToComments = () => {
         const container = scrollRef.current;
-        const target = commentsSectionRef.current;
+        const target = mobileCommentsSectionRef.current;
         if (container && target) {
           const targetTop = target.offsetTop - container.offsetTop;
           container.scrollTop = targetTop;
@@ -657,8 +658,8 @@ export default function CommentsPage({ postId }: { postId: string }) {
   );
 
   const mobileLayout = (
-    <div className="md:hidden flex justify-center bg-white">
-      <div className="w-full bg-white flex flex-col font-sans">
+    <div className="md:hidden flex justify-center bg-white h-screen">
+      <div className="w-full bg-white flex flex-col font-sans h-full">
         <div className="flex items-center gap-2 py-3 max-w-sm mx-auto w-full">
           <button className="text-black" onClick={goTOHome}>
             <ChevronLeft size={24} strokeWidth={2.5} />
@@ -682,7 +683,10 @@ export default function CommentsPage({ postId }: { postId: string }) {
             </div>
           )}
 
-          <div className="max-w-sm mx-auto">{commentsContent}</div>
+          <div className="max-w-sm mx-auto">
+            <div ref={mobileCommentsSectionRef} />
+            {commentsContent}
+          </div>
         </div>
 
         <div className="fixed bottom-0 left-0 right-0 max-w-sm mx-auto w-full z-50">

@@ -84,7 +84,7 @@ export default function CommentRow({
               <span className="font-bold text-[18px] text-black">
                 {comment.user.name}
               </span>
-              <span className="text-[12px] text-gray-500">
+              <span className="text-[12px] text-gray-500 font-bold">
                 · {comment.timestamp}
               </span>
               {isAuthor && (
