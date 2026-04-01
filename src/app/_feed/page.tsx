@@ -269,7 +269,24 @@ const FeedPage = () => {
 
   return (
     <>
-      <div className="flex items-center gap-3 w-full px-4 mb-4 py-2 md:py-6">
+      <div className="flex flex-wrap items-center gap-3 w-full px-4 mb-4 py-2 md:py-6">
+        <div className="shrink-0">
+          <Avatar
+            className="shrink-0"
+            size={42}
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDR8H0rgV-zmSodkT_erGjzA_VhfWE22Pg7Q&s"
+          />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <SearchButton
+            className="w-full"
+            onClick={() => router.push("/create-post")}
+            label="Start a post, Jhon"
+          />
+        </div>
+      </div>
+      {/* <div className="flex items-center gap-3 w-full px-4 mb-4 py-2 md:py-6">
         <div>
           <Avatar
             className="shrink-0"
@@ -285,8 +302,8 @@ const FeedPage = () => {
             label="Start a post, Jhon"
           />
         </div>
-      </div>
-      <div className="flex justify-between bg-[#b3e3ff] px-4 py-1.5 mb-4">
+      </div> */}
+      {/* <div className="flex justify-between bg-[#b3e3ff] px-4 py-1.5 mb-4">
         <div className="flex gap-2 items-center">
           <Menu strokeWidth={2} />
           <span className="font-bold text-lg">Sort By</span>
@@ -298,6 +315,27 @@ const FeedPage = () => {
               <button className="p-2 rounded-lg hover:bg-gray-100 font-bold text-lg flex items-center">
                 {selectedSort?.label}
                 <ChevronDown className="ml-2" />
+              </button>
+            }
+            items={SORT_OPTIONS.map((item) => ({
+              label: item.label,
+              onClick: () => handleSortChange(item.value),
+            }))}
+          />
+        </div>
+      </div> */}
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-[#b3e3ff] px-4 py-2 mb-4">
+        <div className="flex gap-2 items-center">
+          <Menu strokeWidth={2} />
+          <span className="font-bold text-lg whitespace-nowrap">Sort By</span>
+        </div>
+
+        <div className="flex items-center">
+          <Dropdown
+            trigger={
+              <button className="p-2 rounded-lg hover:bg-gray-100 font-bold text-lg flex items-center whitespace-nowrap">
+                <span className="truncate max-w-35">{selectedSort?.label}</span>
+                <ChevronDown className="ml-2 shrink-0" />
               </button>
             }
             items={SORT_OPTIONS.map((item) => ({
