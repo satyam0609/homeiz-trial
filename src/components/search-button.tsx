@@ -32,7 +32,7 @@ const SearchButton = ({
         backgroundColor: "#ebebeb",
       }}
     >
-      <span>{label}</span>
+      <span className="text-lg">{label}</span>
 
       {showIcon && <SearchIcon size={18} />}
     </button>

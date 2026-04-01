@@ -350,7 +350,9 @@ const ReactionPopover = ({
       >
         {/* Trigger */}
         <div
-          onClick={handleClick}
+          onClick={() => {
+            setOpen(true);
+          }}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
