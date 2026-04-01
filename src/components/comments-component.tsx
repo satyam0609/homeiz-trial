@@ -165,35 +165,94 @@ export default function CommentsPage({ postId }: { postId: string }) {
   }
 
   async function handleSendComment() {
-    if (!newCommentText.trim()) return;
+    if (!newCommentText.trim() || !currentUser) return;
+    const text = newCommentText.trim();
+    const tempId = `temp-${Date.now()}`;
+
+    // Optimistic: add to local state immediately
+    const optimisticComment: Comment = {
+      id: tempId,
+      text,
+      timestamp: "now",
+      likes: 0,
+      likedByMe: false,
+      user: currentUser,
+      replies: [],
+    };
+    setComments((prev) => [optimisticComment, ...prev]);
+    setNewCommentText("");
+
+    // Fire API in background
     try {
       await api.post(`/posts/${postId}/comment`, {
-        userId: Number(currentUser!.id),
-        text: newCommentText.trim(),
+        userId: Number(currentUser.id),
+        text,
       });
-      setNewCommentText("");
-      await fetchComments(1, true);
+      // Silently refresh to get real IDs
+      fetchComments(1, true);
     } catch (error) {
       console.log(error);
+      // Remove optimistic comment on failure
+      setComments((prev) => prev.filter((c) => c.id !== tempId));
     }
   }
 
   async function handleSendReply(text: string) {
-    if (!replyTarget) return;
+    if (!replyTarget || !currentUser) return;
+    const tempId = `temp-${Date.now()}`;
+    const { commentId, replyToId, mentionName } = replyTarget;
+
+    // Optimistic: insert reply into the correct comment's replies
+    const optimisticReply: Comment = {
+      id: tempId,
+      rootId: commentId,
+      text,
+      mention: mentionName,
+      timestamp: "now",
+      likes: 0,
+      likedByMe: false,
+      user: currentUser,
+      replies: [],
+    };
+
+    setComments((prev) =>
+      prev.map((comment) => {
+        if (comment.id === commentId) {
+          return {
+            ...comment,
+            replies: [...comment.replies, optimisticReply],
+          };
+        }
+        return comment;
+      }),
+    );
+    setReplyTarget(null);
+
+    // Fire API in background
     try {
-      await api.post(`/comments/${replyTarget.commentId}/reply`, {
-        userId: Number(currentUser!.id),
+      await api.post(`/comments/${commentId}/reply`, {
+        userId: Number(currentUser.id),
         text,
         parentId:
-          replyTarget.replyToId === replyTarget.commentId
-            ? null
-            : Number(replyTarget.replyToId),
+          replyToId === commentId ? null : Number(replyToId),
       });
-      await fetchComments(1, true);
+      // Silently refresh to get real IDs
+      fetchComments(1, true);
     } catch (error) {
       console.log(error);
+      // Remove optimistic reply on failure
+      setComments((prev) =>
+        prev.map((comment) => {
+          if (comment.id === commentId) {
+            return {
+              ...comment,
+              replies: comment.replies.filter((r) => r.id !== tempId),
+            };
+          }
+          return comment;
+        }),
+      );
     }
-    setReplyTarget(null);
   }
 
   function goTOHome() {
