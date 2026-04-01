@@ -551,13 +551,12 @@ export default function CreatePostPage() {
             </span>
           </div>
           <Separator />
-          <div className="flex items-center gap-3 px-4 sm:px-6 py-4 border-b border-gray-100">
+          <div className="flex  gap-3 px-4 sm:px-6 py-4 border-b border-gray-100">
             <div className="relative shrink-0">
-              <Avatar name="Riva" />
-              <span className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
+              <Avatar name="Riva" online="online" />
             </div>
             <div className="flex-1 min-w-0 ">
-              <div className="flex items-center justify-between ">
+              <div className="flex items-center justify-between mt-2">
                 <span className="text-[15px] font-bold text-gray-900">
                   Riva Bika
                 </span>
