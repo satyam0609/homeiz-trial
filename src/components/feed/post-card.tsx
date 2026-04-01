@@ -63,8 +63,8 @@ const PostCard = ({
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDR8H0rgV-zmSodkT_erGjzA_VhfWE22Pg7Q&s"
           />
         </div>
-        <div className="flex flex-col flex-1">
-          <div className="flex flex-1 justify-between">
+        <div className="flex flex-col flex-1 min-w-0">
+          <div className="flex flex-1 justify-between flex-wrap gap-2">
             <div className="flex gap-2 items-center min-w-0">
               <h1 className="text-[18px] font-bold truncate max-w-40">
                 {post?.user?.name}
@@ -115,7 +115,7 @@ const PostCard = ({
                 />
               )}
 
-              <button onClick={() => handleRemove && handleRemove(post.id)}>
+              <button onClick={() => handleRemove?.(post.id)}>
                 <X size={18} />
               </button>
             </div>
@@ -186,11 +186,8 @@ const PostCard = ({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between text-gray-500 text-sm px-4 py-2">
+      {/* <div className="flex items-center justify-between text-gray-500 text-sm px-4 py-2">
         <ReactionPopover
-          // onTap={() => {
-          //   handleLike(post.id);
-          // }}
           handleReact={(reaction) => {
             handleReact(post.id, reaction);
           }}
@@ -210,14 +207,6 @@ const PostCard = ({
         <ActionButton icon={ShareIcon} count={"30"} />
         <ActionButton icon={Eye} count={"200"} />
 
-        {/* <div className="flex items-center px-2">
-          <span className="w-6 h-6 flex items-center justify-center bg-white rounded-full  -ml-1 first:ml-0">
-            👍
-          </span>
-          <span className="w-6 h-6 flex items-center justify-center bg-white rounded-full  -ml-1">
-            😂
-          </span>
-        </div> */}
         {Object.keys(post.reactionCounts).length > 0 && (
           <div className="flex items-center px-2">
             {Object.entries(post.reactionCounts || {})
@@ -245,29 +234,53 @@ const PostCard = ({
               })}
           </div>
         )}
-      </div>
-
-      {/* <div className="flex items-center px-2">
-        {Object.entries(post.reactionCounts || {})
-          .slice(0, 3)
-          .map(([type], index) => {
-            const emoji = REACTION_MAP[type];
-
-            if (!emoji) return null;
-
-            return (
-              <span
-                key={type}
-                style={{ zIndex: 10 - index }}
-                className="w-6 h-6 flex items-center justify-center
-                     bg-white rounded-full shadow-sm
-                     -ml-1 first:ml-0"
-              >
-                <img src={toTwemojiUrl(emoji)} className="w-4 h-4" alt={type} />
-              </span>
-            );
-          })}
       </div> */}
+
+      <div className="flex flex-wrap items-center justify-between text-gray-500 text-sm px-4 py-2 gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <ReactionPopover
+            handleReact={(reaction) => handleReact(post.id, reaction)}
+            trigger={
+              <ActionButton
+                icon={ThumbsUp}
+                count={post?._count?.likes.toString()}
+                className={isLiked ? "text-blue-500" : ""}
+              />
+            }
+          />
+
+          <ActionButton
+            icon={MessageCircle}
+            count={post?._count?.comments.toString()}
+            onClick={handleRedirect}
+          />
+
+          <ActionButton icon={ShareIcon} count={"30"} />
+          <ActionButton icon={Eye} count={"200"} />
+        </div>
+
+        {/* Reactions */}
+        {Object.keys(post.reactionCounts).length > 0 && (
+          <div className="flex items-center px-2">
+            {Object.entries(post.reactionCounts)
+              .slice(0, 3)
+              .map(([type], index) => {
+                const emoji = REACTION_MAP[type];
+                if (!emoji) return null;
+
+                return (
+                  <span
+                    key={type}
+                    style={{ zIndex: 10 - index }}
+                    className="w-6 h-6 flex items-center justify-center bg-white rounded-full shadow-sm -ml-1 first:ml-0"
+                  >
+                    <img src={toTwemojiUrl(emoji)} className="w-4 h-4" />
+                  </span>
+                );
+              })}
+          </div>
+        )}
+      </div>
 
       <Separator />
     </div>
