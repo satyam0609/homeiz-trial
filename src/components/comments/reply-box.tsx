@@ -55,7 +55,7 @@ export default function ReplyBox({
             <span className="text-[13px] text-black font-semibold">
               Replying to
             </span>
-            <span className="text-[13px] font-bold text-black">
+            <span className="text-[15px] font-bold text-black">
               {mentionName}
             </span>
             <span className="text-gray-400 text-[12px]">·</span>
