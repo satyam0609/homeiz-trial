@@ -34,7 +34,7 @@ const FeedPage = () => {
 
   const selectedSort = SORT_OPTIONS.find((opt) => opt.value === sortBy);
 
-  const { ref, inView } = useInView({ threshold: 1 });
+  const { ref, inView } = useInView({ rootMargin: "300px", threshold: 1 });
 
   const handleReact = async (postId: number, reaction: string) => {
     if (!user) return;
@@ -202,7 +202,7 @@ const FeedPage = () => {
         setLoading(true);
         setError(null);
 
-        const newPosts = await getPosts({ page: currentPage, limit: 10 });
+        const newPosts = await getPosts({ page: currentPage, limit: 4 });
 
         if (newPosts.length === 0) {
           setHasMore(false);
