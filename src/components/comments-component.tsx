@@ -234,8 +234,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
       await api.post(`/comments/${commentId}/reply`, {
         userId: Number(currentUser.id),
         text,
-        parentId:
-          replyToId === commentId ? null : Number(replyToId),
+        parentId: replyToId === commentId ? null : Number(replyToId),
       });
       // Silently refresh to get real IDs
       fetchComments(1, true);
@@ -435,7 +434,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
             ))}
             {loadingComments && (
               <div className="text-center py-4">
-                <span className="text-[12px] text-gray-400">
+                <span className="text-[12px] text-text-secondary">
                   Loading comments...
                 </span>
               </div>
@@ -685,9 +684,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
 
           <div className="max-w-sm mx-auto">
             <div ref={mobileCommentsSectionRef} />
-            <div className="min-h-screen">
-              {commentsContent}
-            </div>
+            <div className="min-h-screen">{commentsContent}</div>
           </div>
         </div>
 

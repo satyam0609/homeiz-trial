@@ -109,7 +109,7 @@ export default function CommentRow({
 
           <div className="flex items-center gap-5 mt-1.5 pl-3">
             <button
-              className="text-[12px] text-gray-500 font-bold"
+              className="text-sm text-text-secondary font-bold"
               onClick={() =>
                 onReply(
                   comment.rootId || comment.id,
@@ -149,7 +149,7 @@ export default function CommentRow({
               trigger={
                 <button
                   className={
-                    comment.likedByMe ? "text-blue-500" : "text-gray-300"
+                    comment.likedByMe ? "text-blue-500" : "text-text-secondary"
                   }
                 >
                   <ThumbsUp size={16} strokeWidth={1.8} />
@@ -196,7 +196,7 @@ export default function CommentRow({
       {!showAllReplies && hiddenCount > 0 && (
         <div className="pl-8 mt-2">
           <button
-            className="flex items-center gap-1 text-[14px] text-gray-500 font-bold"
+            className="flex items-center gap-1 text-sm text-text-secondary font-bold"
             onClick={() => setShowAllReplies(true)}
           >
             <ChevronDown size={13} />
