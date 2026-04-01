@@ -13,7 +13,7 @@ const Header = () => {
       <div className="flex items-center gap-2 md:hidden">
         <img src="/images/logo.svg" alt="logo" className="size-12" />
       </div>
-      <h1 className="text-2xl font-semibold tracking-wide ml-11 md:hidden">
+      <h1 className="text-[1.625rem] font-semibold tracking-wide ml-11 md:hidden">
         HOME<span className="text-primary text-blue-500">I</span>Z
       </h1>
 
