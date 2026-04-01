@@ -52,7 +52,7 @@ const Avatar: React.FC<AvatarProps> = ({
       </div>
       {online && (
         <div
-          className={`h-4 w-4 absolute rounded-full bottom-0 right-0 z-30 border-2 border-white ${
+          className={`h-3.5 w-3.5 absolute rounded-full bottom-0 right-0 z-30 border-2 border-white ${
             online === "online" ? "bg-green-500" : "bg-red-500"
           }`}
         />
