@@ -1,6 +1,8 @@
 "use client";
+import Avatar from "@/components/avatar";
 import Separator from "@/components/separator";
 import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useState, useRef, useCallback } from "react";
 
 const MAX_CHARS = 500;
@@ -129,6 +131,7 @@ const PrivacyIcon = ({ value }: { value: Privacy }) => {
 };
 
 export default function CreatePostPage() {
+  const router = useRouter();
   const [text, setText] = useState("");
   const [privacy, setPrivacy] = useState<Privacy>("Public");
   const [showPrivacy, setShowPrivacy] = useState(false);
@@ -273,9 +276,177 @@ export default function CreatePostPage() {
         ? "grid-cols-2"
         : "grid-cols-3";
 
+  const mediaActions = [
+    {
+      key: "photo",
+      label: "Photo",
+      sublabel: "User upload picture limit to 3 MB size",
+      badge: mediaFiles.filter((m) => m.type === "image").length || null,
+      action: () => photoRef.current?.click(),
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
+          <rect
+            x="3"
+            y="5"
+            width="18"
+            height="14"
+            rx="2"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          />
+          <circle
+            cx="8.5"
+            cy="10.5"
+            r="1.5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
+          <path
+            d="M3 16l4.5-4.5 3 3 3-3 4.5 4.5"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ),
+    },
+    {
+      key: "video",
+      label: "Video",
+      sublabel:
+        "Regardless of upload size (even 100 MB), videos must be compressed to a target bitrate suitable for 15-second clips, resulting in approximately 3–5 MB files at 720p",
+      badge: mediaFiles.filter((m) => m.type === "video").length || null,
+      action: () => videoRef.current?.click(),
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
+          <rect
+            x="2"
+            y="6"
+            width="14"
+            height="12"
+            rx="2"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          />
+          <path
+            d="M16 10l5-3v10l-5-3V10z"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ),
+    },
+    {
+      key: "file",
+      label: "File",
+      sublabel: "",
+      badge: attachedFiles.length || null,
+      action: () => fileRef.current?.click(),
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
+          <path
+            d="M13.5 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8.5L13.5 3z"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M13 3v6h6"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ),
+    },
+    {
+      key: "tag",
+      label: "Tag people",
+      sublabel: "",
+      badge: taggedPeople.length || null,
+      action: () => setShowSheet((s) => (s === "tag" ? null : "tag")),
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
+          <circle cx="9" cy="8" r="3" stroke="currentColor" strokeWidth="1.8" />
+          <circle
+            cx="15"
+            cy="8"
+            r="3"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          />
+          <path
+            d="M3 20c0-3.314 2.686-6 6-6h6c3.314 0 6 2.686 6 6"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+        </svg>
+      ),
+    },
+    {
+      key: "gif",
+      label: "GIF",
+      sublabel: "",
+      badge: selectedGifs.length || null,
+      action: () => setShowSheet((s) => (s === "gif" ? null : "gif")),
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
+          <rect
+            x="3"
+            y="6"
+            width="18"
+            height="12"
+            rx="2"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          />
+          <text
+            x="6"
+            y="16"
+            fontSize="7.5"
+            fontWeight="bold"
+            fill="currentColor"
+          >
+            GIF
+          </text>
+        </svg>
+      ),
+    },
+    {
+      key: "emoji",
+      label: "Emoji",
+      sublabel: "",
+      badge: null,
+      action: () => setShowSheet((s) => (s === "emoji" ? null : "emoji")),
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
+          <circle
+            cx="12"
+            cy="12"
+            r="9"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          />
+          <path
+            d="M8.5 14s1 1.5 3.5 1.5 3.5-1.5 3.5-1.5"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+          <circle cx="9" cy="10" r="1" fill="currentColor" />
+          <circle cx="15" cy="10" r="1" fill="currentColor" />
+        </svg>
+      ),
+    },
+  ];
+
   if (posted)
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 flex md:items-center md:justify-center">
         <div className="bg-white rounded-2xl shadow-xl p-10 flex flex-col items-center gap-4 max-w-sm w-full">
           <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center animate-bounce">
             <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24">
@@ -336,7 +507,10 @@ export default function CreatePostPage() {
       <div className="cp-card bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col sm:max-h-[92vh] overflow-hidden">
         {/* Top bar */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-100 shrink-0">
-          <button className="w-8 h-8 flex items-center justify-center rounded-full text-text-primary hover:bg-gray-100 transition-colors">
+          <button
+            onClick={() => router.back()}
+            className="w-8 h-8 flex items-center justify-center rounded-full text-text-primary hover:bg-gray-100 transition-colors"
+          >
             <X className="size-6" />
           </button>
           <span className="text-2xl font-bold text-gray-900 tracking-tight">
@@ -363,7 +537,7 @@ export default function CreatePostPage() {
           <div className="px-4 pt-4 pb-8 relative">
             <textarea
               ref={textareaRef}
-              className="w-full border-none outline-none resize-none text-[15px] text-gray-900 leading-relaxed bg-transparent placeholder-gray-400 min-h-17.5"
+              className="w-full border-none outline-none resize-none text-base text-gray-900 leading-relaxed bg-transparent placeholder-gray-400 min-h-17.5"
               placeholder="What's on your mind, Riva?"
               maxLength={MAX_CHARS}
               value={text}
@@ -371,7 +545,7 @@ export default function CreatePostPage() {
               rows={3}
             />
             <span
-              className={`absolute bottom-0 right-4 text-xs font-semibold px-2.5 py-0.5 rounded-full transition-all ${remaining < 0 ? "text-red-600 bg-red-50" : remaining < 50 ? "text-amber-600 bg-amber-50" : "text-text-primary "}`}
+              className={`absolute bottom-0 right-4 text-sm font-semibold px-2.5 py-0.5 rounded-full transition-all ${remaining < 0 ? "text-red-600 bg-red-50" : remaining < 50 ? "text-amber-600 bg-amber-50" : "text-text-primary "}`}
             >
               {remaining}
             </span>
@@ -379,9 +553,7 @@ export default function CreatePostPage() {
           <Separator />
           <div className="flex items-center gap-3 px-4 sm:px-6 py-4 border-b border-gray-100">
             <div className="relative shrink-0">
-              <div className="w-11 h-11 rounded-full bg-linear-to-br from-amber-400 to-rose-400 flex items-center justify-center text-white font-bold text-lg select-none">
-                R
-              </div>
+              <Avatar name="Riva" />
               <span className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
             </div>
             <div className="flex-1 min-w-0 ">
@@ -740,182 +912,7 @@ export default function CreatePostPage() {
           )}
 
           {/* Action list */}
-          {[
-            {
-              key: "photo",
-              label: "Photo",
-              sublabel: "User upload picture limit to 3 MB size",
-              badge:
-                mediaFiles.filter((m) => m.type === "image").length || null,
-              action: () => photoRef.current?.click(),
-              icon: (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
-                  <rect
-                    x="3"
-                    y="5"
-                    width="18"
-                    height="14"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                  <circle
-                    cx="8.5"
-                    cy="10.5"
-                    r="1.5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  />
-                  <path
-                    d="M3 16l4.5-4.5 3 3 3-3 4.5 4.5"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              ),
-            },
-            {
-              key: "video",
-              label: "Video",
-              sublabel:
-                "Regardless of upload size (even 100 MB), videos must be compressed to a target bitrate suitable for 15-second clips, resulting in approximately 3–5 MB files at 720p",
-              badge:
-                mediaFiles.filter((m) => m.type === "video").length || null,
-              action: () => videoRef.current?.click(),
-              icon: (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
-                  <rect
-                    x="2"
-                    y="6"
-                    width="14"
-                    height="12"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                  <path
-                    d="M16 10l5-3v10l-5-3V10z"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              ),
-            },
-            {
-              key: "file",
-              label: "File",
-              sublabel: "",
-              badge: attachedFiles.length || null,
-              action: () => fileRef.current?.click(),
-              icon: (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
-                  <path
-                    d="M13.5 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8.5L13.5 3z"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M13 3v6h6"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              ),
-            },
-            {
-              key: "tag",
-              label: "Tag people",
-              sublabel: "",
-              badge: taggedPeople.length || null,
-              action: () => setShowSheet((s) => (s === "tag" ? null : "tag")),
-              icon: (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
-                  <circle
-                    cx="9"
-                    cy="8"
-                    r="3"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                  <circle
-                    cx="15"
-                    cy="8"
-                    r="3"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                  <path
-                    d="M3 20c0-3.314 2.686-6 6-6h6c3.314 0 6 2.686 6 6"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              ),
-            },
-            {
-              key: "gif",
-              label: "GIF",
-              sublabel: "",
-              badge: selectedGifs.length || null,
-              action: () => setShowSheet((s) => (s === "gif" ? null : "gif")),
-              icon: (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
-                  <rect
-                    x="3"
-                    y="6"
-                    width="18"
-                    height="12"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                  <text
-                    x="6"
-                    y="16"
-                    fontSize="7.5"
-                    fontWeight="bold"
-                    fill="currentColor"
-                  >
-                    GIF
-                  </text>
-                </svg>
-              ),
-            },
-            {
-              key: "emoji",
-              label: "Emoji",
-              sublabel: "",
-              badge: null,
-              action: () =>
-                setShowSheet((s) => (s === "emoji" ? null : "emoji")),
-              icon: (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="9"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                  <path
-                    d="M8.5 14s1 1.5 3.5 1.5 3.5-1.5 3.5-1.5"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                  />
-                  <circle cx="9" cy="10" r="1" fill="currentColor" />
-                  <circle cx="15" cy="10" r="1" fill="currentColor" />
-                </svg>
-              ),
-            },
-          ].map((item) => (
+          {mediaActions.map((item) => (
             <button
               key={item.key}
               onClick={item.action}
@@ -928,7 +925,7 @@ export default function CreatePostPage() {
               </div>
               <div className="flex-1 min-w-0 pt-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[15px] font-semibold text-gray-900">
+                  <span className="text-lg font-semibold text-gray-900">
                     {item.label}
                   </span>
                   {item.badge ? (
