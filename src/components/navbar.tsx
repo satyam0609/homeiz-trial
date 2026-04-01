@@ -10,6 +10,7 @@ import {
   User,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import UserIcon from "@/assets/icons/profile";
 
 const Navbar = ({ onClose }: { onClose: () => void }) => {
   const path = usePathname();
@@ -57,7 +58,7 @@ const Navbar = ({ onClose }: { onClose: () => void }) => {
     {
       id: "profile",
       label: "Profile",
-      icon: <User strokeWidth={2} size={20} />,
+      icon: <UserIcon size={20} />,
       href: "/profile",
     },
   ];
