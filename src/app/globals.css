@@ -5,6 +5,7 @@
   --foreground: #050505;
   --bluish_black: 38 39 41;
   --primary-blue: 16 131 254;
+  --gray-50: 235 235 235;
 }
 
 @theme inline {
@@ -17,6 +18,7 @@
   --color-text-tertary: #8a8d91;
   --color-bluish-black: rgb(var(--bluish_black));
   --color-primary-blue: rgb(var(--primary-blue));
+  --color-gray-50: rgb(var(--gray-50));
 }
 
 @media (prefers-color-scheme: dark) {
