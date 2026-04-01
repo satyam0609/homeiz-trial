@@ -324,7 +324,7 @@ const FeedPage = () => {
           />
         </div>
       </div> */}
-      <div className="flex flex-wrap items-center justify-between gap-2 bg-[#b3e3ff] px-4 py-2 mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-2  bg-[rgb(186,242,242)] px-4 py-2 mb-4">
         <div className="flex gap-2 items-center">
           <Menu strokeWidth={2} />
           <span className="font-bold text-lg whitespace-nowrap">Sort By</span>
