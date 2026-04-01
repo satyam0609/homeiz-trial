@@ -447,7 +447,7 @@ export default function CreatePostPage() {
   if (posted)
     return (
       <div className="min-h-screen bg-gray-100 flex md:items-center md:justify-center">
-        <div className="bg-white rounded-2xl shadow-xl p-10 flex flex-col items-center gap-4 max-w-sm w-full">
+        <div className="bg-white rounded-2xl shadow-xl p-10 flex flex-col items-center gap-4 w-full md:max-w-sm">
           <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center animate-bounce">
             <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24">
               <path
@@ -459,7 +459,9 @@ export default function CreatePostPage() {
               />
             </svg>
           </div>
+
           <p className="text-xl font-bold text-gray-900">Posted!</p>
+
           <p className="text-sm text-gray-500 text-center">
             Your post is now live as{" "}
             <span className="font-semibold text-blue-600">{privacy}</span>
@@ -525,16 +527,16 @@ export default function CreatePostPage() {
         </div>
 
         {/* User types + char */}
-        <div className="flex items-center px-4 sm:px-6 py-2.5 border-b border-gray-100 shrink-0">
-          <span className="text-sm font-bold text-text-primary border-l-[3px] border-blue-600 pl-2.5">
-            User types
-          </span>
-        </div>
 
         {/* Scrollable body */}
         <div className="overflow-y-auto hide-scroll flex-1">
+          <div className="flex items-center px-4 sm:px-6 py-2.5 border-b border-gray-100 shrink-0">
+            <span className="text-sm font-bold text-text-primary border-l-[3px] border-blue-600 pl-2.5">
+              User types
+            </span>
+          </div>
           {/* Composer */}
-          <div className="px-4 pt-4 pb-8 relative">
+          <div className="px-4 sm:px-6 pt-4 pb-8 relative">
             <textarea
               ref={textareaRef}
               className="w-full border-none outline-none resize-none text-base text-gray-900 leading-relaxed bg-transparent placeholder-gray-400 min-h-17.5"
@@ -551,7 +553,7 @@ export default function CreatePostPage() {
             </span>
           </div>
           <Separator />
-          <div className="flex  gap-3 px-4 sm:px-6 py-4 border-b border-gray-100">
+          <div className="flex gap-3 px-4 sm:px-6 py-4 border-b border-gray-100">
             <div className="relative shrink-0">
               <Avatar name="Riva" online="online" />
             </div>
