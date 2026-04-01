@@ -171,18 +171,27 @@ const PostCard = ({
           House for sale
         </div> */}
 
-        <div className="flex text-base font-medium flex-wrap items-center">
+        <div className="flex text-base font-semibold flex-wrap items-center">
           2 bds
-          <Separator orientation="vertical" className="h-4 mx-1" />
+          <Separator
+            orientation="vertical"
+            className="h-4 mx-1 font-semibold"
+          />
           2 ba
-          <Separator orientation="vertical" className="h-4 mx-1" />
+          <Separator
+            orientation="vertical"
+            className="h-4 mx-1 font-semibold"
+          />
           sqrt 5,800
-          <Separator orientation="vertical" className="h-4 mx-1" />
+          <Separator
+            orientation="vertical"
+            className="h-4 mx-1 font-semibold"
+          />
           House for sale
         </div>
 
-        <div className="text-base font-medium">{post.location}</div>
-        <div className="text-base font-medium ">{"LUXURY"}</div>
+        <div className="text-base font-semibold">{post.location}</div>
+        <div className="text-base font-semibold ">{"LUXURY"}</div>
       </div>
 
       {/* Actions */}
