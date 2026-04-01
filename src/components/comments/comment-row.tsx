@@ -84,7 +84,7 @@ export default function CommentRow({
               <span className="font-bold text-[18px] text-black">
                 {comment.user.name}
               </span>
-              <span className="text-[12px] text-gray-500">
+              <span className="text-[12px] text-gray-500 font-bold">
                 · {comment.timestamp}
               </span>
               {isAuthor && (
@@ -196,18 +196,18 @@ export default function CommentRow({
       {!showAllReplies && hiddenCount > 0 && (
         <div className="pl-8 mt-2">
           <button
-            className="flex items-center gap-1 text-[12px] text-black font-semibold"
+            className="flex items-center gap-1 text-[14px] text-gray-500 font-bold"
             onClick={() => setShowAllReplies(true)}
           >
             <ChevronDown size={13} />
-            View {hiddenCount} more {hiddenCount === 1 ? "reply" : "replies"}...
+            View {hiddenCount} {hiddenCount === 1 ? "reply" : "replies"}...
           </button>
         </div>
       )}
       {showAllReplies && allRepliesFlat.length > REPLIES_PREVIEW && (
         <div className="pl-8 mt-2">
           <button
-            className="flex items-center gap-1 text-[12px] text-gray-500 font-medium"
+            className="flex items-center gap-1 text-[14px] text-gray-500 font-bold"
             onClick={() => setShowAllReplies(false)}
           >
             <ChevronDown size={13} className="rotate-180" />
