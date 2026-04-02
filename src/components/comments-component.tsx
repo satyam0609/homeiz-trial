@@ -13,6 +13,8 @@ import {
   ThumbsUp,
   MessageCircle,
   Eye,
+  Camera,
+  Smile,
 } from "lucide-react";
 import Dropdown from "@/components/dropdown";
 import { useRouter } from "next/navigation";
@@ -53,6 +55,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const commentsSectionRef = useRef<HTMLDivElement>(null);
   const mobileCommentsSectionRef = useRef<HTMLDivElement>(null);
+  const mobileImageRef = useRef<HTMLDivElement>(null);
   const hasScrolled = useRef(false);
   const [ready, setReady] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -340,23 +343,22 @@ export default function CommentsPage({ postId }: { postId: string }) {
     });
   }, []);
 
-  // Mobile: auto-scroll to comments section
+  // Mobile: auto-scroll past the post image
   useEffect(() => {
-    if (!postDetail || !comments || hasScrolled.current) return;
-    if (!loadingComments) {
-      const scrollToComments = () => {
-        const container = scrollRef.current;
-        const target = mobileCommentsSectionRef.current;
-        if (container && target) {
-          const targetTop = target.offsetTop - container.offsetTop;
-          container.scrollTop = targetTop;
-          hasScrolled.current = true;
-          setReady(true);
-        }
-      };
-      requestAnimationFrame(scrollToComments);
-    }
-  }, [postDetail, comments, loadingComments]);
+    if (!postDetail || hasScrolled.current || loadingComments) return;
+    const scrollPastImage = () => {
+      const container = scrollRef.current;
+      const imageEl = mobileImageRef.current;
+      if (container && imageEl) {
+        const imageBottom =
+          imageEl.offsetTop + imageEl.offsetHeight - container.offsetTop;
+        container.scrollTop = imageBottom;
+        hasScrolled.current = true;
+      }
+      setReady(true);
+    };
+    requestAnimationFrame(scrollPastImage);
+  }, [postDetail, loadingComments]);
 
   useEffect(() => {
     if (inView && hasMore && !loadingComments) {
@@ -392,7 +394,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
   /* ─── Shared: Comments list ─── */
   const commentsContent = (
     <>
-      <div ref={commentsSectionRef} className="flex items-center px-4 py-2">
+      <div className="flex items-center px-4 py-2 md:static sticky top-[150px] z-10 bg-white">
         <Dropdown
           trigger={
             <button className="flex items-center gap-1 font-semibold text-[18px] text-black">
@@ -461,21 +463,31 @@ export default function CommentsPage({ postId }: { postId: string }) {
           className="w-8 h-8 rounded-full object-cover flex-shrink-0"
         />
       )}
-      <div className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 relative">
-        {!newCommentText && (
-          <span className="absolute inset-0 flex items-center px-4 text-[14px] text-gray-400 pointer-events-none">
-            Comment as{" "}
-            <span className="font-bold text-black ml-1">
-              {currentUser?.name}
+      <div className="flex-1 bg-gray-100 rounded-2xl px-4 py-2.5">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 relative">
+          {!newCommentText && (
+            <span className="absolute left-0 right-[80px] pointer-events-none text-[14px] text-gray-400 truncate">
+              Comment as <span className="font-bold text-black">{currentUser?.name}</span>
             </span>
-          </span>
-        )}
-        <input
-          value={newCommentText}
-          onChange={(e) => setNewCommentText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSendComment()}
-          className="w-full text-[13px] text-black bg-transparent outline-none"
-        />
+          )}
+          <input
+            value={newCommentText}
+            onChange={(e) => setNewCommentText(e.target.value.slice(0, 500))}
+            onKeyDown={(e) => e.key === "Enter" && handleSendComment()}
+            className="flex-1 min-w-[60px] text-[13px] text-black bg-transparent outline-none"
+          />
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <button className="text-gray-500 hover:text-gray-700">
+              <Camera size={18} strokeWidth={2} />
+            </button>
+            <button className="border border-gray-400 rounded px-1 py-0.5 text-[10px] font-bold text-gray-500 leading-none tracking-wide">
+              GIF
+            </button>
+            <button className="text-gray-500 hover:text-gray-700">
+              <Smile size={18} strokeWidth={2} />
+            </button>
+          </div>
+        </div>
       </div>
       <button
         onClick={handleSendComment}
@@ -596,14 +608,11 @@ export default function CommentsPage({ postId }: { postId: string }) {
             )}
           </div>
 
-          {/* Right: Header + Comments + Input */}
           <div className="w-[45%] flex flex-col min-h-0">
-            {/* Post header */}
             <div className="border-b border-gray-200 flex-shrink-0">
               {postHeader}
             </div>
 
-            {/* Post details */}
             {postDetail && (
               <div className="px-4 py-3 border-b border-gray-200 flex-shrink-0">
                 <div className="text-base font-bold">$98 000</div>
@@ -622,7 +631,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
 
                 {/* Action buttons */}
                 {postCardData && (
-                  <div className="flex items-center justify-between text-gray-500 text-sm pt-2 mt-2 border-t border-gray-100">
+                  <div className="flex items-center justify-between text-gray-500 text-sm pt-2 mt-2 border-t border-gray-100 z-10">
                     <ReactionPopover
                       onTap={() => {}}
                       trigger={
@@ -659,27 +668,127 @@ export default function CommentsPage({ postId }: { postId: string }) {
   const mobileLayout = (
     <div className="md:hidden flex justify-center bg-white h-screen">
       <div className="w-full bg-white flex flex-col font-sans h-full">
-        <div className="flex items-center gap-2 py-3 max-w-sm mx-auto w-full">
-          <button className="text-black" onClick={goTOHome}>
-            <ChevronLeft size={24} strokeWidth={2.5} />
-          </button>
-          <h1 className="font-bold text-[16px] text-black">
-            {postAuthor ? `${postAuthor.name} post` : "Post"}
-          </h1>
-        </div>
-
         <div
           ref={scrollRef}
           className={`flex-1 overflow-y-auto overflow-x-hidden pb-16 ${ready ? "" : "invisible"}`}
         >
-          {postCardData && (
-            <div className="py-2">
-              <PostCard
-                post={postCardData}
-                handleReact={() => {}}
-                handleLike={() => {}}
-              />
-            </div>
+          {postCardData && postDetail && (
+            <>
+              {/* Sticky post header with back button */}
+              <div className="sticky top-0 z-30 bg-white">
+                <div className="flex gap-2 px-4 pt-2 pb-2 items-start">
+                  <button
+                    className="text-black flex-shrink-0 mt-1"
+                    onClick={goTOHome}
+                  >
+                    <ChevronLeft size={24} strokeWidth={2.5} />
+                  </button>
+                  <Avatar
+                    size={42}
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDR8H0rgV-zmSodkT_erGjzA_VhfWE22Pg7Q&s"
+                  />
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <div className="flex flex-1 justify-between">
+                      <div className="flex gap-2 items-center min-w-0">
+                        <h1 className="text-[18px] font-bold truncate max-w-40">
+                          {postDetail.user?.name}
+                        </h1>
+                      </div>
+                      <div className="flex gap-4 items-center shrink-0">
+                        <Dropdown
+                          trigger={
+                            <button>
+                              <MoreHorizontal />
+                            </button>
+                          }
+                          items={[
+                            {
+                              icon: <Edit2Icon size={14} />,
+                              label: "Edit Post",
+                              onClick: () => {},
+                            },
+                            {
+                              icon: <Trash2Icon size={14} />,
+                              label: "Delete Post",
+                              onClick: () => {},
+                            },
+                          ]}
+                        />
+                        <button>
+                          <X size={18} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-[18px] font-bold">
+                      {postDetail.location}
+                    </div>
+                    <div className="flex text-sm font-bold items-center gap-3 flex-wrap">
+                      <span>{postDetail.user?.role}</span>
+                      <div className="flex items-center">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <Star
+                            key={i}
+                            size={14}
+                            className={
+                              i <= 3
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "fill-gray-300 text-gray-300"
+                            }
+                          />
+                        ))}
+                      </div>
+                      <span className="text-blue-500 font-semibold">{3}</span>
+                    </div>
+                    <div className="flex gap-2 items-center text-text-primary">
+                      <span className="text-[11px] font-bold">41 m</span>
+                      <span className="h-0.5 w-0.5 bg-text-secondary" />
+                      <Globe2Icon className="h-[11px] w-[11px] text-text-secondary" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Post image + details (scrolls away) */}
+              <div ref={mobileImageRef}>
+                <ImageRenderer src={postDetail.image} />
+              </div>
+              <div className="px-4 mt-2">
+                <div className="text-base font-bold">$98 000</div>
+                <div className="flex text-base font-medium flex-wrap items-center">
+                  2 bds
+                  <Separator orientation="vertical" className="h-4 mx-1" />
+                  2 ba
+                  <Separator orientation="vertical" className="h-4 mx-1" />
+                  5,800
+                  <Separator orientation="vertical" className="h-4 mx-1" />
+                  House for sale
+                </div>
+                <div className="text-sm">{postDetail.location}</div>
+                <div className="text-sm text-gray-400">LUXURY</div>
+              </div>
+
+              {/* Sticky action bar with thin gray line above */}
+              <div className="sticky top-[110px] z-20 bg-white shadow-[0_-10px_0_0_white]">
+                <div className="h-px bg-gray-200" />
+                <div className="flex items-center justify-between text-gray-500 text-sm px-4 py-2">
+                  <ReactionPopover
+                    onTap={() => {}}
+                    trigger={
+                      <ActionButton
+                        icon={ThumbsUp}
+                        count={postCardData._count.likes.toString()}
+                      />
+                    }
+                  />
+                  <ActionButton
+                    icon={MessageCircle}
+                    count={postCardData._count.comments.toString()}
+                  />
+                  <ActionButton icon={ShareIcon} count={"30"} />
+                  <ActionButton icon={Eye} count={"200"} />
+                </div>
+              </div>
+            </>
           )}
 
           <div className="max-w-sm mx-auto">

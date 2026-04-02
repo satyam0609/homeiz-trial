@@ -78,9 +78,9 @@ export default function ReplyBox({
             <input
               autoFocus
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => setText(e.target.value.slice(0, 500))}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              className="w-10 text-[13px] text-black bg-transparent outline-none"
+              className="w-15 text-[13px] text-black bg-transparent outline-none"
             />
             <div className="flex items-center gap-1 flex-shrink-0">
               <button className="text-gray-500 hover:text-gray-700">
