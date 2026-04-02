@@ -56,6 +56,7 @@ export default function CommentRow({
   currentUser,
 }: CommentRowProps) {
   const [showAllReplies, setShowAllReplies] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const isAuthor = comment.user.id === postOwnerId;
   const isTopLevel = depth === 0;
 
@@ -103,7 +104,11 @@ export default function CommentRow({
                   {comment.mention}
                 </span>
               )}
-              {comment.text}
+              {comment.text.length > 250 && !expanded
+                ? <>{comment.text.slice(0, 250)}…{" "}<button className="text-blue-500 font-bold text-[13px]" onClick={() => setExpanded(true)}>See more</button></>
+                : comment.text.length > 250
+                  ? <>{comment.text}{" "}<button className="text-blue-500 font-bold text-[13px]" onClick={() => setExpanded(false)}>See less</button></>
+                  : comment.text}
             </p>
           </div>
 
