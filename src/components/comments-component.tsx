@@ -769,7 +769,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
               </div>
               <div className="px-4 mt-2 pb-2">
                 <div className="text-base font-bold">$98 000</div>
-                <div className="flex text-base font-medium flex-wrap items-center">
+                <div className="flex text-[18px] font-semibold flex-wrap items-center">
                   2 bds
                   <Separator orientation="vertical" className="h-4 mx-1" />
                   2 ba
@@ -779,7 +779,9 @@ export default function CommentsPage({ postId }: { postId: string }) {
                   House for sale
                 </div>
                 <div className="text-sm">{postDetail.location}</div>
-                <div className="text-sm text-gray-400">LUXURY</div>
+                <div className="text-[17px] text-black font-semibold">
+                  LUXURY
+                </div>
               </div>
 
               {/* Sticky action bar with thin gray line above */}
