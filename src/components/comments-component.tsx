@@ -13,6 +13,8 @@ import {
   ThumbsUp,
   MessageCircle,
   Eye,
+  Camera,
+  Smile,
 } from "lucide-react";
 import Dropdown from "@/components/dropdown";
 import { useRouter } from "next/navigation";
@@ -461,21 +463,31 @@ export default function CommentsPage({ postId }: { postId: string }) {
           className="w-8 h-8 rounded-full object-cover flex-shrink-0"
         />
       )}
-      <div className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 relative">
-        {!newCommentText && (
-          <span className="absolute inset-0 flex items-center px-4 text-[14px] text-gray-400 pointer-events-none">
-            Comment as{" "}
-            <span className="font-bold text-black ml-1">
-              {currentUser?.name}
+      <div className="flex-1 bg-gray-100 rounded-2xl px-4 py-2.5">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 relative">
+          {!newCommentText && (
+            <span className="absolute left-0 right-[80px] pointer-events-none text-[14px] text-gray-400 truncate">
+              Comment as <span className="font-bold text-black">{currentUser?.name}</span>
             </span>
-          </span>
-        )}
-        <input
-          value={newCommentText}
-          onChange={(e) => setNewCommentText(e.target.value.slice(0, 500))}
-          onKeyDown={(e) => e.key === "Enter" && handleSendComment()}
-          className="w-full text-[13px] text-black bg-transparent outline-none"
-        />
+          )}
+          <input
+            value={newCommentText}
+            onChange={(e) => setNewCommentText(e.target.value.slice(0, 500))}
+            onKeyDown={(e) => e.key === "Enter" && handleSendComment()}
+            className="flex-1 min-w-[60px] text-[13px] text-black bg-transparent outline-none"
+          />
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <button className="text-gray-500 hover:text-gray-700">
+              <Camera size={18} strokeWidth={2} />
+            </button>
+            <button className="border border-gray-400 rounded px-1 py-0.5 text-[10px] font-bold text-gray-500 leading-none tracking-wide">
+              GIF
+            </button>
+            <button className="text-gray-500 hover:text-gray-700">
+              <Smile size={18} strokeWidth={2} />
+            </button>
+          </div>
+        </div>
       </div>
       <button
         onClick={handleSendComment}
