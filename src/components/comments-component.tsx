@@ -56,6 +56,9 @@ export default function CommentsPage({ postId }: { postId: string }) {
   const commentsSectionRef = useRef<HTMLDivElement>(null);
   const mobileCommentsSectionRef = useRef<HTMLDivElement>(null);
   const mobileImageRef = useRef<HTMLDivElement>(null);
+  const mobileHeaderRef = useRef<HTMLDivElement>(null);
+  const mobileActionBarRef = useRef<HTMLDivElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(128);
   const hasScrolled = useRef(false);
   const [ready, setReady] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -343,22 +346,30 @@ export default function CommentsPage({ postId }: { postId: string }) {
     });
   }, []);
 
-  // Mobile: auto-scroll past the post image
   useEffect(() => {
-    if (!postDetail || hasScrolled.current || loadingComments) return;
-    const scrollPastImage = () => {
+    if (!postDetail || hasScrolled.current || initialLoading) return;
+    hasScrolled.current = true;
+    const tryScroll = () => {
       const container = scrollRef.current;
       const imageEl = mobileImageRef.current;
-      if (container && imageEl) {
-        const imageBottom =
-          imageEl.offsetTop + imageEl.offsetHeight - container.offsetTop;
-        container.scrollTop = imageBottom;
-        hasScrolled.current = true;
+      const headerEl = mobileHeaderRef.current;
+      if (!container || !imageEl) {
+        setReady(true);
+        return;
       }
-      setReady(true);
+      if (headerEl) setHeaderHeight(headerEl.offsetHeight);
+      const actionBarEl = mobileActionBarRef.current;
+      const imageHeight = imageEl.offsetHeight;
+      if (imageHeight > 0 && actionBarEl) {
+        container.scrollTop =
+          actionBarEl.offsetTop - (headerEl?.offsetHeight ?? headerHeight);
+        setReady(true);
+      } else {
+        requestAnimationFrame(tryScroll);
+      }
     };
-    requestAnimationFrame(scrollPastImage);
-  }, [postDetail, loadingComments]);
+    setTimeout(tryScroll, 100);
+  }, [postDetail, initialLoading]);
 
   useEffect(() => {
     if (inView && hasMore && !loadingComments) {
@@ -394,7 +405,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
   /* ─── Shared: Comments list ─── */
   const commentsContent = (
     <>
-      <div className="flex items-center px-4 py-2 md:static sticky top-[150px] z-10 bg-white">
+      <div className="flex items-center px-4 py-2 md:static sticky top-[40px] z-10 bg-white">
         <Dropdown
           trigger={
             <button className="flex items-center gap-1 font-semibold text-[18px] text-black">
@@ -467,7 +478,8 @@ export default function CommentsPage({ postId }: { postId: string }) {
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 relative">
           {!newCommentText && (
             <span className="absolute left-0 right-[80px] pointer-events-none text-[14px] text-gray-400 truncate">
-              Comment as <span className="font-bold text-black">{currentUser?.name}</span>
+              Comment as{" "}
+              <span className="font-bold text-black">{currentUser?.name}</span>
             </span>
           )}
           <input
@@ -670,12 +682,15 @@ export default function CommentsPage({ postId }: { postId: string }) {
       <div className="w-full bg-white flex flex-col font-sans h-full">
         <div
           ref={scrollRef}
-          className={`flex-1 overflow-y-auto overflow-x-hidden pb-16 ${ready ? "" : "invisible"}`}
+          className={`flex-1 overflow-x-hidden pb-16 overflow-y-auto ${ready ? "" : "invisible"}`}
+          style={{ paddingTop: headerHeight }}
         >
           {postCardData && postDetail && (
             <>
-              {/* Sticky post header with back button */}
-              <div className="sticky top-0 z-30 bg-white">
+              <div
+                ref={mobileHeaderRef}
+                className="fixed top-0 z-30 bg-white w-full pt-5"
+              >
                 <div className="flex gap-2 px-4 pt-2 pb-2 items-start">
                   <button
                     className="text-black flex-shrink-0 mt-1"
@@ -720,7 +735,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
                       </div>
                     </div>
                     <div className="text-[18px] font-bold">
-                      {postDetail.location}
+                      {postDetail.location ?? "Paris, France"}
                     </div>
                     <div className="flex text-sm font-bold items-center gap-3 flex-wrap">
                       <span>{postDetail.user?.role}</span>
@@ -768,7 +783,10 @@ export default function CommentsPage({ postId }: { postId: string }) {
               </div>
 
               {/* Sticky action bar with thin gray line above */}
-              <div className="sticky top-[110px] z-20 bg-white shadow-[0_-10px_0_0_white]">
+              <div
+                ref={mobileActionBarRef}
+                className="sticky top-0 z-20 bg-white shadow-[0_-10px_0_0_white]"
+              >
                 <div className="h-px bg-gray-200" />
                 <div className="flex items-center justify-between text-gray-500 text-sm px-4 py-2">
                   <ReactionPopover
