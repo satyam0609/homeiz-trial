@@ -482,7 +482,7 @@ export default function CreatePostPage() {
               <Avatar name="Riva" online="online" />
             </div>
             <div className="flex-1 min-w-0 ">
-              <div className="flex items-center justify-between mt-2">
+              <div className="flex items-center justify-between mt-2 mb-2">
                 <span className="text-[15px] font-bold text-gray-900">
                   Riva Bika
                 </span>
