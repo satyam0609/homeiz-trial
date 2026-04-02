@@ -1,4 +1,5 @@
 "use client";
+import { createPost } from "@/api-service/feed-api";
 import GifIcon from "@/assets/icons/gif";
 import Avatar from "@/components/avatar";
 import { AudienceModal } from "@/components/modals/audience-modal";
@@ -177,6 +178,8 @@ export default function CreatePostPage() {
   );
   const [tagSearch, setTagSearch] = useState("");
   const [posted, setPosted] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [error, setError] = useState<string>("");
 
   const photoRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLInputElement>(null);
@@ -280,25 +283,56 @@ export default function CreatePostPage() {
     }
   };
 
-  const handlePost = () => {
+  const handlePost = async () => {
     if (
       !text.trim() &&
       mediaFiles.length === 0 &&
       attachedFiles.length === 0 &&
       selectedGifs.length === 0
     ) {
-      alert("Please add some content before posting.");
+      setError("Please add some content before posting.");
       return;
     }
-    setPosted(true);
-    setTimeout(() => {
-      setPosted(false);
-      setText("");
-      setMediaFiles([]);
-      setAttachedFiles([]);
-      setTaggedPeople([]);
-      setSelectedGifs([]);
-    }, 2500);
+
+    setError("");
+    setIsPublishing(true);
+
+    try {
+      // 🔥 example userId (replace with real auth user)
+
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+      console.log(user, user.id);
+      const payload = {
+        content: text,
+        userId: user?.id,
+      };
+
+      // 🔥 API call
+      const res = await createPost(payload);
+      console.log(res, "---res");
+
+      // // ✅ success UI
+      setPosted(true);
+
+      // (optional) add to context if using it
+      // addPostToTop(data);
+
+      setTimeout(() => {
+        setPosted(false);
+        setText("");
+        setMediaFiles([]);
+        setAttachedFiles([]);
+        setTaggedPeople([]);
+        setSelectedGifs([]);
+        router.replace("/");
+      }, 1500);
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong while posting.");
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const filteredPeople = MOCK_PEOPLE.filter((n) =>
@@ -443,8 +477,9 @@ export default function CreatePostPage() {
             Create post
           </span>
           <button
+            disabled={isPublishing}
             onClick={handlePost}
-            className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-full px-8 py-2 text-sm font-semibold transition-all"
+            className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-full px-8 py-2 text-sm font-semibold transition-all disabled:bg-gray-400"
           >
             Post
           </button>
@@ -454,6 +489,11 @@ export default function CreatePostPage() {
 
         {/* Scrollable body */}
         <div className="overflow-y-auto hide-scroll flex-1">
+          {error && (
+            <div className="mx-4 sm:mx-6 mt-2 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-medium">
+              {error}
+            </div>
+          )}
           <div className="flex items-center px-4 sm:px-6 py-2.5 border-b border-gray-100 shrink-0">
             <span className="text-sm font-bold text-text-primary border-l-[3px] border-blue-600 pl-2.5">
               User types
@@ -467,7 +507,10 @@ export default function CreatePostPage() {
               placeholder="What's on your mind, Riva?"
               maxLength={MAX_CHARS}
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => {
+                setText(e.target.value);
+                if (error) setError("");
+              }}
               rows={2}
             />
             <span
@@ -482,7 +525,7 @@ export default function CreatePostPage() {
               <Avatar name="Riva" online="online" />
             </div>
             <div className="flex-1 min-w-0 ">
-              <div className="flex items-center justify-between mt-2">
+              <div className="flex items-center justify-between mt-2 mb-2">
                 <span className="text-[15px] font-bold text-gray-900">
                   Riva Bika
                 </span>
