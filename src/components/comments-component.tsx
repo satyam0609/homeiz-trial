@@ -477,7 +477,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
       <div className="flex-1 bg-gray-100 rounded-2xl px-4 py-2.5">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 relative">
           {!newCommentText && (
-            <span className="absolute left-0 right-[80px] pointer-events-none text-[14px] text-gray-400 truncate">
+            <span className="absolute left-0 right-[80px] pointer-events-none text-[14px] font-bold text-gray-400 truncate">
               Comment as{" "}
               <span className="font-bold text-black">{currentUser?.name}</span>
             </span>

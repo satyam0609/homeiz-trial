@@ -52,10 +52,10 @@ export default function ReplyBox({
 
         {mentionName && (
           <div className="flex items-center flex-wrap gap-x-1 mb-2">
-            <span className="text-[13px] text-black font-semibold">
+            <span className="text-[14px] text-black font-semibold">
               Replying to
             </span>
-            <span className="text-[15px] font-bold text-black">
+            <span className="text-[17px] font-bold text-black">
               {mentionName}
             </span>
             <span className="text-gray-400 text-[12px]">·</span>
