@@ -267,7 +267,7 @@ const PostCard = ({
         )}
       </div> */}
 
-      <div className="flex flex-wrap items-center justify-between text-gray-500 text-sm px-4 py-2 gap-2">
+      <div className="flex flex-wrap items-center justify-between text-gray-500 text-sm px-4 py-2 gap-1">
         <div className="flex gap-2 flex-wrap">
           <ReactionPopover
             handleReact={(reaction) => handleReact(post.id, reaction)}
