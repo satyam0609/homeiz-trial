@@ -91,8 +91,8 @@ export default function CommentRow({
               {isAuthor && (
                 <>
                   <span className="text-[12px] text-gray-400">·</span>
-                  <Pencil size={11} className="text-blue-600" strokeWidth={2} />
-                  <span className="text-blue-600 font-bold text-[15px]">
+                  <Pencil size={12} className="text-blue-600" strokeWidth={2} />
+                  <span className="text-blue-600 font-bold text-base">
                     Author
                   </span>
                 </>
