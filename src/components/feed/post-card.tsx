@@ -129,7 +129,9 @@ const PostCard = ({
             </div>
           </div>
           {/* Info */}
-          <div className="flex-1 text-[18px] font-bold ">{post.location}</div>
+          <div className="flex-1 text-[18px] font-bold ">
+            {post.location ?? "Kathmandu, Nepal"}
+          </div>
 
           <div className="flex-1 text-sm font-bold flex items-center gap-3 flex-wrap">
             <span>{post?.user?.role}</span>
