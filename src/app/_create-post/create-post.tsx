@@ -1,7 +1,22 @@
 "use client";
+import GifIcon from "@/assets/icons/gif";
 import Avatar from "@/components/avatar";
+import { AudienceModal } from "@/components/modals/audience-modal";
 import Separator from "@/components/separator";
-import { X } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  File,
+  GalleryThumbnailsIcon,
+  Globe,
+  Image,
+  Smile,
+  User,
+  Users,
+  UsersRound,
+  Video,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState, useRef, useCallback } from "react";
 
@@ -130,6 +145,24 @@ const PrivacyIcon = ({ value }: { value: Privacy }) => {
   );
 };
 
+type AudienceType = "public" | "followers" | "following";
+
+interface AudienceConfig {
+  type: AudienceType;
+  state?: string;
+  city?: string;
+  zipCode?: string;
+}
+
+const AUDIENCE_LABELS: Record<
+  AudienceType,
+  { label: string; icon: React.ElementType }
+> = {
+  public: { label: "Public", icon: Globe },
+  followers: { label: "Followers only", icon: Users },
+  following: { label: "Following only", icon: User },
+};
+
 export default function CreatePostPage() {
   const router = useRouter();
   const [text, setText] = useState("");
@@ -149,6 +182,9 @@ export default function CreatePostPage() {
   const videoRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [config, setConfig] = useState<AudienceConfig>({ type: "public" });
 
   const remaining = MAX_CHARS - text.length;
 
@@ -283,33 +319,7 @@ export default function CreatePostPage() {
       sublabel: "User upload picture limit to 3 MB size",
       badge: mediaFiles.filter((m) => m.type === "image").length || null,
       action: () => photoRef.current?.click(),
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
-          <rect
-            x="3"
-            y="5"
-            width="18"
-            height="14"
-            rx="2"
-            stroke="currentColor"
-            strokeWidth="1.8"
-          />
-          <circle
-            cx="8.5"
-            cy="10.5"
-            r="1.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          />
-          <path
-            d="M3 16l4.5-4.5 3 3 3-3 4.5 4.5"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
+      icon: <Image />,
     },
     {
       key: "video",
@@ -318,25 +328,7 @@ export default function CreatePostPage() {
         "Regardless of upload size (even 100 MB), videos must be compressed to a target bitrate suitable for 15-second clips, resulting in approximately 3–5 MB files at 720p",
       badge: mediaFiles.filter((m) => m.type === "video").length || null,
       action: () => videoRef.current?.click(),
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
-          <rect
-            x="2"
-            y="6"
-            width="14"
-            height="12"
-            rx="2"
-            stroke="currentColor"
-            strokeWidth="1.8"
-          />
-          <path
-            d="M16 10l5-3v10l-5-3V10z"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
+      icon: <Video />,
     },
     {
       key: "file",
@@ -344,23 +336,7 @@ export default function CreatePostPage() {
       sublabel: "",
       badge: attachedFiles.length || null,
       action: () => fileRef.current?.click(),
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
-          <path
-            d="M13.5 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8.5L13.5 3z"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M13 3v6h6"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
+      icon: <File />,
     },
     {
       key: "tag",
@@ -368,24 +344,7 @@ export default function CreatePostPage() {
       sublabel: "",
       badge: taggedPeople.length || null,
       action: () => setShowSheet((s) => (s === "tag" ? null : "tag")),
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
-          <circle cx="9" cy="8" r="3" stroke="currentColor" strokeWidth="1.8" />
-          <circle
-            cx="15"
-            cy="8"
-            r="3"
-            stroke="currentColor"
-            strokeWidth="1.8"
-          />
-          <path
-            d="M3 20c0-3.314 2.686-6 6-6h6c3.314 0 6 2.686 6 6"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          />
-        </svg>
-      ),
+      icon: <UsersRound />,
     },
     {
       key: "gif",
@@ -393,28 +352,7 @@ export default function CreatePostPage() {
       sublabel: "",
       badge: selectedGifs.length || null,
       action: () => setShowSheet((s) => (s === "gif" ? null : "gif")),
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
-          <rect
-            x="3"
-            y="6"
-            width="18"
-            height="12"
-            rx="2"
-            stroke="currentColor"
-            strokeWidth="1.8"
-          />
-          <text
-            x="6"
-            y="16"
-            fontSize="7.5"
-            fontWeight="bold"
-            fill="currentColor"
-          >
-            GIF
-          </text>
-        </svg>
-      ),
+      icon: <GifIcon />,
     },
     {
       key: "emoji",
@@ -422,33 +360,16 @@ export default function CreatePostPage() {
       sublabel: "",
       badge: null,
       action: () => setShowSheet((s) => (s === "emoji" ? null : "emoji")),
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
-          <circle
-            cx="12"
-            cy="12"
-            r="9"
-            stroke="currentColor"
-            strokeWidth="1.8"
-          />
-          <path
-            d="M8.5 14s1 1.5 3.5 1.5 3.5-1.5 3.5-1.5"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          />
-          <circle cx="9" cy="10" r="1" fill="currentColor" />
-          <circle cx="15" cy="10" r="1" fill="currentColor" />
-        </svg>
-      ),
+      icon: <Smile />,
     },
   ];
+  const { label, icon: Icon } = AUDIENCE_LABELS[config.type];
 
   if (posted)
     return (
       <div className="min-h-screen bg-gray-100 flex md:items-center md:justify-center">
         <div className="bg-white rounded-2xl shadow-xl p-10 flex flex-col items-center gap-4 w-full md:max-w-sm">
-          <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center animate-bounce">
+          {/* <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center animate-bounce">
             <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24">
               <path
                 d="M5 13l4 4L19 7"
@@ -458,14 +379,17 @@ export default function CreatePostPage() {
                 strokeLinejoin="round"
               />
             </svg>
+          </div> */}
+
+          <div className="flex gap-2 text-blue-600">
+            <p className="text-xl font-bold text-blue-600">Post published. </p>
+            <Check />
           </div>
 
-          <p className="text-xl font-bold text-gray-900">Posted!</p>
-
-          <p className="text-sm text-gray-500 text-center">
+          {/* <p className="text-sm text-gray-500 text-center">
             Your post is now live as{" "}
             <span className="font-semibold text-blue-600">{privacy}</span>
-          </p>
+          </p> */}
         </div>
       </div>
     );
@@ -539,12 +463,12 @@ export default function CreatePostPage() {
           <div className="px-4 sm:px-6 pt-4 pb-8 relative">
             <textarea
               ref={textareaRef}
-              className="w-full border-none outline-none resize-none text-base text-gray-900 leading-relaxed bg-transparent placeholder-gray-400 min-h-17.5"
+              className="w-full border-none outline-none resize-none text-base text-gray-900 leading-relaxed bg-transparent placeholder-text-secondary min-h-17.5"
               placeholder="What's on your mind, Riva?"
               maxLength={MAX_CHARS}
               value={text}
               onChange={(e) => setText(e.target.value)}
-              rows={3}
+              rows={2}
             />
             <span
               className={`absolute bottom-0 right-4 text-sm font-semibold px-2.5 py-0.5 rounded-full transition-all ${remaining < 0 ? "text-red-600 bg-red-50" : remaining < 50 ? "text-amber-600 bg-amber-50" : "text-text-primary "}`}
@@ -564,40 +488,13 @@ export default function CreatePostPage() {
                 </span>
                 <div className="relative">
                   <button
-                    onClick={() => setShowPrivacy((v) => !v)}
-                    className="flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-text-primary rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors"
+                    onClick={() => setModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full  bg-sky-green text-sm font-semibold text-text-primary hover:bg-gray-50 transition-colors shadow-sm"
                   >
-                    <PrivacyIcon value={privacy} />
-                    {privacy}
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24">
-                      <path
-                        d="M6 9l6 6 6-6"
-                        stroke="currentColor"
-                        strokeWidth="2.2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    <Icon size={14} strokeWidth={3} />
+                    <span className="mt-px">{label}</span>
+                    <ChevronDown size={14} className="" />
                   </button>
-                  {showPrivacy && (
-                    <div className="absolute top-full left-0 mt-1.5 bg-white border border-gray-100 rounded-xl shadow-xl z-50 w-36 overflow-hidden slide-up">
-                      {(["Public", "Friends", "Only me"] as Privacy[]).map(
-                        (opt) => (
-                          <button
-                            key={opt}
-                            onClick={() => {
-                              setPrivacy(opt);
-                              setShowPrivacy(false);
-                            }}
-                            className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left transition-colors ${privacy === opt ? "text-blue-600 bg-blue-50 font-semibold" : "text-gray-700 hover:bg-gray-50"}`}
-                          >
-                            <PrivacyIcon value={opt} />
-                            {opt}
-                          </button>
-                        ),
-                      )}
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -659,7 +556,7 @@ export default function CreatePostPage() {
                     )}
                     <button
                       onClick={() => removeMedia(m.id)}
-                      className="absolute top-1.5 right-1.5 w-6 h-6 shrink-0 bg-black/80 hover:bg-black/80 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-1.5 right-1.5 w-6 h-6 shrink-0 bg-black/40 hover:bg-black/80 text-white rounded-full flex items-center justify-center "
                     >
                       <X className="text-white" />
                     </button>
@@ -681,7 +578,7 @@ export default function CreatePostPage() {
                     </span>
                     <button
                       onClick={() => removeGif(url)}
-                      className="absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center opacity-100 group-hover:opacity-100 transition-opacity z-10"
+                      className="absolute top-1.5 right-1.5 w-6 h-6 bg-black/40 hover:bg-black/80 text-white rounded-full flex items-center justify-center z-10"
                     >
                       <svg
                         className="w-3.5 h-3.5"
@@ -792,7 +689,7 @@ export default function CreatePostPage() {
                       onClick={() => toggleTag(name)}
                       className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-colors ${tagged ? "bg-blue-50 text-blue-700 font-semibold" : "hover:bg-gray-50 text-gray-700"}`}
                     >
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-400 to-pink-400 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-linear-to-br from-violet-400 to-pink-400 flex items-center justify-center text-white text-xs font-bold shrink-0">
                         {name[0]}
                       </div>
                       {name}
@@ -920,23 +817,25 @@ export default function CreatePostPage() {
               className={`w-full flex items-start gap-4 px-4 sm:px-6 py-3.5 border-t border-gray-50 hover:bg-gray-50 active:bg-blue-50 transition-colors text-left ${showSheet === item.key ? "bg-blue-50/60" : ""}`}
             >
               <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${showSheet === item.key ? "bg-blue-600 text-white" : "bg-blue-50 text-blue-600"}`}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${showSheet === item.key ? "bg-blue-600 text-white" : " text-blue-600"}`}
               >
                 {item.icon}
               </div>
-              <div className="flex-1 min-w-0 pt-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold text-gray-900">
-                    {item.label}
-                  </span>
-                  {item.badge ? (
-                    <span className="bg-blue-600 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
-                      {item.badge}
+              <div className="flex-1 flex gap-2 min-w-0 pt-1">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-semibold text-gray-900">
+                      {item.label}
                     </span>
-                  ) : null}
+                    {item.badge ? (
+                      <span className="bg-blue-600 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                        {item.badge}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
                 {item.sublabel && (
-                  <p className="text-xs text-red-500 font-medium mt-0.5 leading-relaxed">
+                  <p className="text-sm text-red-500 font-bold mt-0.5 leading-relaxed">
                     {item.sublabel}
                   </p>
                 )}
@@ -958,6 +857,12 @@ export default function CreatePostPage() {
           ))}
         </div>
       </div>
+      <AudienceModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onDone={(cfg) => setConfig(cfg)}
+        initialConfig={config}
+      />
     </div>
   );
 }

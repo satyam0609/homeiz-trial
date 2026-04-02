@@ -41,6 +41,7 @@ const PostCard = ({
   handleLike: (userId: number) => void;
 }) => {
   const [openEmojiPickerV1, setOpenEmojiPickerV1] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const user = getCurrentUser();
   const [showFollow, setShowFollow] = useState(user.id !== post.user.id);
@@ -53,6 +54,13 @@ const PostCard = ({
   const handleRedirect = () => {
     router.push(`/comment/${post.id}`);
   };
+
+  const MAX_LENGTH = 250;
+
+  const isLong = post.content.length > MAX_LENGTH;
+  const displayedText = expanded
+    ? post.content
+    : post.content.slice(0, MAX_LENGTH);
   return (
     <div className="bg-white">
       {/* Header */}
@@ -188,6 +196,20 @@ const PostCard = ({
             className="h-4 mx-1 font-semibold"
           />
           House for sale
+        </div>
+        <div className="text-base font-semibold">
+          {displayedText}
+          {isLong && (
+            <>
+              {!expanded && "... "}
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="text-blue-500 ml-1 font-medium"
+              >
+                {expanded ? "See less" : "See more"}
+              </button>
+            </>
+          )}
         </div>
 
         <div className="text-base font-semibold">{post.location}</div>
