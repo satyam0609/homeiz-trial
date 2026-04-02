@@ -19,6 +19,7 @@
   --color-bluish-black: rgb(var(--bluish_black));
   --color-primary-blue: rgb(var(--primary-blue));
   --color-gray-50: rgb(var(--gray-50));
+  --color-sky-green: rgb(186, 242, 242);
 }
 
 @media (prefers-color-scheme: dark) {
