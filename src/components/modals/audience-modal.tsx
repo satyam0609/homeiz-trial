@@ -114,6 +114,30 @@ export function AudienceModal({
   const [zipCode, setZipCode] = useState(initialConfig?.zipCode ?? "");
   const [stateOpen, setStateOpen] = useState(false);
 
+  const [errors, setErrors] = useState({
+    state: "",
+    city: "",
+    zipCode: "",
+  });
+
+  const [touched, setTouched] = useState({
+    state: false,
+    city: false,
+    zipCode: false,
+  });
+
+  const validate = () => {
+    const newErrors = {
+      state: state ? "" : "State is required",
+      city: city.trim() ? "" : "City is required",
+      zipCode: zipCode.trim() ? "" : "Zip code is required",
+    };
+
+    setErrors(newErrors);
+
+    return Object.values(newErrors).every((e) => e === "");
+  };
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -124,11 +148,23 @@ export function AudienceModal({
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+  useEffect(() => {
+    if (touched.state || touched.city || touched.zipCode) {
+      validate();
+    }
+  }, [state, city, zipCode]);
 
   if (!isOpen) return null;
 
   const handleDone = () => {
-    if (!isFormValid) return;
+    // mark all as touched
+    setTouched({
+      state: true,
+      city: true,
+      zipCode: true,
+    });
+
+    if (!validate()) return;
 
     onDone({ type: selected, state, city, zipCode });
     onClose();
@@ -241,6 +277,7 @@ export function AudienceModal({
                       onClick={() => {
                         setState(s);
                         setStateOpen(false);
+                        setTouched((prev) => ({ ...prev, state: true }));
                       }}
                       className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
                         state === s
@@ -254,6 +291,9 @@ export function AudienceModal({
                 </div>
               )}
             </div>
+            {touched.state && errors.state && (
+              <p className="text-xs text-red-500 mt-1 px-1">{errors.state}</p>
+            )}
           </div>
 
           {/* City */}
@@ -265,10 +305,16 @@ export function AudienceModal({
             <input
               type="text"
               value={city}
-              onChange={(e) => setCity(e.target.value)}
+              onChange={(e) => {
+                setCity(e.target.value);
+                setTouched((prev) => ({ ...prev, city: true }));
+              }}
               placeholder="Enter city"
               className="w-full px-3 py-2.5 rounded-lg  bg-gray-100 text-sm text-text-primary placeholder-text-secondary font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
             />
+            {touched.city && errors.city && (
+              <p className="text-xs text-red-500 mt-1 px-1">{errors.city}</p>
+            )}
           </div>
 
           {/* Zip Code */}
@@ -294,19 +340,25 @@ export function AudienceModal({
             <input
               type="text"
               value={zipCode}
-              onChange={(e) => setZipCode(e.target.value)}
+              onChange={(e) => {
+                setZipCode(e.target.value);
+                setTouched((prev) => ({ ...prev, zipCode: true }));
+              }}
               placeholder="Enter Zip code"
               maxLength={10}
               className="w-full px-3 py-2.5 rounded-lg  bg-gray-100 text-sm text-gray-800 placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
             />
           </div>
+          {touched.zipCode && errors.zipCode && (
+            <p className="text-xs text-red-500 mt-1 px-1">{errors.zipCode}</p>
+          )}
         </div>
 
         {/* Done button */}
         <div className="px-5 pb-6 pt-2">
           <button
             onClick={handleDone}
-            disabled={!isFormValid}
+            // disabled={!isFormValid}
             className={`w-full py-3 rounded-xl text-sm font-semibold tracking-wide transition-colors active:scale-[0.98] ${
               isFormValid
                 ? "bg-gray-900 text-white hover:bg-gray-700"
