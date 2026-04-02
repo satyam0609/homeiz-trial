@@ -27,16 +27,15 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
+// ${geistSans.variable} ${geistMono.variable}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className={` h-full antialiased`}>
       <head>
         <script
           dangerouslySetInnerHTML={{
