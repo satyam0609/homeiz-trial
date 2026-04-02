@@ -464,14 +464,14 @@ export default function CreatePostPage() {
         onChange={handleFileChange}
       />
 
-      <div className="cp-card bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col sm:max-h-[92vh] overflow-hidden">
+      <div className="cp-card bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col h-screen sm:max-h-[92vh] overflow-hidden">
         {/* Top bar */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-100 shrink-0">
           <button
             onClick={() => router.back()}
             className="w-8 h-8 flex items-center justify-center rounded-full text-text-primary hover:bg-gray-100 transition-colors"
           >
-            <X className="size-6" />
+            <X className="size-8" />
           </button>
           <span className="text-2xl font-bold text-gray-900 tracking-tight">
             Create post
@@ -525,8 +525,8 @@ export default function CreatePostPage() {
               <Avatar name="Riva" online="online" />
             </div>
             <div className="flex-1 min-w-0 ">
-              <div className="flex items-center justify-between mt-2 mb-2">
-                <span className="text-[15px] font-bold text-gray-900">
+              <div className="flex items-center justify-between mt-1 mb-2">
+                <span className="text-base font-bold text-gray-900">
                   Riva Bika
                 </span>
                 <div className="relative">
