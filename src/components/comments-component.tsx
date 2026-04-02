@@ -525,6 +525,9 @@ export default function CommentsPage({ postId }: { postId: string }) {
             <h1 className="text-[16px] font-bold truncate">
               {postDetail?.user?.name}
             </h1>
+            <button className="text-blue-500 text-sm font-semibold whitespace-nowrap">
+              +Follow
+            </button>
           </div>
           <div className="flex gap-3 items-center shrink-0">
             <Dropdown
@@ -708,6 +711,9 @@ export default function CommentsPage({ postId }: { postId: string }) {
                         <h1 className="text-[18px] font-bold truncate max-w-40">
                           {postDetail.user?.name}
                         </h1>
+                        <button className="text-blue-500 text-[17px] font-semibold whitespace-nowrap">
+                          + Follow
+                        </button>
                       </div>
                       <div className="flex gap-4 items-center shrink-0">
                         <Dropdown
@@ -763,7 +769,6 @@ export default function CommentsPage({ postId }: { postId: string }) {
                 </div>
               </div>
 
-              {/* Post image + details (scrolls away) */}
               <div ref={mobileImageRef}>
                 <ImageRenderer src={postDetail.image} />
               </div>
@@ -787,9 +792,9 @@ export default function CommentsPage({ postId }: { postId: string }) {
               {/* Sticky action bar with thin gray line above */}
               <div
                 ref={mobileActionBarRef}
-                className="sticky top-0 z-20 bg-white"
+                className="sticky top-[-0.5px] z-20 bg-white"
               >
-                <div className="flex items-center justify-between text-gray-500 text-sm px-4 py-2 border-t border-gray-200">
+                <div className="flex items-center justify-between text-gray-500 text-sm px-4 py-2 border-t-2 border-gray-200">
                   <ReactionPopover
                     onTap={() => {}}
                     trigger={
