@@ -767,7 +767,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
               <div ref={mobileImageRef}>
                 <ImageRenderer src={postDetail.image} />
               </div>
-              <div className="px-4 mt-2">
+              <div className="px-4 mt-2 pb-2">
                 <div className="text-base font-bold">$98 000</div>
                 <div className="flex text-base font-medium flex-wrap items-center">
                   2 bds
@@ -785,10 +785,9 @@ export default function CommentsPage({ postId }: { postId: string }) {
               {/* Sticky action bar with thin gray line above */}
               <div
                 ref={mobileActionBarRef}
-                className="sticky top-0 z-20 bg-white shadow-[0_-10px_0_0_white]"
+                className="sticky top-0 z-20 bg-white"
               >
-                <div className="h-px bg-gray-200" />
-                <div className="flex items-center justify-between text-gray-500 text-sm px-4 py-2">
+                <div className="flex items-center justify-between text-gray-500 text-sm px-4 py-2 border-t border-gray-200">
                   <ReactionPopover
                     onTap={() => {}}
                     trigger={
