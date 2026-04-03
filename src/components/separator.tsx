@@ -15,13 +15,13 @@ const Separator = ({
 
   return (
     <div className={`flex items-center my-4 ${className}`}>
-      <div className="flex-1 h-1 bg-text-primary" />
+      <div className="flex-1 h-0.5 bg-text-primary" />
       {label && (
         <span className="px-3 text-sm text-text-primary whitespace-nowrap">
           {label}
         </span>
       )}
-      <div className="flex-1 h-1 bg-text-primary" />
+      <div className="flex-1 h-0.5 bg-text-primary" />
     </div>
   );
 };
