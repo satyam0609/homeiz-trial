@@ -11,6 +11,7 @@ import { useInView } from "react-intersection-observer";
 import { getCurrentUser } from "@/utils/utils";
 import SearchButton from "@/components/search-button";
 import { useRouter } from "next/navigation";
+import { ReactionType } from "@/constants";
 
 const SORT_OPTIONS = [
   { label: "Newest First", value: "newest" },
@@ -21,9 +22,11 @@ const SORT_OPTIONS = [
 ];
 
 const FeedPage = () => {
-  const [user, setUser] = useState<{ id: number; userName: string } | null>(
-    null,
-  );
+  const [user, setUser] = useState<{
+    id: string;
+    name: string;
+    value: number;
+  } | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -36,65 +39,51 @@ const FeedPage = () => {
 
   const { ref, inView } = useInView({ rootMargin: "300px", threshold: 1 });
 
-  const handleReact = async (postId: number, reaction: string) => {
+  const handleReact = async (postId: string, reaction: ReactionType) => {
     if (!user) return;
 
     const userId = user.id;
 
     setPosts((prev) =>
       prev.map((post) => {
-        if (post.id !== postId) return post;
+        if (post._id !== postId) return post;
 
-        const existingLike = post.likes.find((l) => l.userId === userId);
+        const existingReaction = post.reactions.find((r) => r.user === userId);
 
-        let updatedLikes = [...post.likes];
+        let updatedReactions = [...post.reactions];
         let updatedReactionCounts = { ...post.reactionCounts };
-        let updatedCount = post._count.likes;
 
         // ✅ CASE 1: user already reacted
-        if (existingLike) {
-          const prevReaction = existingLike.reaction;
+        if (existingReaction) {
+          const prevReaction = existingReaction.type;
 
-          // SAME reaction → REMOVE
+          // 👉 SAME → REMOVE
           if (prevReaction === reaction) {
-            updatedLikes = post.likes.filter((l) => l.userId !== userId);
-            updatedCount -= 1;
+            updatedReactions = post.reactions.filter((r) => r.user !== userId);
 
             updatedReactionCounts[reaction] =
               (updatedReactionCounts[reaction] || 1) - 1;
-
-            if (updatedReactionCounts[reaction] <= 0) {
-              delete updatedReactionCounts[reaction];
-            }
           } else {
-            // DIFFERENT reaction → UPDATE
-            updatedLikes = post.likes.map((l) =>
-              l.userId === userId ? { ...l, reaction } : l,
+            // 👉 DIFFERENT → UPDATE
+            updatedReactions = post.reactions.map((r) =>
+              r.user === userId ? { ...r, type: reaction } : r,
             );
 
             // decrease old
             updatedReactionCounts[prevReaction] =
               (updatedReactionCounts[prevReaction] || 1) - 1;
 
-            if (updatedReactionCounts[prevReaction] <= 0) {
-              delete updatedReactionCounts[prevReaction];
-            }
-
             // increase new
             updatedReactionCounts[reaction] =
               (updatedReactionCounts[reaction] || 0) + 1;
           }
         } else {
-          // ✅ CASE 2: no reaction → ADD
-          updatedLikes.push({
-            id: Date.now(),
-            userId,
-            postId,
-            reaction,
-            createdAt: new Date().toISOString(),
+          // ✅ CASE 2: ADD
+          updatedReactions.push({
+            _id: Date.now().toString(),
+            user: userId,
+            type: reaction,
           });
-
-          updatedCount += 1;
 
           updatedReactionCounts[reaction] =
             (updatedReactionCounts[reaction] || 0) + 1;
@@ -102,12 +91,9 @@ const FeedPage = () => {
 
         return {
           ...post,
-          likes: updatedLikes,
-          _count: {
-            ...post._count,
-            likes: updatedCount,
-          },
+          reactions: updatedReactions,
           reactionCounts: updatedReactionCounts,
+          userReaction: existingReaction?.type === reaction ? null : reaction,
         };
       }),
     );
@@ -122,26 +108,26 @@ const FeedPage = () => {
     }
   };
 
-  const handleLike = async (postId: number) => {
+  const handleLike = async (postId: string) => {
     if (!user) return; // safety
 
-    const userId = user.id;
+    const userId = user?.id;
 
     setPosts((prev) =>
       prev.map((post) => {
-        if (post.id !== postId) return post;
+        if (post?._id !== postId) return post;
 
-        const existingLike = post.likes.find((l) => l.userId === userId);
+        const existingLike = post?.reactions.find((l) => l.user === userId);
 
-        let updatedLikes = [...post.likes];
-        let updatedReactionCounts = { ...post.reactionCounts };
-        let updatedCount = post._count.likes;
+        let updatedLikes = [...post?.reactions];
+        let updatedReactionCounts = { ...post?.reactionCounts };
+        let updatedCount = post?.reactions.length;
 
         // CASE 1: already reacted → REMOVE
         if (existingLike) {
-          const prevReaction = existingLike.reaction;
+          const prevReaction = existingLike?.type;
 
-          updatedLikes = post.likes.filter((l) => l.userId !== userId);
+          updatedLikes = post?.reactions.filter((l) => l.user !== userId);
           updatedCount -= 1;
 
           // decrease count
@@ -156,11 +142,9 @@ const FeedPage = () => {
           const newReaction = "LIKE";
 
           updatedLikes.push({
-            id: Math.floor(Math.random() * 1_000_000_000), // random id
-            userId,
-            postId,
-            reaction: newReaction,
-            createdAt: new Date().toISOString(),
+            _id: "xyz",
+            type: newReaction,
+            user: userId,
           });
 
           updatedCount += 1;
@@ -172,10 +156,6 @@ const FeedPage = () => {
         return {
           ...post,
           likes: updatedLikes,
-          _count: {
-            ...post._count,
-            likes: updatedCount,
-          },
           reactionCounts: updatedReactionCounts,
         };
       }),
@@ -250,8 +230,8 @@ const FeedPage = () => {
     setError(null);
   };
 
-  const handleRemovePost = (postId: number) => {
-    setPosts((prev) => prev.filter((post) => post.id !== postId));
+  const handleRemovePost = (postId: string) => {
+    setPosts((prev) => prev.filter((post) => post?._id !== postId));
   };
 
   useEffect(() => {
@@ -348,7 +328,7 @@ const FeedPage = () => {
       <section id="posts" className="">
         {posts.map((post, index) => (
           <PostCard
-            key={`${post.id}-${index}`}
+            key={`${post._id}-${index}`}
             post={post}
             handleReact={handleReact}
             handleLike={handleLike}
