@@ -27,7 +27,7 @@ export interface Post {
   _id: string;
   content: string;
   image: string;
-  location: string;
+  location?: string;
 
   createdAt: string;
   updatedAt: string;

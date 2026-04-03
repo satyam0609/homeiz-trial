@@ -40,6 +40,7 @@ import ReactionPicker from "@/components/reaction-picker";
 import { REACTION_MAP } from "@/constants";
 import { toTwemojiUrl } from "@/utils/utils";
 import SendIcon from "@/assets/icons/send-svgrepo-com";
+import GifIcon from "@/assets/icons/gif";
 
 const COMMENTS_LIMIT = 5;
 
@@ -74,7 +75,6 @@ export default function CommentsPage({ postId }: { postId: string }) {
   } | null>(null);
   const [newCommentText, setNewCommentText] = useState("");
   const [sortLabel, setSortLabel] = useState("Newest");
-  const [likedComments, setLikedComments] = useState<Set<string>>(new Set());
 
   function handleReply(
     commentId: string,
@@ -86,25 +86,12 @@ export default function CommentsPage({ postId }: { postId: string }) {
   }
 
   function handleLike(commentId: string) {
-    setLikedComments((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(commentId)) {
-        newSet.delete(commentId);
-      } else {
-        newSet.add(commentId);
-      }
-      return newSet;
-    });
-
     setComments((prev) =>
       prev.map((comment) => {
         if (comment.id === commentId) {
-          const isLiked = likedComments.has(commentId);
-          return {
-            ...comment,
-            likedByMe: !isLiked,
-            likes: isLiked ? comment.likes - 1 : comment.likes + 1,
-          };
+          return comment.likedByMe
+            ? { ...comment, likedByMe: false, myReaction: undefined, likes: comment.likes - 1 }
+            : { ...comment, likedByMe: true, myReaction: "LIKE", likes: comment.likes + 1 };
         }
 
         const updateReplies = (
@@ -112,23 +99,14 @@ export default function CommentsPage({ postId }: { postId: string }) {
         ): typeof comment.replies =>
           replies.map((reply) => {
             if (reply.id === commentId) {
-              const isLiked = likedComments.has(commentId);
-              return {
-                ...reply,
-                likedByMe: !isLiked,
-                likes: isLiked ? reply.likes - 1 : reply.likes + 1,
-              };
+              return reply.likedByMe
+                ? { ...reply, likedByMe: false, myReaction: undefined, likes: reply.likes - 1 }
+                : { ...reply, likedByMe: true, myReaction: "LIKE", likes: reply.likes + 1 };
             }
-            return {
-              ...reply,
-              replies: updateReplies(reply.replies),
-            };
+            return { ...reply, replies: updateReplies(reply.replies) };
           });
 
-        return {
-          ...comment,
-          replies: updateReplies(comment.replies),
-        };
+        return { ...comment, replies: updateReplies(comment.replies) };
       }),
     );
   }
@@ -192,7 +170,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
     // Fire API in background
     try {
       await api.post(`/posts/${postId}/comment`, {
-        userId: Number(currentUser.id),
+        userId: currentUser.id,
         text,
       });
       // Silently refresh to get real IDs
@@ -238,9 +216,9 @@ export default function CommentsPage({ postId }: { postId: string }) {
     // Fire API in background
     try {
       await api.post(`/comments/${commentId}/reply`, {
-        userId: Number(currentUser.id),
+        userId: currentUser.id,
         text,
-        parentId: replyToId === commentId ? null : Number(replyToId),
+        parentId: replyToId === commentId ? null : replyToId,
       });
       // Silently refresh to get real IDs
       fetchComments(1, true);
@@ -268,7 +246,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
   const getPost = async () => {
     try {
       const res = await api.get(`/posts/${postId}`);
-      const post = res?.data?.data;
+      const post = res?.data?.data ?? res?.data;
       setPostDetail(post);
       const user = post?.user;
       setPostAuthor(user);
@@ -277,18 +255,18 @@ export default function CommentsPage({ postId }: { postId: string }) {
       if (storedUser) {
         const userData = JSON.parse(storedUser);
         setCurrentUser({
-          id: String(userData.id),
-          name: userData.userName,
+          id: String(userData._id ?? userData.id),
+          name: userData.userName ?? userData.name,
           avatar: `no-image`,
         });
 
         api
-          .get(`/users/${userData.id}`)
+          .get(`/users/${userData._id ?? userData.id}`)
           .then((userRes) => {
-            const userDetails = userRes?.data?.data;
+            const userDetails = userRes?.data?.data ?? userRes?.data;
             if (userDetails) {
               setCurrentUser({
-                id: String(userDetails.id),
+                id: String(userDetails._id ?? userDetails.id),
                 name: userDetails.name,
                 avatar:
                   userDetails.profile ||
@@ -301,7 +279,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
           });
       } else {
         setCurrentUser({
-          id: String(user?.id),
+          id: String(user?._id),
           name: user?.name,
           avatar:
             user?.profile ||
@@ -379,26 +357,35 @@ export default function CommentsPage({ postId }: { postId: string }) {
     }
   }, [inView]);
 
+  const totalReactions = postDetail
+    ? Object.values(postDetail.reactionCounts ?? {}).reduce(
+        (a: number, b: number) => a + b,
+        0,
+      )
+    : 0;
+
   const postCardData: Post | null = postDetail
     ? {
-        id: postDetail.id,
+        _id: postDetail._id,
         content: postDetail.content,
         image: postDetail.image,
         location: postDetail.location,
         createdAt: postDetail.createdAt,
-        userId: postDetail.userId,
-        user: {
-          ...postDetail.user,
-          role: postDetail.user.role as "ADMIN" | "USER",
+        updatedAt: (postDetail as any).updatedAt ?? postDetail.createdAt,
+        user: postDetail.user,
+        reactions: postDetail.reactions ?? [],
+        reactionCounts: postDetail.reactionCounts ?? {
+          LIKE: 0,
+          LOVE: 0,
+          HAHA: 0,
+          WOW: 0,
+          SAD: 0,
+          ANGRY: 0,
         },
-        _count: {
-          likes: postDetail.likes?.length ?? 0,
-          comments: postDetail.comments?.length ?? 0,
-        },
-        likes: postDetail.likes ?? [],
+        commentsCount: postDetail.commentsCount ?? 0,
+        __v: (postDetail as any).__v ?? 0,
         isCommentPage: true,
-        reactionCounts: 0,
-        userReaction: 0,
+        userReaction: null,
       }
     : null;
 
@@ -434,7 +421,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
               <div key={comment.id}>
                 <CommentRow
                   comment={comment}
-                  postOwnerId={postAuthor ? String(postAuthor.id) : ""}
+                  postOwnerId={postAuthor ? String(postAuthor._id) : ""}
                   onReply={handleReply}
                   onLike={handleLike}
                   onReact={handleReactComment}
@@ -474,7 +461,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
           className="w-8 h-8 rounded-full object-cover flex-shrink-0"
         />
       )}
-      <div className="flex-1 bg-[rgb(235,235,235)] rounded-2xl px-4 py-2.5">
+      <div className="flex-1 bg-[rgb(235,235,235)] rounded-2xl px-1 py-2.5">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 relative">
           {!newCommentText && (
             <span className="absolute left-0 right-[80px] pointer-events-none text-[14px] font-bold text-text-secondary truncate">
@@ -490,13 +477,13 @@ export default function CommentsPage({ postId }: { postId: string }) {
           />
           <div className="flex items-center gap-1 flex-shrink-0">
             <button className="text-gray-500 hover:text-gray-700">
-              <Camera size={18} strokeWidth={2} />
-            </button>
-            <button className="border border-gray-400 rounded px-1 py-0.5 text-[10px] font-bold text-gray-500 leading-none tracking-wide">
-              GIF
+              <Camera size={22} strokeWidth={2} />
             </button>
             <button className="text-gray-500 hover:text-gray-700">
-              <Smile size={18} strokeWidth={2} />
+              <GifIcon />
+            </button>
+            <button className="text-gray-500 hover:text-gray-700">
+              <Smile size={20} strokeWidth={2} />
             </button>
           </div>
         </div>
@@ -556,7 +543,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
         </div>
         <div className="text-[14px] font-semibold">{postDetail.location}</div>
         <div className="flex text-xs font-bold items-center gap-2 flex-wrap mt-0.5">
-          <span>{postDetail?.user?.role}</span>
+          <span>{postDetail?.user?.name}</span>
           <div className="flex items-center">
             {[1, 2, 3, 4, 5].map((i) => (
               <Star
@@ -652,13 +639,13 @@ export default function CommentsPage({ postId }: { postId: string }) {
                       trigger={
                         <ActionButton
                           icon={ThumbsUp}
-                          count={postCardData._count.likes.toString()}
+                          count={String(totalReactions)}
                         />
                       }
                     ></ReactionPopover>
                     <ActionButton
                       icon={MessageCircle}
-                      count={postCardData._count.comments.toString()}
+                      count={String(postCardData.commentsCount)}
                     />
                     <ActionButton icon={ShareIcon} count={"30"} />
                     <ActionButton icon={Eye} count={"200"} />
@@ -744,7 +731,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
                       {postDetail.location ?? "Paris, France"}
                     </div>
                     <div className="flex text-sm font-bold items-center gap-3 flex-wrap">
-                      <span>{postDetail.user?.role}</span>
+                      <span>{postDetail.user?.name}</span>
                       <div className="flex items-center">
                         {[1, 2, 3, 4, 5].map((i) => (
                           <Star
@@ -800,13 +787,13 @@ export default function CommentsPage({ postId }: { postId: string }) {
                     trigger={
                       <ActionButton
                         icon={ThumbsUp}
-                        count={postCardData._count.likes.toString()}
+                        count={String(totalReactions)}
                       />
                     }
                   />
                   <ActionButton
                     icon={MessageCircle}
-                    count={postCardData._count.comments.toString()}
+                    count={String(postCardData.commentsCount)}
                   />
                   <ActionButton icon={ShareIcon} count={"30"} />
                   <ActionButton icon={Eye} count={"200"} />

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Camera, Smile, Send, Pencil } from "lucide-react";
 import { CommentUser } from "./types";
 import SendIcon from "@/assets/icons/send-svgrepo-com";
+import GifIcon from "@/assets/icons/gif";
 
 interface ReplyBoxProps {
   mentionName?: string;
@@ -86,8 +87,8 @@ export default function ReplyBox({
               <button className="text-gray-500 hover:text-gray-700">
                 <Camera size={18} strokeWidth={2} />
               </button>
-              <button className="border border-gray-400 rounded px-1 py-0.5 text-[10px] font-bold text-gray-500 leading-none tracking-wide">
-                GIF
+              <button className="text-gray-500 hover:text-gray-700">
+                <GifIcon />
               </button>
               <button className="text-gray-500 hover:text-gray-700">
                 <Smile size={18} strokeWidth={2} />
