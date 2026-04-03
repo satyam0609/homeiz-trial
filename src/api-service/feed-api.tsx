@@ -1,45 +1,49 @@
 import api from "@/config/api";
 
 export interface User {
-  id: number;
+  _id: string;
   name: string;
   profile: string;
-  role: "ADMIN" | "USER"; // extend if needed
 }
 
-export interface Comment {
-  id: number;
-  content: string;
-  createdAt: string;
-  userId: number;
-  user: User;
+export type ReactionType = "LIKE" | "LOVE" | "HAHA" | "WOW" | "SAD" | "ANGRY";
+
+export interface Reaction {
+  _id: string;
+  user: string; // userId
+  type: ReactionType;
 }
 
-export interface Like {
-  id: number;
-  userId: number;
-  postId: number;
-  reaction: string;
-  createdAt: any;
+export interface ReactionCounts {
+  LIKE: number;
+  LOVE: number;
+  HAHA: number;
+  WOW: number;
+  SAD: number;
+  ANGRY: number;
 }
 
 export interface Post {
-  id: number;
+  _id: string;
   content: string;
   image: string;
   location: string;
+
   createdAt: string;
-  userId: number;
+  updatedAt: string;
+
   user: User;
-  //   comments: Comment[];
-  likes: Like[];
-  _count: {
-    likes: number;
-    comments: number;
-  };
+
+  reactions: Reaction[];
+  reactionCounts: ReactionCounts;
+
+  commentsCount: number;
+
+  __v: number;
+
+  // optional UI helpers
+  userReaction?: ReactionType | null;
   isCommentPage?: boolean;
-  reactionCounts: any;
-  userReaction: any;
 }
 
 export interface GetPostsParams {
@@ -67,8 +71,8 @@ export const createPost = async (payload: any) => {
 };
 
 export const reactPost = async (payload: {
-  id: number;
-  body: { userId: number; reaction: string };
+  id: string;
+  body: { userId: string; reaction: string };
 }) => {
   const res = await api.post(`/posts/${payload.id}/reaction`, payload.body);
   return res.data.data;

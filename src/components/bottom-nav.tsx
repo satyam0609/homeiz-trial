@@ -1,53 +1,21 @@
 "use client";
 
 import DropdownIcon from "@/assets/icons/dropdown";
-import NavigationArrowIcon from "@/assets/icons/navigation";
-import PlayCircleIcon from "@/assets/icons/playIcon";
 import Dropdown from "@/components/dropdown";
 import { getCurrentUser } from "@/utils/utils";
-import {
-  Home,
-  Bell,
-  Send,
-  Play,
-  MapPin,
-  ChevronDown,
-  Divide,
-} from "lucide-react";
+import { Users } from "@/constants";
+import { Home, Bell, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const NAV_ITEMS = [
-  {
-    id: "home",
-    href: "/",
-    icon: Home,
-    label: "Home",
-  },
+  { id: "home", href: "/", icon: Home, label: "Home" },
   {
     id: "notifications",
     href: "/notifications",
     icon: Bell,
     label: "Notifications",
   },
-  {
-    id: "messages",
-    href: "/messages",
-    icon: NavigationArrowIcon,
-    label: "Messages",
-  },
-
-  {
-    id: "create",
-    href: "/create",
-    icon: PlayCircleIcon,
-    label: "Create",
-  },
-  {
-    id: "location",
-    href: "/location",
-    icon: MapPin,
-    label: "Location",
-  },
+  { id: "location", href: "/location", icon: MapPin, label: "Location" },
   {
     id: "profile",
     href: "/profile",
@@ -57,29 +25,42 @@ export const NAV_ITEMS = [
   },
 ];
 
+type CurrentUser = {
+  id: string;
+  name: string;
+  value: number;
+};
+
 export default function BottomNav() {
-  const [user, setUser] = useState<{ id: number; userName: string } | null>(
-    null,
-  );
+  const [user, setUser] = useState<CurrentUser | null>(null);
 
   useEffect(() => {
     const syncUser = () => {
       let current = getCurrentUser();
 
-      // ✅ if no user → set default
+      // ✅ default user
       if (!current) {
-        current = { userName: "User 1", id: 1 };
+        current = Users[0];
         localStorage.setItem("user", JSON.stringify(current));
       }
 
       setUser(current);
     };
 
-    syncUser(); // initial load
+    syncUser();
 
     window.addEventListener("storage", syncUser);
     return () => window.removeEventListener("storage", syncUser);
   }, []);
+
+  const getInitials = (name: string) => {
+    console.log(name);
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+  };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
@@ -88,37 +69,29 @@ export default function BottomNav() {
           const Icon = item.icon;
 
           return item.isProfile ? (
-            <div
-              key={item.id}
-              className="text-white hover:text-white transition"
-            >
+            <div key={item.id} className="text-white">
               <Dropdown
                 trigger={
                   <div className="flex items-center gap-1 cursor-pointer">
-                    <div className="h-8 w-8 text-xs bg-primary-blue rounded-full flex justify-center items-center font-medium leading-3">
-                      CJ
+                    <div className="h-8 w-8 text-xs bg-primary-blue rounded-full flex justify-center items-center font-medium">
+                      {user ? getInitials(user.name) : "U"}
                     </div>
                     <DropdownIcon size={18} />
                   </div>
                 }
-                items={[1, 2, 3, 4].map((i) => ({
-                  label: `User ${i}`,
+                items={Users.map((u) => ({
+                  label: u.name,
                   onClick: () => {
-                    localStorage.setItem(
-                      "user",
-                      JSON.stringify({ userName: `User ${i}`, id: i }),
-                    );
+                    localStorage.setItem("user", JSON.stringify(u));
+
                     window.dispatchEvent(
                       new StorageEvent("storage", {
                         key: "user",
-                        newValue: JSON.stringify({
-                          userName: `User ${i}`,
-                          id: i,
-                        }),
+                        newValue: JSON.stringify(u),
                       }),
                     );
                   },
-                  selected: user?.id === i,
+                  selected: user?.id === u.id,
                 }))}
                 side="right"
                 position="top"
@@ -127,13 +100,9 @@ export default function BottomNav() {
           ) : (
             <button
               key={item.id}
-              className={
-                item?.isCenter
-                  ? "bg-blue-600 text-white p-3 rounded-full shadow-md scale-110"
-                  : "text-white hover:text-white transition"
-              }
+              className="text-white hover:text-white transition"
             >
-              {Icon && <Icon size={item.id !== "create" ? 24 : 28} />}
+              {Icon && <Icon size={24} />}
             </button>
           );
         })}

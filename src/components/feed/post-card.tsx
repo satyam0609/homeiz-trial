@@ -24,7 +24,7 @@ import ReactionPopover from "../popover";
 import PostImage from "../image-renderer";
 import ImageRenderer from "../image-renderer";
 import { getCurrentUser, toTwemojiUrl } from "@/utils/utils";
-import { REACTION_MAP, REACTIONS } from "@/constants";
+import { REACTION_MAP, REACTIONS, ReactionType } from "@/constants";
 import { useRouter } from "next/navigation";
 import Dropdown from "../dropdown";
 import Avatar from "../avatar";
@@ -36,31 +36,32 @@ const PostCard = ({
   handleRemove,
 }: {
   post: Post;
-  handleRemove?: (postId: number) => void;
-  handleReact: (postId: number, reaction: string) => void;
-  handleLike: (userId: number) => void;
+  handleRemove?: (postId: string) => void;
+  handleReact: (postId: string, reaction: ReactionType) => void;
+  handleLike: (userId: string) => void;
 }) => {
+  console.log(post, "-----post data");
   const [openEmojiPickerV1, setOpenEmojiPickerV1] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
   const user = getCurrentUser();
-  const [showFollow, setShowFollow] = useState(user.id !== post.user.id);
+  const [showFollow, setShowFollow] = useState(user.id !== post.user._id);
   const isLiked = user
-    ? post.likes.some((like) => like.userId === user.id)
+    ? post?.reactions?.some((like) => like.user === user.id)
     : false;
 
   const router = useRouter();
 
   const handleRedirect = () => {
-    router.push(`/comment/${post.id}`);
+    router.push(`/comment/${post._id}`);
   };
 
   const MAX_LENGTH = 250;
 
-  const isLong = post.content.length > MAX_LENGTH;
+  const isLong = post?.content.length > MAX_LENGTH;
   const displayedText = expanded
-    ? post.content
-    : post.content.slice(0, MAX_LENGTH);
+    ? post?.content
+    : post?.content.slice(0, MAX_LENGTH);
   return (
     <div className="bg-white">
       {/* Header */}
@@ -92,7 +93,7 @@ const PostCard = ({
             </div>
 
             <div className="flex gap-4 items-center shrink-0">
-              {user.id === post.user.id && (
+              {user.id === post?.user?._id && (
                 <Dropdown
                   trigger={
                     <button>
@@ -123,16 +124,16 @@ const PostCard = ({
                 />
               )}
 
-              <button onClick={() => handleRemove?.(post.id)}>
+              <button onClick={() => handleRemove?.(post._id)}>
                 <X size={18} />
               </button>
             </div>
           </div>
           {/* Info */}
-          <div className="flex-1 text-[18px] font-bold ">{post.location}</div>
+          <div className="flex-1 text-[18px] font-bold ">{post?.location}</div>
 
           <div className="flex-1 text-sm font-bold flex items-center gap-3 flex-wrap">
-            <span>{post?.user?.role}</span>
+            <span>{"AGENT"}</span>
 
             <div className="flex items-center">
               {[1, 2, 3, 4, 5].map((i) => (
@@ -270,11 +271,11 @@ const PostCard = ({
       <div className="flex flex-wrap items-center justify-between text-gray-500 text-sm px-4 py-2 gap-1">
         <div className="flex gap-2 flex-wrap">
           <ReactionPopover
-            handleReact={(reaction) => handleReact(post.id, reaction)}
+            handleReact={(reaction) => handleReact(post._id, reaction)}
             trigger={
               <ActionButton
                 icon={ThumbsUp}
-                count={post?._count?.likes.toString()}
+                count={post?.reactions.length.toString()}
                 className={isLiked ? "text-blue-500" : ""}
               />
             }
@@ -282,7 +283,7 @@ const PostCard = ({
 
           <ActionButton
             icon={MessageCircle}
-            count={post?._count?.comments.toString()}
+            count={post?.commentsCount.toString()}
             onClick={handleRedirect}
           />
 
@@ -291,9 +292,9 @@ const PostCard = ({
         </div>
 
         {/* Reactions */}
-        {Object.keys(post.reactionCounts).length > 0 && (
+        {/* {Object.keys(post?.reactionCounts).length > 0 && (
           <div className="flex items-center px-2">
-            {Object.entries(post.reactionCounts)
+            {Object.entries(post?.reactionCounts)
               .slice(0, 3)
               .map(([type], index) => {
                 const emoji = REACTION_MAP[type];
@@ -310,7 +311,31 @@ const PostCard = ({
                 );
               })}
           </div>
-        )}
+        )} */}
+        <div className="flex items-center px-2">
+          {(
+            Object.entries(post?.reactionCounts || {}) as [
+              ReactionType,
+              number,
+            ][]
+          )
+            .filter(([_, count]) => count > 0) // ✅ only show non-zero
+            .slice(0, 3)
+            .map(([type], index) => {
+              const emoji = REACTION_MAP[type];
+              if (!emoji) return null;
+
+              return (
+                <span
+                  key={type}
+                  style={{ zIndex: 10 - index }}
+                  className="w-6 h-6 flex items-center justify-center bg-white rounded-full shadow-sm -ml-1 first:ml-0"
+                >
+                  <img src={toTwemojiUrl(emoji)} className="w-4 h-4" />
+                </span>
+              );
+            })}
+        </div>
       </div>
 
       <Separator />
