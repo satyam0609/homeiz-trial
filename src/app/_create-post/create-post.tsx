@@ -329,7 +329,7 @@ export default function CreatePostPage() {
       }, 1500);
     } catch (err) {
       console.error(err);
-      alert("Something went wrong while posting.");
+      setError("Something went wrong while posting.");
     } finally {
       setIsPublishing(false);
     }

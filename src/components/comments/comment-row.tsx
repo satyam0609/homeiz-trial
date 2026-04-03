@@ -91,24 +91,42 @@ export default function CommentRow({
               {isAuthor && (
                 <>
                   <span className="text-[12px] text-gray-400">·</span>
-                  <Pencil size={11} className="text-blue-600" strokeWidth={2} />
-                  <span className="text-blue-600 font-semibold text-[15px]">
+                  <Pencil size={12} className="text-blue-600" strokeWidth={2} />
+                  <span className="text-blue-600 font-bold text-base">
                     Author
                   </span>
                 </>
               )}
             </div>
-            <p className="text-[15px] font-semibold text-black mt-0.5 leading-snug">
+            <p className="text-[17px] font-semibold text-black mt-0.5 leading-snug">
               {depth > 0 && comment.mention && (
-                <span className="text-blue-600 font-semibold pr-1">
+                <span className="text-blue-600 font-bold pr-1">
                   {comment.mention}
                 </span>
               )}
-              {comment.text.length > 250 && !expanded
-                ? <>{comment.text.slice(0, 250)}…{" "}<button className="text-blue-500 font-bold text-[13px]" onClick={() => setExpanded(true)}>See more</button></>
-                : comment.text.length > 250
-                  ? <>{comment.text}{" "}<button className="text-blue-500 font-bold text-[13px]" onClick={() => setExpanded(false)}>See less</button></>
-                  : comment.text}
+              {comment.text.length > 250 && !expanded ? (
+                <>
+                  {comment.text.slice(0, 250)}…{" "}
+                  <button
+                    className="text-blue-500 font-bold text-[15px]"
+                    onClick={() => setExpanded(true)}
+                  >
+                    See more
+                  </button>
+                </>
+              ) : comment.text.length > 250 ? (
+                <>
+                  {comment.text}{" "}
+                  <button
+                    className="text-blue-500 font-bold text-[13px]"
+                    onClick={() => setExpanded(false)}
+                  >
+                    See less
+                  </button>
+                </>
+              ) : (
+                comment.text
+              )}
             </p>
           </div>
 
