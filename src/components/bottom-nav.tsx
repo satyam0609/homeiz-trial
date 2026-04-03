@@ -35,19 +35,14 @@ export default function BottomNav() {
   const [user, setUser] = useState<CurrentUser | null>(null);
 
   useEffect(() => {
+    const defaultUser = Users[0];
+    localStorage.setItem("user", JSON.stringify(defaultUser));
+    setUser(defaultUser);
+
     const syncUser = () => {
-      let current = getCurrentUser();
-
-      // ✅ default user
-      if (!current) {
-        current = Users[0];
-        localStorage.setItem("user", JSON.stringify(current));
-      }
-
-      setUser(current);
+      const current = getCurrentUser();
+      if (current) setUser(current);
     };
-
-    syncUser();
 
     window.addEventListener("storage", syncUser);
     return () => window.removeEventListener("storage", syncUser);
