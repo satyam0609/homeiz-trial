@@ -8,7 +8,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <header
-      className={`flex items-center justify-between md:justify-end px-4 py-3 bg-white sticky top-0 z-999`}
+      className={`flex flex-wrap items-center justify-between md:justify-end px-4 py-3 bg-white sticky top-0 z-999`}
     >
       <div className="flex items-center gap-2 md:hidden">
         <img src="/images/logo.svg" alt="logo" className="size-12" />
