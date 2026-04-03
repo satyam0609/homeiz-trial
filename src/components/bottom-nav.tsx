@@ -4,18 +4,42 @@ import DropdownIcon from "@/assets/icons/dropdown";
 import Dropdown from "@/components/dropdown";
 import { getCurrentUser } from "@/utils/utils";
 import { Users } from "@/constants";
-import { Home, Bell, MapPin } from "lucide-react";
+import { Home, Bell, MapPin, PlayCircleIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import NavigationArrowIcon from "@/assets/icons/navigation";
 
 export const NAV_ITEMS = [
-  { id: "home", href: "/", icon: Home, label: "Home" },
+  {
+    id: "home",
+    href: "/",
+    icon: Home,
+    label: "Home",
+  },
   {
     id: "notifications",
     href: "/notifications",
     icon: Bell,
     label: "Notifications",
   },
-  { id: "location", href: "/location", icon: MapPin, label: "Location" },
+  {
+    id: "messages",
+    href: "/messages",
+    icon: NavigationArrowIcon,
+    label: "Messages",
+  },
+
+  {
+    id: "create",
+    href: "/create",
+    icon: PlayCircleIcon,
+    label: "Create",
+  },
+  {
+    id: "location",
+    href: "/location",
+    icon: MapPin,
+    label: "Location",
+  },
   {
     id: "profile",
     href: "/profile",
