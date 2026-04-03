@@ -192,7 +192,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
 
         {/* Center feed */}
         <main className="flex-1 overflow-y-auto ">
-          <div className="hidden md:block md:sticky md:top-0 z-10">
+          <div className="hidden md:block md:sticky md:top-0 z-9999">
             <Header />
           </div>
           <div className="max-w-170 mx-auto w-full">{children}</div>
