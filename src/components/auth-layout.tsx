@@ -186,7 +186,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
       {/* Three-column body */}
       <div className="flex flex-1 overflow-hidden max-w-480 mx-auto w-full">
         {/* Left nav sidebar */}
-        <div className="hidden lg:block h-full">
+        <div className="hidden md:block h-full">
           <Sidebar />
         </div>
 
