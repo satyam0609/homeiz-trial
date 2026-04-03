@@ -4,8 +4,9 @@ import DropdownIcon from "@/assets/icons/dropdown";
 import Dropdown from "@/components/dropdown";
 import { getCurrentUser } from "@/utils/utils";
 import { Users } from "@/constants";
-import { Home, Bell, MapPin, PlayCircleIcon } from "lucide-react";
+import { Home, Bell, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
+import PlayCircleIcon from "@/assets/icons/playIcon";
 import NavigationArrowIcon from "@/assets/icons/navigation";
 
 export const NAV_ITEMS = [

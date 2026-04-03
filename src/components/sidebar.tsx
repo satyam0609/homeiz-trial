@@ -92,7 +92,7 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
       </nav>
 
       {/* User footer */}
-      <div className="mt-6 px-3 py-3 rounded-xl bg-gray-50 flex items-center gap-3">
+      <div className="mt-6 mb-10 px-3 py-3 rounded-xl bg-gray-100 flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
           <User size={15} className="text-blue-600" />
         </div>
