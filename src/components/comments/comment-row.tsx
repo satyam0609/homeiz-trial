@@ -6,6 +6,8 @@ import ReplyBox from "./reply-box";
 import { Comment, CommentUser } from "./types";
 import ReactionPopover from "@/components/popover";
 import ReactionPicker from "@/components/reaction-picker";
+import { REACTION_MAP } from "@/constants";
+import { toTwemojiUrl } from "@/utils/utils";
 
 const REPLIES_PREVIEW = 1;
 
@@ -149,12 +151,27 @@ export default function CommentRow({
                 className="flex items-center gap-1 justify-center"
                 onClick={() => onLike(comment.id)}
               >
-                <div className="bg-blue-500 rounded-full w-4 h-4 flex items-center justify-center">
-                  <ThumbsUp
-                    size={8}
-                    className="text-white fill-white stroke-white"
+                {comment.myReaction &&
+                REACTION_MAP[
+                  comment.myReaction as keyof typeof REACTION_MAP
+                ] ? (
+                  <img
+                    src={toTwemojiUrl(
+                      REACTION_MAP[
+                        comment.myReaction as keyof typeof REACTION_MAP
+                      ],
+                    )}
+                    alt={comment.myReaction}
+                    className="w-4 h-4"
                   />
-                </div>
+                ) : (
+                  <div className="bg-blue-500 rounded-full w-4 h-4 flex items-center justify-center">
+                    <ThumbsUp
+                      size={8}
+                      className="text-white fill-white stroke-white"
+                    />
+                  </div>
+                )}
 
                 <span className="text-sm text-text-secondary font-bold">
                   {comment.likes}
@@ -167,16 +184,35 @@ export default function CommentRow({
         {isTopLevel && (
           <div className="mt-1 ml-auto flex-shrink-0">
             <ReactionPopover
-              onTap={() => onLike(comment.id)}
               align="right"
+              handleReact={(reaction) => onReact?.(comment.id, reaction)}
               trigger={
-                <button
-                  className={
-                    comment.likedByMe ? "text-blue-500" : "text-text-secondary"
-                  }
-                >
-                  <ThumbsUp size={16} strokeWidth={1.8} />
-                </button>
+                comment.myReaction &&
+                REACTION_MAP[
+                  comment.myReaction as keyof typeof REACTION_MAP
+                ] ? (
+                  <button>
+                    <img
+                      src={toTwemojiUrl(
+                        REACTION_MAP[
+                          comment.myReaction as keyof typeof REACTION_MAP
+                        ],
+                      )}
+                      alt={comment.myReaction}
+                      className="w-4 h-4"
+                    />
+                  </button>
+                ) : (
+                  <button
+                    className={
+                      comment.likedByMe
+                        ? "text-blue-500"
+                        : "text-text-secondary"
+                    }
+                  >
+                    <ThumbsUp size={16} strokeWidth={1.8} />
+                  </button>
+                )
               }
             ></ReactionPopover>
           </div>

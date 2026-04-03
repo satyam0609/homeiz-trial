@@ -29,7 +29,7 @@ export interface PostDetail {
   _id: string;
   content: string;
   image: string;
-  location: string;
+  location?: string;
   createdAt: string;
   user: { _id: string; name: string; profile: string };
   reactions: any[];
