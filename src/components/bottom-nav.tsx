@@ -28,7 +28,6 @@ export const NAV_ITEMS = [
     icon: NavigationArrowIcon,
     label: "Messages",
   },
-
   {
     id: "create",
     href: "/create",

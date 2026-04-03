@@ -187,32 +187,15 @@ export default function CommentRow({
               align="right"
               handleReact={(reaction) => onReact?.(comment.id, reaction)}
               trigger={
-                comment.myReaction &&
-                REACTION_MAP[
-                  comment.myReaction as keyof typeof REACTION_MAP
-                ] ? (
-                  <button>
-                    <img
-                      src={toTwemojiUrl(
-                        REACTION_MAP[
-                          comment.myReaction as keyof typeof REACTION_MAP
-                        ],
-                      )}
-                      alt={comment.myReaction}
-                      className="w-4 h-4"
-                    />
-                  </button>
-                ) : (
-                  <button
-                    className={
-                      comment.likedByMe
-                        ? "text-blue-500"
-                        : "text-text-secondary"
-                    }
-                  >
-                    <ThumbsUp size={16} strokeWidth={1.8} />
-                  </button>
-                )
+                <button
+                  className={
+                    comment.likedByMe
+                      ? "text-blue-500"
+                      : "text-text-secondary"
+                  }
+                >
+                  <ThumbsUp size={16} strokeWidth={1.8} />
+                </button>
               }
             ></ReactionPopover>
           </div>
