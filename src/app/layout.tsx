@@ -56,7 +56,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="h-dvh flex flex-col">
+      <body className="h-dvh w-screen overflow-x-hidden flex flex-col">
         {/* <DeviceGuard>{children}</DeviceGuard> */}
         {children}
       </body>
