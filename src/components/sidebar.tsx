@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Newspaper,
   Users,
@@ -35,8 +35,14 @@ const navItems = [
 const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const path = usePathname();
   const router = useRouter();
-  const user = localStorage.getItem("user");
-  const parsedUser = user ? JSON.parse(user) : null;
+  const [parsedUser, setParsedUser] = useState<any>(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setParsedUser(JSON.parse(user));
+    }
+  }, []);
 
   return (
     <aside className="flex flex-col h-full w-72 bg-white border-r border-gray-100 px-3 py-6">
@@ -92,7 +98,7 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-800 truncate">
-            j{parsedUser ? parsedUser.name : "User"}
+            {parsedUser ? parsedUser.name : "User"}
           </p>
         </div>
       </div>
