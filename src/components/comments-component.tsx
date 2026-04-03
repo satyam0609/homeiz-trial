@@ -277,18 +277,18 @@ export default function CommentsPage({ postId }: { postId: string }) {
       if (storedUser) {
         const userData = JSON.parse(storedUser);
         setCurrentUser({
-          id: String(userData.id),
-          name: userData.userName,
+          id: String(userData._id ?? userData.id),
+          name: userData.userName ?? userData.name,
           avatar: `no-image`,
         });
 
         api
-          .get(`/users/${userData.id}`)
+          .get(`/users/${userData._id ?? userData.id}`)
           .then((userRes) => {
             const userDetails = userRes?.data?.data;
             if (userDetails) {
               setCurrentUser({
-                id: String(userDetails.id),
+                id: String(userDetails._id ?? userDetails.id),
                 name: userDetails.name,
                 avatar:
                   userDetails.profile ||
@@ -301,7 +301,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
           });
       } else {
         setCurrentUser({
-          id: String(user?.id),
+          id: String(user?._id),
           name: user?.name,
           avatar:
             user?.profile ||
@@ -379,26 +379,25 @@ export default function CommentsPage({ postId }: { postId: string }) {
     }
   }, [inView]);
 
+  const totalReactions = postDetail
+    ? Object.values(postDetail.reactionCounts ?? {}).reduce((a: number, b: number) => a + b, 0)
+    : 0;
+
   const postCardData: Post | null = postDetail
     ? {
-        id: postDetail.id,
+        _id: postDetail._id,
         content: postDetail.content,
         image: postDetail.image,
         location: postDetail.location,
         createdAt: postDetail.createdAt,
-        userId: postDetail.userId,
-        user: {
-          ...postDetail.user,
-          role: postDetail.user.role as "ADMIN" | "USER",
-        },
-        _count: {
-          likes: postDetail.likes?.length ?? 0,
-          comments: postDetail.comments?.length ?? 0,
-        },
-        likes: postDetail.likes ?? [],
+        updatedAt: (postDetail as any).updatedAt ?? postDetail.createdAt,
+        user: postDetail.user,
+        reactions: postDetail.reactions ?? [],
+        reactionCounts: postDetail.reactionCounts ?? { LIKE: 0, LOVE: 0, HAHA: 0, WOW: 0, SAD: 0, ANGRY: 0 },
+        commentsCount: postDetail.commentsCount ?? 0,
+        __v: (postDetail as any).__v ?? 0,
         isCommentPage: true,
-        reactionCounts: 0,
-        userReaction: 0,
+        userReaction: null,
       }
     : null;
 
@@ -434,7 +433,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
               <div key={comment.id}>
                 <CommentRow
                   comment={comment}
-                  postOwnerId={postAuthor ? String(postAuthor.id) : ""}
+                  postOwnerId={postAuthor ? String(postAuthor._id) : ""}
                   onReply={handleReply}
                   onLike={handleLike}
                   onReact={handleReactComment}
@@ -556,7 +555,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
         </div>
         <div className="text-[14px] font-semibold">{postDetail.location}</div>
         <div className="flex text-xs font-bold items-center gap-2 flex-wrap mt-0.5">
-          <span>{postDetail?.user?.role}</span>
+          <span>{postDetail?.user?.name}</span>
           <div className="flex items-center">
             {[1, 2, 3, 4, 5].map((i) => (
               <Star
@@ -652,13 +651,13 @@ export default function CommentsPage({ postId }: { postId: string }) {
                       trigger={
                         <ActionButton
                           icon={ThumbsUp}
-                          count={postCardData._count.likes.toString()}
+                          count={String(totalReactions)}
                         />
                       }
                     ></ReactionPopover>
                     <ActionButton
                       icon={MessageCircle}
-                      count={postCardData._count.comments.toString()}
+                      count={String(postCardData.commentsCount)}
                     />
                     <ActionButton icon={ShareIcon} count={"30"} />
                     <ActionButton icon={Eye} count={"200"} />
@@ -744,7 +743,7 @@ export default function CommentsPage({ postId }: { postId: string }) {
                       {postDetail.location ?? "Paris, France"}
                     </div>
                     <div className="flex text-sm font-bold items-center gap-3 flex-wrap">
-                      <span>{postDetail.user?.role}</span>
+                      <span>{postDetail.user?.name}</span>
                       <div className="flex items-center">
                         {[1, 2, 3, 4, 5].map((i) => (
                           <Star
@@ -800,13 +799,13 @@ export default function CommentsPage({ postId }: { postId: string }) {
                     trigger={
                       <ActionButton
                         icon={ThumbsUp}
-                        count={postCardData._count.likes.toString()}
+                        count={String(totalReactions)}
                       />
                     }
                   />
                   <ActionButton
                     icon={MessageCircle}
-                    count={postCardData._count.comments.toString()}
+                    count={String(postCardData.commentsCount)}
                   />
                   <ActionButton icon={ShareIcon} count={"30"} />
                   <ActionButton icon={Eye} count={"200"} />

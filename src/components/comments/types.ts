@@ -1,3 +1,5 @@
+import type { ReactionCounts } from "@/api-service/feed-api";
+
 export interface CommentUser {
   id: string;
   name: string;
@@ -18,21 +20,21 @@ export interface Comment {
 }
 
 export interface PostAuthor {
-  id: number;
+  _id: string;
   name: string;
   profile: string;
 }
 
 export interface PostDetail {
-  id: number;
+  _id: string;
   content: string;
   image: string;
   location: string;
   createdAt: string;
-  userId: number;
-  user: { id: number; name: string; profile: string; role: string };
-  comments: any[];
-  likes: any[];
+  user: { _id: string; name: string; profile: string };
+  reactions: any[];
+  reactionCounts: ReactionCounts;
+  commentsCount: number;
 }
 
 export function timeAgo(dateStr: string): string {
@@ -50,7 +52,7 @@ export function timeAgo(dateStr: string): string {
 function buildReplyTree(replies: any[], commentUserName: string, rootId: string): Comment[] {
   const lookup: Record<string, string> = {};
   replies.forEach((r) => {
-    lookup[String(r.id)] = r.user?.name || `User ${r.userId}`;
+    lookup[String(r._id ?? r.id)] = r.user?.name || "User";
   });
 
   const mapped = replies.map((r) => {
@@ -62,7 +64,7 @@ function buildReplyTree(replies: any[], commentUserName: string, rootId: string)
       raw: r,
       parentId: parentStr,
       comment: {
-        id: String(r.id),
+        id: String(r._id ?? r.id),
         rootId,
         text: r.text || r.content || "",
         mention,
@@ -70,8 +72,8 @@ function buildReplyTree(replies: any[], commentUserName: string, rootId: string)
         likes: r._count?.likes ?? r.likes?.length ?? 0,
         likedByMe: false,
         user: r.user
-          ? { id: String(r.user.id), name: r.user.name, avatar: r.user.profile || "" }
-          : { id: String(r.userId), name: `User ${r.userId}`, avatar: "" },
+          ? { id: String(r.user._id ?? r.user.id), name: r.user.name, avatar: r.user.profile || "" }
+          : { id: String(r.userId ?? r._id), name: "User", avatar: "" },
         replies: [] as Comment[],
       },
     };
@@ -93,8 +95,8 @@ function buildReplyTree(replies: any[], commentUserName: string, rootId: string)
 }
 
 export function mapComment(c: any): Comment {
-  const userName = c.user?.name || `User ${c.userId}`;
-  const commentId = String(c.id);
+  const userName = c.user?.name || "User";
+  const commentId = String(c._id ?? c.id);
 
   return {
     id: commentId,
@@ -103,8 +105,8 @@ export function mapComment(c: any): Comment {
     likes: c._count?.likes ?? c.likes?.length ?? 0,
     likedByMe: false,
     user: c.user
-      ? { id: String(c.user.id), name: userName, avatar: c.user.profile || "" }
-      : { id: String(c.userId), name: userName, avatar: "" },
+      ? { id: String(c.user._id ?? c.user.id), name: userName, avatar: c.user.profile || "" }
+      : { id: String(c.userId ?? c._id), name: userName, avatar: "" },
     replies: Array.isArray(c.replies) ? buildReplyTree(c.replies, userName, commentId) : [],
   };
 }
