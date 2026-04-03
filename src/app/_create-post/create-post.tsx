@@ -284,12 +284,7 @@ export default function CreatePostPage() {
   };
 
   const handlePost = async () => {
-    if (
-      !text.trim() &&
-      mediaFiles.length === 0 &&
-      attachedFiles.length === 0 &&
-      selectedGifs.length === 0
-    ) {
+    if (!text.trim()) {
       setError("Please add some content before posting.");
       return;
     }

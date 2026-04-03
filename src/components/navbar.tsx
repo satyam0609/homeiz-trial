@@ -81,7 +81,11 @@ const Navbar = ({ onClose }: { onClose: () => void }) => {
   }, []);
 
   return (
-    <div ref={navbarRef} className="flex flex-col px-4 py-6 space-y-2 ">
+    <div
+      ref={navbarRef}
+      className="flex flex-col px-4 py-6 space-y-2 
+             h-[60vdh] overflow-y-auto "
+    >
       {navItems.map((item) => {
         const isActive = path === item.href;
 
