@@ -35,6 +35,8 @@ const navItems = [
 const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const path = usePathname();
   const router = useRouter();
+  const user = localStorage.getItem("user");
+  const parsedUser = user ? JSON.parse(user) : null;
 
   return (
     <aside className="flex flex-col h-full w-72 bg-white border-r border-gray-100 px-3 py-6">
@@ -89,8 +91,9 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
           <User size={15} className="text-blue-600" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-800 truncate">John Doe</p>
-          <p className="text-xs text-gray-400 truncate">john@example.com</p>
+          <p className="text-sm font-medium text-gray-800 truncate">
+            j{parsedUser ? parsedUser.name : "User"}
+          </p>
         </div>
       </div>
     </aside>
