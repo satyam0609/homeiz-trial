@@ -219,7 +219,10 @@ const PostCard = ({
                 />
               )}
 
-              <button onClick={() => handleRemove?.(post._id)}>
+              <button
+                onClick={handleHidePost}
+                className="bg-[rgb(242,251,255)] p-2 rounded-full"
+              >
                 <X size={18} />
               </button>
             </div>

@@ -19,7 +19,7 @@ const ActionButton = ({
     <button
       onClick={onClick}
       className={`
-        flex items-center gap-1 px-2 py-1 rounded-md transition-all
+        flex items-center gap-1 px-1 sm:px-2 py-1 rounded-md transition-all
         hover:bg-gray-100 hover:text-blue-600 
         active:scale-95
         ${className}
