@@ -194,7 +194,22 @@ export default function CommentRow({
                       : "text-text-secondary"
                   }
                 >
-                  <ThumbsUp size={16} strokeWidth={1.8} />
+                  {comment.myReaction &&
+                  REACTION_MAP[
+                    comment.myReaction as keyof typeof REACTION_MAP
+                  ] ? (
+                    <img
+                      src={toTwemojiUrl(
+                        REACTION_MAP[
+                          comment.myReaction as keyof typeof REACTION_MAP
+                        ],
+                      )}
+                      alt={comment.myReaction}
+                      className="w-4 h-4"
+                    />
+                  ) : (
+                    <ThumbsUp size={16} strokeWidth={1.8} />
+                  )}
                 </button>
               }
             ></ReactionPopover>
