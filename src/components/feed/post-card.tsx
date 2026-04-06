@@ -180,7 +180,7 @@ const PostCard = ({
                     console.log("follow clicked");
                     setShowFollow(false);
                   }}
-                  className="text-[18px] font-bold text-blue-500 shrink-0"
+                  className="text-[18px] font-[800] text-blue-500 shrink-0"
                 >
                   + Follow
                 </button>
