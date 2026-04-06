@@ -53,7 +53,7 @@ export default function CommentInput({ postId, onComment }: CommentInputProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit();
+      // handleSubmit();
     }
   };
 
@@ -97,7 +97,7 @@ export default function CommentInput({ postId, onComment }: CommentInputProps) {
         </div>
       </div>
       <button
-        onClick={handleSubmit}
+        // onClick={handleSubmit}
         disabled={!text.trim() || isSubmitting}
         className={`flex-shrink-0 ${text.trim() ? "text-blue-500" : "text-gray-300"}`}
       >
