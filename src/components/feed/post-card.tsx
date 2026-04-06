@@ -26,6 +26,9 @@ import ImageRenderer from "../image-renderer";
 import { getCurrentUser, toTwemojiUrl } from "@/utils/utils";
 import { REACTION_MAP, REACTIONS, ReactionType } from "@/constants";
 import { useRouter } from "next/navigation";
+import CommentInput from "../comment-input";
+import { commentOnPost } from "@/api-service/feed-api";
+import PostComments from "../post-comments";
 import Dropdown from "../dropdown";
 import Avatar from "../avatar";
 
@@ -34,15 +37,18 @@ const PostCard = ({
   handleReact,
   handleLike,
   handleRemove,
+  onCommentAdded,
 }: {
   post: Post;
   handleRemove?: (postId: string) => void;
   handleReact: (postId: string, reaction: ReactionType) => void;
   handleLike: (userId: string) => void;
+  onCommentAdded?: (postId: string) => void;
 }) => {
   console.log(post, "-----post data");
   const [openEmojiPickerV1, setOpenEmojiPickerV1] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [commentRefreshTrigger, setCommentRefreshTrigger] = useState(0);
 
   const user = getCurrentUser();
   const [showFollow, setShowFollow] = useState(user.id !== post.user._id);
@@ -54,6 +60,23 @@ const PostCard = ({
 
   const handleRedirect = () => {
     router.push(`/comment/${post._id}`);
+  };
+
+  const handleComment = async (postId: string, text: string) => {
+    const user = getCurrentUser();
+    if (!user) return;
+
+    try {
+      await commentOnPost(postId, {
+        userId: user.id,
+        text,
+      });
+      onCommentAdded?.(postId);
+      setCommentRefreshTrigger((prev) => prev + 1); // Trigger comment refresh
+    } catch (error) {
+      console.error("Failed to post comment:", error);
+      throw error;
+    }
   };
 
   const MAX_LENGTH = 250;
@@ -339,6 +362,15 @@ const PostCard = ({
             })}
         </div>
       </div>
+
+      <CommentInput postId={post._id} onComment={handleComment} />
+
+      {/* <PostComments
+        postId={post._id}
+        commentsCount={post.commentsCount}
+        onViewAllComments={handleRedirect}
+        refreshTrigger={commentRefreshTrigger}
+      /> */}
 
       <Separator />
     </div>

@@ -77,3 +77,11 @@ export const reactPost = async (payload: {
   const res = await api.post(`/posts/${payload.id}/reaction`, payload.body);
   return res.data.data;
 };
+
+export const commentOnPost = async (postId: string, payload: {
+  userId: string;
+  text: string;
+}) => {
+  const res = await api.post(`/posts/${postId}/comment`, payload);
+  return res.data.data;
+};

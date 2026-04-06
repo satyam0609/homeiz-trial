@@ -230,6 +230,20 @@ const FeedPage = () => {
     setError(null);
   };
 
+  const handleCommentAdded = (postId: string) => {
+    setPosts((prev) =>
+      prev.map((post) => {
+        if (post._id === postId) {
+          return {
+            ...post,
+            commentsCount: post.commentsCount + 1,
+          };
+        }
+        return post;
+      })
+    );
+  };
+
   const handleRemovePost = (postId: string) => {
     setPosts((prev) => prev.filter((post) => post?._id !== postId));
   };
@@ -333,6 +347,7 @@ const FeedPage = () => {
             handleReact={handleReact}
             handleLike={handleLike}
             handleRemove={handleRemovePost}
+            onCommentAdded={handleCommentAdded}
           />
         ))}
       </section>
