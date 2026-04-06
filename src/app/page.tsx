@@ -7,7 +7,7 @@ import FeedPage from "./_feed/page";
 export default function Home() {
   return (
     <AuthLayout>
-      <div className="flex flex-col gap-2 flex-1 justify-center bg-zinc-50 font-sans ">
+      <div className="flex flex-col gap-2 flex-1 justify-center bg-white font-sans ">
         <FeedPage />
       </div>
     </AuthLayout>

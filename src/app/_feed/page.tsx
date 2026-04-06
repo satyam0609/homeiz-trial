@@ -240,7 +240,7 @@ const FeedPage = () => {
           };
         }
         return post;
-      })
+      }),
     );
   };
 

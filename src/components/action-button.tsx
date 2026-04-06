@@ -1,10 +1,11 @@
 import React from "react";
 
 type Props = {
-  icon: React.ElementType;
+  icon?: React.ElementType;
   count: string;
   onClick?: () => void;
-  className?: string; // ✅ added
+  className?: string;
+  customIcon?: React.ReactNode;
 };
 
 const ActionButton = ({
@@ -12,6 +13,7 @@ const ActionButton = ({
   count,
   onClick,
   className = "",
+  customIcon,
 }: Props) => {
   return (
     <button
@@ -23,7 +25,7 @@ const ActionButton = ({
         ${className}
       `}
     >
-      <Icon size={22} />
+      {customIcon ? customIcon : Icon && <Icon size={22} />}
       <span className="text-base font-semibold">{count}</span>
     </button>
   );

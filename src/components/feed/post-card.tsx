@@ -49,17 +49,30 @@ const PostCard = ({
   const [openEmojiPickerV1, setOpenEmojiPickerV1] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [commentRefreshTrigger, setCommentRefreshTrigger] = useState(0);
+  const [isHidden, setIsHidden] = useState(false);
 
   const user = getCurrentUser();
   const [showFollow, setShowFollow] = useState(user.id !== post.user._id);
-  const isLiked = user
-    ? post?.reactions?.some((like) => like.user === user.id)
-    : false;
+
+  // Find user's reaction
+  const userReaction = user
+    ? post?.reactions?.find((reaction) => reaction.user === user.id)
+    : null;
+
+  const isLiked = !!userReaction;
 
   const router = useRouter();
 
   const handleRedirect = () => {
     router.push(`/comment/${post._id}`);
+  };
+
+  const handleHidePost = () => {
+    setIsHidden(true);
+  };
+
+  const handleUndoHide = () => {
+    setIsHidden(false);
   };
 
   const handleComment = async (postId: string, text: string) => {
@@ -73,18 +86,77 @@ const PostCard = ({
       });
       onCommentAdded?.(postId);
       setCommentRefreshTrigger((prev) => prev + 1); // Trigger comment refresh
+
+      router.push(`/comment/${postId}`);
     } catch (error) {
       console.error("Failed to post comment:", error);
       throw error;
     }
   };
 
-  const MAX_LENGTH = 250;
+  const MAX_LENGTH = 50;
 
   const isLong = post?.content.length > MAX_LENGTH;
   const displayedText = expanded
     ? post?.content
     : post?.content.slice(0, MAX_LENGTH);
+
+  // Show hidden state
+  if (isHidden) {
+    return (
+      <div className="bg-white border-l-4 border-gray-300">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2 text-gray-600">
+            <span className="text-sm font-medium">Post hidden</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleUndoHide}
+              className="text-gray-900 hover:text-gray-900 text-sm font-medium px-3 py-1 rounded-md hover:bg-blue-50 transition-colors bg-gray-300 rounded-xl"
+            >
+              Undo
+            </button>
+            <Dropdown
+              trigger={
+                <button className="p-1 hover:bg-gray-100 rounded-full transition-colors">
+                  <MoreHorizontal size={20} />
+                </button>
+              }
+              items={[
+                {
+                  icon: <Edit2Icon strokeWidth={2.5} size={14} />,
+                  label: "Edit Post",
+                  onClick: () => {
+                    console.log("Edit Post");
+                  },
+                },
+                {
+                  icon: (
+                    <Trash2Icon
+                      strokeWidth={2.5}
+                      size={14}
+                      className="text-red-600"
+                    />
+                  ),
+                  label: "Delete Post",
+                  onClick: () => handleRemove?.(post._id),
+                  type: "item",
+                },
+              ]}
+            />
+            <button
+              onClick={() => handleRemove?.(post._id)}
+              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+        <Separator />
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white">
       {/* Header */}
@@ -140,7 +212,7 @@ const PostCard = ({
                         />
                       ),
                       label: "Delete Post",
-                      onClick: () => console.log("Delete post"),
+                      onClick: handleHidePost,
                       type: "item",
                     },
                   ]}
@@ -182,65 +254,70 @@ const PostCard = ({
             </button>
           </div>
           <div className="flex gap-2 items-center text-text-primary">
-            <span className="text-[11px] font-bold ">41 m</span>
+            <span className="text-base font-bold text-text-secondary">
+              41 m
+            </span>
             <span className="h-0.5 w-0.5 bg-text-secondary"></span>
-            <Globe2Icon className="h-[11px] w-[11px] text-text-secondary" />
+            <Globe2Icon className="h-[18px] w-[18px] text-text-secondary" />
           </div>
         </div>
       </div>
 
-      <ImageRenderer src={post?.image} />
-
       {/* Details */}
       <div className="px-4 mt-2">
-        <div className="text-base font-bold">{"$98 000"}</div>
-
-        {/* <div className="flex text-sm flex-wrap items-center">
-          {post?.beds} bds
-          <Separator orientation="vertical" className="h-4 mx-1" />
-          {post?.baths} ba
-          <Separator orientation="vertical" className="h-4 mx-1" />
-          {post?.area}
-          <Separator orientation="vertical" className="h-4 mx-1" />
-          House for sale
-        </div> */}
-
-        <div className="flex text-base font-semibold flex-wrap items-center">
-          2 bds
-          <Separator
-            orientation="vertical"
-            className="h-4 mx-1 font-semibold"
-          />
-          2 ba
-          <Separator
-            orientation="vertical"
-            className="h-4 mx-1 font-semibold"
-          />
-          sqrt 5,800
-          <Separator
-            orientation="vertical"
-            className="h-4 mx-1 font-semibold"
-          />
-          House for sale
-        </div>
-        <div className="text-base font-semibold">
-          {displayedText}
-          {isLong && (
+        <div className="text-base font-bold">
+          $98 000
+          {!expanded && (
             <>
-              {!expanded && "... "}
+              <span>... </span>
               <button
                 onClick={() => setExpanded(!expanded)}
-                className="text-blue-500 ml-1 font-medium"
+                className="text-base text-text-secondary ml-1 font-semibold"
               >
-                {expanded ? "See less" : "See more"}
+                See more
               </button>
             </>
           )}
         </div>
 
-        <div className="text-base font-semibold">{post.location}</div>
-        <div className="text-base font-semibold ">{"LUXURY"}</div>
+        {expanded && (
+          <>
+            <div className="flex text-base font-semibold flex-wrap items-center">
+              2 bds
+              <Separator
+                orientation="vertical"
+                className="h-4 mx-1 font-semibold"
+              />
+              2 ba
+              <Separator
+                orientation="vertical"
+                className="h-4 mx-1 font-semibold"
+              />
+              sqrt 5,800
+              <Separator
+                orientation="vertical"
+                className="h-4 mx-1 font-semibold"
+              />
+              House for sale
+            </div>
+            <div className="text-base font-semibold">
+              {post?.content || "Random Post 18"}
+            </div>
+            <div className="text-base font-semibold">{post.location}</div>
+            <div className="text-base font-semibold">
+              LUXURY
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="text-base text-text-secondary ml-2 font-semibold"
+              >
+                See less
+              </button>
+            </div>
+          </>
+        )}
       </div>
+
+      <ImageRenderer src={post?.image} />
 
       {/* Actions */}
       {/* <div className="flex items-center justify-between text-gray-500 text-sm px-4 py-2">
@@ -293,15 +370,24 @@ const PostCard = ({
         )}
       </div> */}
 
-      <div className="flex flex-wrap items-center justify-between text-gray-500 text-sm px-4 py-2 gap-1">
-        <div className="flex gap-2 flex-wrap">
+      <div className="flex items-center justify-between text-gray-500 text-sm px-4 py-2 gap-2">
+        <div className="flex gap-1 flex-wrap min-w-0">
           <ReactionPopover
             handleReact={(reaction) => handleReact(post._id, reaction)}
             trigger={
               <ActionButton
-                icon={ThumbsUp}
+                icon={userReaction ? undefined : ThumbsUp}
                 count={post?.reactions.length.toString()}
                 className={isLiked ? "text-blue-500" : ""}
+                customIcon={
+                  userReaction ? (
+                    <img
+                      src={toTwemojiUrl(REACTION_MAP[userReaction.type])}
+                      className="w-4 h-4"
+                      alt={userReaction.type}
+                    />
+                  ) : undefined
+                }
               />
             }
           />
@@ -316,28 +402,8 @@ const PostCard = ({
           <ActionButton icon={Eye} count={"200"} />
         </div>
 
-        {/* Reactions */}
-        {/* {Object.keys(post?.reactionCounts).length > 0 && (
-          <div className="flex items-center px-2">
-            {Object.entries(post?.reactionCounts)
-              .slice(0, 3)
-              .map(([type], index) => {
-                const emoji = REACTION_MAP[type];
-                if (!emoji) return null;
-
-                return (
-                  <span
-                    key={type}
-                    style={{ zIndex: 10 - index }}
-                    className="w-6 h-6 flex items-center justify-center bg-white rounded-full shadow-sm -ml-1 first:ml-0"
-                  >
-                    <img src={toTwemojiUrl(emoji)} className="w-4 h-4" />
-                  </span>
-                );
-              })}
-          </div>
-        )} */}
-        <div className="flex items-center px-2">
+        {/* Reactions - with better responsive handling */}
+        <div className="flex items-center flex-shrink-0">
           {(
             Object.entries(post?.reactionCounts || {}) as [
               ReactionType,
